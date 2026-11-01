@@ -32,7 +32,7 @@ data/bench/
 
 # Models, checkpoints, exports (the ONNX handover is published as a release asset, not here)
 checkpoints/
-models/
+/models/
 *.pt
 *.onnx
 *.safetensors
