@@ -34,6 +34,7 @@ class Ranked:
     group_code: npt.NDArray[np.int64]
     n_groups: int
     block_end: npt.NDArray[np.int64]  # exclusive end index of each tie block
+    order: npt.NDArray[np.int64]  # ranked position -> original position
 
     @classmethod
     def of(cls, labels: npt.ArrayLike, scores: npt.ArrayLike, groups: npt.ArrayLike) -> Ranked:
@@ -47,6 +48,7 @@ class Ranked:
             group_code=inverse.astype(np.int64),
             n_groups=int(codes.shape[0]),
             block_end=block_end.astype(np.int64),
+            order=order.astype(np.int64),
         )
 
     def blocks(self, weights: FloatArray) -> tuple[FloatArray, FloatArray]:
@@ -99,6 +101,27 @@ def recall_at_budget(budget: float) -> Metric:
         return float(np.sum(take * tp) / pos)
 
     metric.__name__ = f"recall_at_budget_{budget}"
+    return metric
+
+
+def recall_at_budget_among(budget: float, member: npt.NDArray[np.bool_]) -> Metric:
+    """Recall at an alert budget over all items, counted only among the positives that are
+    members (one laundering pattern, say). The budget is the same queue for everyone."""
+
+    def metric(r: Ranked, w: FloatArray) -> float:
+        m = member[r.order].astype(np.float64)
+        starts = np.r_[0, r.block_end[:-1]]
+        size = np.add.reduceat(w, starts)
+        tp_m = np.add.reduceat(w * r.label * m, starts)
+        pos_m = tp_m.sum()
+        if pos_m == 0:
+            return float("nan")
+        k = budget * size.sum()
+        before = np.r_[0.0, np.cumsum(size)[:-1]]
+        take = np.clip((k - before) / np.maximum(size, 1e-300), 0.0, 1.0)
+        return float(np.sum(take * tp_m) / pos_m)
+
+    metric.__name__ = f"recall_at_budget_{budget}_among"
     return metric
 
 
