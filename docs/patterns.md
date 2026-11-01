@@ -32,7 +32,47 @@ its generator name is published below, so a reader knows how literally to take e
 
 ## Agreement between the generator's name and the shape
 
-Filled by `consort data build ibm` on the first fetch; not yet run.
+From `consort patterns --tier HI-Small` and `--tier LI-Small`, run 2026-11-01 on the first
+fetch. An attempt counts as agreeing when the labeller, given only its transfers, names the
+shape the generator gave it.
+
+**HI-Small** (370 attempts, 290 agree, 78%)
 
 | Pattern | Attempts | Classified as named | Most common other shape |
 |---|---|---|---|
+| Bipartite | 49 | 31 (63%) | RANDOM (18) |
+| Cycle | 54 | 54 (100%) | none |
+| Fan-in | 40 | 36 (90%) | RANDOM (4) |
+| Fan-out | 48 | 40 (83%) | RANDOM (8) |
+| Gather-scatter | 51 | 33 (65%) | OTHER (12) |
+| Random | 41 | 40 (98%) | OTHER (1) |
+| Scatter-gather | 44 | 31 (70%) | CYCLE (11) |
+| Stack | 43 | 25 (58%) | CYCLE (13) |
+
+**LI-Small** (117 attempts, 93 agree, 79%)
+
+| Pattern | Attempts | Classified as named | Most common other shape |
+|---|---|---|---|
+| Bipartite | 16 | 14 (88%) | RANDOM (2) |
+| Cycle | 12 | 12 (100%) | none |
+| Fan-in | 12 | 10 (83%) | RANDOM (2) |
+| Fan-out | 19 | 17 (89%) | RANDOM (1) |
+| Gather-scatter | 12 | 8 (67%) | OTHER (3) |
+| Random | 15 | 13 (87%) | OTHER (2) |
+| Scatter-gather | 13 | 8 (62%) | CYCLE (5) |
+| Stack | 18 | 11 (61%) | CYCLE (5) |
+
+**Why they disagree.** Of the 80 disagreeing attempts in HI-Small, 61 involve two accounts or
+fewer: the file holds the laundering transfers the generator emitted, and many attempts are
+cut short (a "fan-out" of one transfer, a "stack" that is one payment and its return), so
+there is no shape left to see. That is what RANDOM and CYCLE mean in the right-hand column:
+`A>B` alone is a one-step walk, and `A>B B>A` is a 2-cycle. Seven more contain a transfer from
+an account to itself, which the labeller reads as OTHER. The remaining 12 are shapes whose
+ends meet: a scatter-gather whose sink is its own source (`A>B A>C B>A C>A`), which is
+structurally a set of cycles. LI-Small splits 19, 0 and 5 the same way.
+
+**What this means for the recall table.** Recall by pattern is reported under the generator's
+names, since those are what it plants; but about a fifth of the attempts behind each name,
+and over a third of bipartite and stack attempts in HI-Small, are too small to carry the
+shape the name promises. A shape-only arm cannot be expected to find a "stack" that is one
+transfer, and its row in the table is read with that in mind.
