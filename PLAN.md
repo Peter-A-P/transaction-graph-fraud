@@ -86,8 +86,14 @@ items, 06's and 16's grader rule carried over.
 generator labels transfers and names patterns by transfer; accounts are the graph's nodes, and
 a transfer's graph features are its two accounts'. The alert budget is therefore a share of
 transfers on IBM and of transactions on Elliptic. The IBM split is by day, cut where the
-cumulative share of transfers passes 60 and 80 percent, and each partition's graph features
-are computed on the transfers up to the end of its own window. Bootstrap groups on IBM are
+cumulative share of transfers passes 60 and 80 percent. A transfer's graph features are
+computed on every transfer from the days before its own: what a feature view refreshed each
+night holds when the transfer arrives. *Amended 2026-11-01:* they were first computed on every
+transfer up to the end of the partition's window, which hands a test transfer its accounts'
+later activity; arm G's first HI-Small run under that view had AUPRC 0.716 against arm R's
+0.212, and a leakage test now shows the window view changing an earlier transfer's features
+when later days are added and the prior-days view not. The window view is kept to publish
+that gap beside the random split's, and arm N's IBM graph follows the same rule. Bootstrap groups on IBM are
 hours by default rather than connected components: the transfer graph is expected to be one
 giant component, which would leave too few groups to resample. The component grouping is
 implemented and is reported beside the hour grouping once the data shows the component sizes.

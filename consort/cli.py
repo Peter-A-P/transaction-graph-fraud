@@ -13,7 +13,7 @@ from consort import env
 from consort.data import fetch as fetch_mod
 
 if TYPE_CHECKING:
-    from consort.data.tasks import BootGroup, Task
+    from consort.data.tasks import BootGroup, FeatureView, Task
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 data_app = typer.Typer(no_args_is_help=True)
@@ -22,19 +22,23 @@ app.add_typer(data_app, name="data", help="Fetch and check the datasets.")
 RUNS = Path("data/runs")
 
 
-def _task(dataset: str, boot_group: str = "hour") -> Task:
+def _task(dataset: str, boot_group: str = "hour", view: str = "prior-days") -> Task:
     from consort.data import elliptic, ibm
     from consort.data.tasks import elliptic_task, ibm_task
 
     if boot_group not in ("hour", "day", "component"):
         raise typer.BadParameter(f"unknown bootstrap group {boot_group}")
+    if view not in ("prior-days", "window"):
+        raise typer.BadParameter(f"unknown feature view {view}")
 
     if dataset == "elliptic":
         return elliptic_task(elliptic.load(fetch_mod.RAW / "elliptic"))
     if dataset.startswith("ibm-"):
         tier = dataset.removeprefix("ibm-")
         data = ibm.load(fetch_mod.RAW / dataset, tier)
-        return ibm_task(data, boot_group=cast("BootGroup", boot_group))
+        return ibm_task(
+            data, boot_group=cast("BootGroup", boot_group), view=cast("FeatureView", view)
+        )
     raise typer.BadParameter(f"unknown dataset {dataset}")
 
 
@@ -107,11 +111,16 @@ def train(
     boot_group: str = "hour",
     out: Path = RUNS,
     onnx: bool = typer.Option(False, help="Also export the booster to checkpoints/ as ONNX"),
+    feature_view: str = typer.Option(
+        "prior-days",
+        help="IBM: prior-days (each transfer sees earlier days only), or window (sees its "
+        "whole window, later days included; run once, to publish the gap)",
+    ),
 ) -> None:
     """Train arm R or G and write its test outcomes."""
     from consort.models.run import SplitKind, run_tabular
 
-    task = _task(dataset, boot_group)
+    task = _task(dataset, boot_group, feature_view)
     if split not in ("temporal", "random"):
         raise typer.BadParameter(f"unknown split {split}")
     kind = cast(SplitKind, split)
@@ -123,6 +132,7 @@ def train(
         seed,
         out,
         split_kind=kind,
+        arm_label=f"{arm}-window" if feature_view == "window" and arm == "G" else None,
         onnx_dir=Path("checkpoints") if onnx else None,
     )
     typer.echo(str(path))

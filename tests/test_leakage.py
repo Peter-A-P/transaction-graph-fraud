@@ -9,12 +9,14 @@ that signal.
 from __future__ import annotations
 
 from collections.abc import Mapping
+from pathlib import Path
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 import pytest
 
+from consort.data import ibm
 from consort.data.leakage import (
     LabelLeak,
     SplitLeak,
@@ -23,8 +25,10 @@ from consort.data.leakage import (
     check_training_rows,
 )
 from consort.data.splits import ELLIPTIC_TEMPORAL, random_split, temporal_split
+from consort.data.tasks import IBMTask, ibm_task
 from consort.graph.build import from_edges
 from consort.graph.registry import FeatureContext, FeatureRegistry, FeatureSpec
+from tests.toy import write_ibm
 
 FloatArray = npt.NDArray[np.float64]
 
@@ -140,3 +144,35 @@ def test_default_registry_carries_no_neighbour_label_signal() -> None:
         for role in (0, 1):
             v = values[role::2]
             assert np.allclose(v, v[0]), f"{col} varies across identical pairs"
+
+
+def _ibm_with_late_burst(tmp_path: Path, burst: bool) -> IBMTask:
+    """The toy set, optionally with a burst of transfers on its last day among accounts that
+    traded earlier; a feature view that sees the future changes earlier transfers' features."""
+    root = tmp_path / ("burst" if burst else "plain")
+    root.mkdir()
+    write_ibm(root, n_background=1500, n_cycles=10)
+    if burst:
+        with (root / "T_Trans.csv").open("a") as f:
+            for i in range(60):
+                a, b = i % 10, (i * 3 + 1) % 10
+                f.write(
+                    f"2022/09/20 23:{i % 60:02d},{a % 7 + 1},{a:08X},{b % 7 + 1},{b:08X},"
+                    "500.00,US Dollar,500.00,US Dollar,ACH,0\n"
+                )
+    return ibm_task(ibm.load(root, "T"), boot_group="day")
+
+
+@pytest.mark.parametrize("view", ["prior-days", "window"])
+def test_ibm_graph_features_do_not_see_later_days(tmp_path: Path, view: str) -> None:
+    plain, burst = _ibm_with_late_burst(tmp_path, False), _ibm_with_late_burst(tmp_path, True)
+    assert plain.split == burst.split
+    last = int(burst.items["split_group"].max())
+    plain.view = burst.view = view  # type: ignore[assignment]
+    a = plain.graph_features("test", 1, 50)
+    b = burst.graph_features("test", 1, 50).iloc[: len(a)]
+    test_rows = (plain.partition() == "test") & (plain.items["split_group"] < last).to_numpy()
+    same = np.allclose(a[test_rows].to_numpy(), b[test_rows].to_numpy(), equal_nan=True)
+    # The default view is causal; the window view is the leak it replaced, and this test must
+    # be able to see it.
+    assert same == (view == "prior-days")

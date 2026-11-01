@@ -9,9 +9,12 @@ partition may see:
 - Elliptic: edges join transactions in the same time step only, so the full graph is already
   inductive; a test step's transactions are absent from every training step's neighbourhood.
   Item i is node i.
-- IBM: the graph a partition sees is every transfer up to the end of that partition's window,
-  so training features never see a validation or test transfer. Item i is transfer i, and its
-  graph features are its sender's and its receiver's.
+- IBM: a transfer's graph features are its sender's and its receiver's, computed on every
+  transfer from the days before its own ("prior-days", the default): what a feature view
+  refreshed each night would hold when the transfer arrives. Item i is transfer i. The other
+  view, "window", computes them on every transfer up to the end of the partition's window,
+  which hands a test transfer its accounts' later activity; it inflated arm G's AUPRC on
+  HI-Small from the first run and is kept only to publish that gap.
 """
 
 from __future__ import annotations
@@ -102,15 +105,25 @@ def ibm_node_table(g: Graph) -> pd.DataFrame:
     )
 
 
+FeatureView = Literal["prior-days", "window"]
+
+
 @dataclass
 class IBMTask(Task):
     data: ibm_mod.IBM | None = None
     window_end: dict[Partition, int] = field(default_factory=dict)
+    view: FeatureView = "prior-days"
+    _prior: dict[tuple[int, int], tuple[pd.DataFrame, set[int]]] = field(
+        default_factory=dict, repr=False
+    )
 
     def window_graph(self, partition: Partition) -> Graph:
         """Every transfer whose split group is at or before the partition's last group."""
         assert self.data is not None
-        keep = self.items["split_group"].to_numpy() <= self.window_end[partition]
+        return self._graph_upto(self.items["split_group"].to_numpy() <= self.window_end[partition])
+
+    def _graph_upto(self, keep: npt.NDArray[np.bool_]) -> Graph:
+        assert self.data is not None
         g = self.data.graph
         return from_edges(
             g.n_nodes,
@@ -120,18 +133,48 @@ class IBMTask(Task):
             **{k: v[keep] for k, v in g.edge_attrs.items()},
         )
 
-    def graph_features(self, partition: Partition, hops: int, hub_cap: int) -> pd.DataFrame:
+    def _node_features(self, g: Graph, hops: int, hub_cap: int) -> pd.DataFrame:
+        reg = default_registry(IBM_NODE_COLUMNS, ("amount", "t"))
+        return reg.compute(g, ibm_node_table(g), hops, hub_cap).astype(np.float32)
+
+    def _per_transfer(self, node: pd.DataFrame, rows: npt.NDArray[np.int64]) -> pd.DataFrame:
         assert self.data is not None
+        t = self.data.transfers
+        src = node.iloc[t["src"].to_numpy()[rows]].add_prefix("src_").reset_index(drop=True)
+        dst = node.iloc[t["dst"].to_numpy()[rows]].add_prefix("dst_").reset_index(drop=True)
+        return pd.concat([src, dst], axis=1)
+
+    def graph_features(self, partition: Partition, hops: int, hub_cap: int) -> pd.DataFrame:
+        if self.view == "window":
+            return self._window_features(partition, hops, hub_cap)
+        return self._prior_day_features(partition, hops, hub_cap)
+
+    def _window_features(self, partition: Partition, hops: int, hub_cap: int) -> pd.DataFrame:
         key = (partition, hops, hub_cap)
         if key not in self._cache:
-            g = self.window_graph(partition)
-            reg = default_registry(IBM_NODE_COLUMNS, ("amount", "t"))
-            node = reg.compute(g, ibm_node_table(g), hops, hub_cap).astype(np.float32)
-            t = self.data.transfers
-            src = node.iloc[t["src"].to_numpy()].add_prefix("src_").reset_index(drop=True)
-            dst = node.iloc[t["dst"].to_numpy()].add_prefix("dst_").reset_index(drop=True)
-            self._cache[key] = pd.concat([src, dst], axis=1)
+            node = self._node_features(self.window_graph(partition), hops, hub_cap)
+            self._cache[key] = self._per_transfer(node, np.arange(len(self.items)))
         return self._cache[key]
+
+    def _prior_day_features(self, partition: Partition, hops: int, hub_cap: int) -> pd.DataFrame:
+        """Rows of every day up to the partition's last are filled; later rows stay NaN and
+        belong to no partition that asks for this table."""
+        day = self.items["split_group"].to_numpy()
+        if (hops, hub_cap) not in self._prior:
+            self._prior[(hops, hub_cap)] = (pd.DataFrame(), set())
+        table, done = self._prior[(hops, hub_cap)]
+        for d in sorted(set(np.unique(day[day <= self.window_end[partition]]).tolist()) - done):
+            rows = np.flatnonzero(day == d)
+            node = self._node_features(self._graph_upto(day < d), hops, hub_cap)
+            block = self._per_transfer(node, rows)
+            if table.empty:
+                table = pd.DataFrame(
+                    np.nan, index=range(len(self.items)), columns=block.columns, dtype=np.float32
+                )
+            table.iloc[rows] = block.to_numpy()
+            done.add(d)
+        self._prior[(hops, hub_cap)] = (table, done)
+        return table
 
 
 BootGroup = Literal["hour", "component", "day"]
@@ -141,6 +184,7 @@ def ibm_task(
     data: ibm_mod.IBM,
     fractions: tuple[float, float] = (0.6, 0.8),
     boot_group: BootGroup = "hour",
+    view: FeatureView = "prior-days",
 ) -> IBMTask:
     """Split by day so that the cumulative share of transfers is about 60, 20 and 20 percent;
     the days are recorded in the split, so the cut is reproducible and visible."""
@@ -182,4 +226,5 @@ def ibm_task(
         split=split,
         data=data,
         window_end={p: max(split.groups[p]) for p in PARTITIONS},
+        view=view,
     )
