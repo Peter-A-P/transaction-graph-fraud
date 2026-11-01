@@ -182,5 +182,29 @@ def eval_cmd(
                 typer.echo(f"  delta {k}: {est.as_text()}")
 
 
+@app.command()
+def watchdog(
+    self_pod: bool = typer.Option(
+        False, "--self", help="On a pod: watch only this pod (RUNPOD_POD_ID) and delete it"
+    ),
+    idle_minutes: float = 30.0,
+    max_hours: float = 8.0,
+    poll_seconds: float = 60.0,
+) -> None:
+    """Delete this project's RunPod pods (names starting consort-) when idle or too old."""
+    import os
+
+    from consort.ops import watchdog as wd
+
+    env.load()
+    self_id = None
+    if self_pod:
+        self_id = os.environ.get("RUNPOD_POD_ID")
+        if not self_id:
+            raise typer.BadParameter("--self needs RUNPOD_POD_ID, which RunPod sets on a pod")
+    policy = wd.Policy(idle_minutes=idle_minutes, max_hours=max_hours)
+    wd.watch(wd.RunPod(wd.key_from_env()), policy, self_id=self_id, poll_s=poll_seconds)
+
+
 def main() -> None:
     app()
