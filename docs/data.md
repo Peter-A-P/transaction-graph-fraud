@@ -121,6 +121,9 @@ a file differs.
 - **Licence:** none stated; no licence file and no terms (read 2026-10-31), a citation request
   only. **Not fetched** until the authors answer an email confirming research use and the
   publication of results. Until then its row in every table reads "not run, no licence".
+- **Email sent** 2026-11-01 to Youssef Elmougy (the contact address in the repository's README)
+  and Ling Liu, asking to use the data for this research and to publish aggregate results and
+  code, with no redistribution of the data. No answer yet.
 
 ## DGraph-Fin (stub)
 
