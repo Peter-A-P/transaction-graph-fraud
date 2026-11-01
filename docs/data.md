@@ -137,10 +137,11 @@ row whose label is unknown (`tests/test_outcomes.py`).
 
 ## Fetching
 
-A reader needs a Kaggle API token (`kaggle.json` in `~/.kaggle/`, or `KAGGLE_USERNAME` and
-`KAGGLE_KEY`), and must accept each dataset's terms on its Kaggle page once. Then:
+A reader needs a Kaggle API token: `KAGGLE_API_TOKEN` in the environment or in a local `.env`
+(gitignored; `consort data fetch` reads it), or the older `kaggle.json` in `~/.kaggle/`. Accept
+each dataset's terms on its Kaggle page once if it asks. Then:
 
 ```
 uv run consort data fetch elliptic
-uv run consort data fetch ibm --tier HI-Small
+uv run consort data fetch ibm-HI-Small
 ```

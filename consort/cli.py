@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, cast
 
 import typer
 
+from consort import env
 from consort.data import fetch as fetch_mod
 
 if TYPE_CHECKING:
@@ -44,6 +45,7 @@ def data_fetch(
     """Download with the reader's Kaggle token and verify against the committed manifest."""
     if source not in fetch_mod.SOURCES:
         raise typer.BadParameter(f"unknown source {source}")
+    env.load()
     root = fetch_mod.fetch(source)
     typer.echo(f"{source}: verified in {root}")
 
