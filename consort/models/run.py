@@ -63,7 +63,9 @@ def run_tabular(
         check_random_training_rows(part[masks["train"]], task.name)
     if extra is not None:
         added = extra(task, masks["train"])
-        tables = {p: pd.concat([t.reset_index(drop=True), added], axis=1) for p, t in tables.items()}
+        tables = {
+            p: pd.concat([t.reset_index(drop=True), added], axis=1) for p, t in tables.items()
+        }
 
     fitted = boost.fit(
         tables["train"][masks["train"]],

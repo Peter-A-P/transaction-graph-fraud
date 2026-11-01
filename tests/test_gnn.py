@@ -1,0 +1,59 @@
+"""Arm N end to end on toy sets. Skipped where the gnn extra is not installed."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import numpy as np
+import pytest
+
+pytest.importorskip("torch_geometric")
+
+from consort.data import elliptic, ibm
+from consort.data.tasks import elliptic_task, ibm_task
+from consort.eval import outcomes as oc
+from consort.eval.metrics import evaluate
+from consort.models.gnn import GNNConfig, run
+from consort.models.run import run_tabular
+from tests.toy import write_elliptic, write_ibm
+
+
+def test_node_gnn_scores_the_same_items_as_arm_r(tmp_path: Path) -> None:
+    task = elliptic_task(elliptic.load(write_elliptic(tmp_path), check_counts=False))
+    r = oc.read(run_tabular(task, "R", 0, 0, seed=0, out_dir=tmp_path / "runs"))
+    n = oc.read(
+        run(
+            task,
+            GNNConfig(hops=1, cap=10, epochs=15, patience=15, batch_size=512),
+            tmp_path / "runs",
+        )
+    )
+    assert np.array_equal(np.sort(r.item_id), np.sort(n.item_id))
+    # The chain members' own features are noise; their hub's marker is one hop away.
+    assert evaluate(n, n_boot=20)["auprc"].point > evaluate(r, n_boot=20)["auprc"].point
+
+
+@pytest.mark.parametrize(
+    "cfg",
+    [
+        GNNConfig(hops=0, epochs=2, batch_size=1024),
+        GNNConfig(hops=2, cap=5, epochs=2, batch_size=1024, reverse_mp=True, ego_ids=True),
+        GNNConfig(arch="gat", hops=1, cap=5, epochs=2, batch_size=1024),
+    ],
+)
+def test_edge_gnn_variants_run_and_score_every_test_transfer(
+    tmp_path: Path, cfg: GNNConfig
+) -> None:
+    task = ibm_task(
+        ibm.load(write_ibm(tmp_path, n_background=2000, n_cycles=20), "T"), boot_group="day"
+    )
+    o = oc.read(run(task, cfg, tmp_path / "runs"))
+    assert len(o) == int((task.partition() == "test").sum())
+    assert (
+        oc.read_meta(
+            tmp_path
+            / "runs"
+            / f"{task.name}.temporal.{cfg.tag}.h{cfg.hops}.cap{cfg.cap}.s0.outcomes.parquet"
+        ).arm
+        == cfg.tag
+    )

@@ -66,3 +66,36 @@ def write_ibm(
     (root / f"{tier}_Trans.csv").write_text("\n".join([TRANS_HEADER, *lines]) + "\n")
     (root / f"{tier}_Patterns.txt").write_text("\n\n".join(blocks) + "\n")
     return root
+
+
+def write_elliptic(root: Path, per_step: int = 60, seed: int = 0) -> Path:
+    """49 steps of transactions, edges only within a step. Illicit transactions come in
+    connected chains whose own features look licit; a neighbour's features give them away."""
+    from consort.data import elliptic
+
+    rng = np.random.default_rng(seed)
+    base = root / "elliptic_bitcoin_dataset"
+    base.mkdir(parents=True, exist_ok=True)
+    feats, classes, edges = [], ["txId,class"], ["txId1,txId2"]
+    tx = 1000
+    for step in range(1, 50):
+        ids = list(range(tx, tx + per_step))
+        tx += per_step
+        illicit = set(ids[:6])
+        for i in ids:
+            f = rng.normal(size=elliptic.N_LOCAL + elliptic.N_AGG)
+            # A marker on the illicit chain's hub only, never on its other members.
+            if i == ids[0]:
+                f[0] += 4.0
+            feats.append(",".join([str(i), str(step), *(f"{v:.5f}" for v in f)]))
+            lab = "1" if i in illicit else ("2" if rng.random() < 0.5 else "unknown")
+            classes.append(f"{i},{lab}")
+        for j in range(1, 6):
+            edges.append(f"{ids[0]},{ids[j]}")
+        for _ in range(per_step):
+            a, b = rng.choice(ids[6:], 2, replace=False)
+            edges.append(f"{a},{b}")
+    (base / "elliptic_txs_features.csv").write_text("\n".join(feats) + "\n")
+    (base / "elliptic_txs_classes.csv").write_text("\n".join(classes) + "\n")
+    (base / "elliptic_txs_edgelist.csv").write_text("\n".join(edges) + "\n")
+    return root

@@ -129,6 +129,12 @@ module = [
 ignore_missing_imports = true
 follow_imports = "skip"
 
+# Arm N subclasses torch's Module, which is Any where torch is not installed (CI). Strict mode
+# stays on for everything else in the module.
+[[tool.mypy.overrides]]
+module = ["consort.models.gnn"]
+disallow_subclassing_any = false
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
