@@ -234,6 +234,9 @@ gnn = [
     { name = "torch" },
     { name = "torch-geometric" },
 ]
+neo4j = [
+    { name = "neo4j" },
+]
 tabfm = [
     { name = "tabfm", extra = ["pytorch"] },
 ]
@@ -252,6 +255,7 @@ dev = [
 requires-dist = [
     { name = "duckdb", specifier = ">=1.3,<2" },
     { name = "kaggle", specifier = ">=2,<3" },
+    { name = "neo4j", marker = "extra == 'neo4j'", specifier = ">=5,<7" },
     { name = "numpy", specifier = ">=2,<3" },
     { name = "onnx", marker = "extra == 'export'", specifier = ">=1.17,<2" },
     { name = "onnxmltools", marker = "extra == 'export'", specifier = ">=1.13,<2" },
@@ -267,7 +271,7 @@ requires-dist = [
     { name = "typer", specifier = ">=0.15,<1" },
     { name = "xgboost", specifier = ">=3,<4" },
 ]
-provides-extras = ["gnn", "export", "tabfm"]
+provides-extras = ["gnn", "export", "tabfm", "neo4j"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -861,6 +865,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/31/72/b3446efab8756e7df4b8ec587f8e611cb5a7249e4323db480802f1d3be04/nbformat-5.11.1.tar.gz", hash = "sha256:32d4521c68c6e7d5b29c76defaeed9f42ea733142b9b19f88277ce10390b9c4d", size = 147775, upload-time = "2026-08-17T08:10:51.942Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1a/69/ee613f74085ca7103f79cd08d579c4f3177d1d26e5d3d9528d2d6536a707/nbformat-5.11.1-py3-none-any.whl", hash = "sha256:cc6698fa75f4fab8755ead786317815f13a6fee3b53311c0abb1a8b51d52f7ec", size = 79849, upload-time = "2026-08-17T08:10:50.18Z" },
+]
+
+[[package]]
+name = "neo4j"
+version = "6.4.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytz" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d1/d1/bc40a291c60b06738ce92d5f0259d348eee1f07ba10d569a881c848c8afe/neo4j-6.4.1.tar.gz", hash = "sha256:fac99b7cb9679b93ef97dc23f22a3f0e7c3feb2db223eddfd2521f27005cfeaf", size = 287897, upload-time = "2026-10-15T10:47:26.666Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/69/3036bdcacfba561c6ef4b00fe72529e0a1b6241a6b2de82572a0940a276b/neo4j-6.4.1-py3-none-any.whl", hash = "sha256:f56a281c74355522fc2642df8919bec450115431531b8f3f6fe1cc17acb57a27", size = 390684, upload-time = "2026-10-15T10:47:25.236Z" },
 ]
 
 [[package]]

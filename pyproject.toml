@@ -61,6 +61,11 @@ export = [
 tabfm = [
   "tabfm[pytorch]==1.0.1",
 ]
+# The graph-database store in the serving benchmark. The 6.x driver speaks to Neo4j 5 and
+# later servers; 5.x is allowed because the Cypher used is the same.
+neo4j = [
+  "neo4j>=5,<7",
+]
 
 [dependency-groups]
 dev = [
@@ -125,6 +130,7 @@ follow_imports = "skip"
 module = [
   "torch", "torch.*", "torch_geometric", "torch_geometric.*", "onnx", "onnx.*",
   "onnxmltools", "onnxmltools.*", "onnxruntime", "onnxruntime.*", "tabfm", "tabfm.*",
+  "neo4j", "neo4j.*",
 ]
 ignore_missing_imports = true
 follow_imports = "skip"
