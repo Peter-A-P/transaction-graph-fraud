@@ -13,7 +13,11 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.13"
-      - run: uv sync --frozen
+      # The export extra (onnx, onnxruntime) is small, so the ONNX round-trip test runs here.
+      # The gnn extra is not installed: torch from PyPI on Linux is the multi-gigabyte CUDA
+      # build. Arm N's tests run where it is installed; its sampler's tests need no torch and
+      # run here.
+      - run: uv sync --frozen --extra export
       - run: uv run ruff format --check .
       - run: uv run ruff check .
       - run: uv run mypy
