@@ -4,7 +4,8 @@ A Graph is directed and may hold parallel edges (the IBM set has many transfers 
 same two accounts). Nodes are 0..n-1 in a fixed order; the loaders map dataset identifiers to
 that order once. Edges carry an order key (a timestamp, or the edge's position in the source
 file where there is none) so that the hub cap keeps the same neighbours in batch and in the
-serving fetch: the most recent `cap` edges per node and direction, ties broken by edge index.
+serving fetch: each node keeps its most recent `cap` edges in each direction, ties broken by
+the later edge index.
 """
 
 from __future__ import annotations
@@ -44,20 +45,37 @@ class Graph:
     def n_edges(self) -> int:
         return int(self.src.shape[0])
 
-    def capped_edges(self, cap: int) -> npt.NDArray[np.bool_]:
-        """Mask of edges kept when each node keeps at most `cap` most recent out-edges and
-        `cap` most recent in-edges. An edge survives only if both of its endpoints keep it."""
+    def sampled(self, cap: int) -> tuple[npt.NDArray[np.bool_], npt.NDArray[np.bool_]]:
+        """The hub cap as neighbour sampling: (out, in) masks of the edges each node keeps,
+        its `cap` most recent out-edges and its `cap` most recent in-edges. A cap of 0 keeps
+        everything. The serving fetch reproduces this with ORDER BY order DESC LIMIT cap."""
         if cap <= 0:
-            return np.ones(self.n_edges, dtype=bool)
-        return _keep_recent(self.src, self.order, cap) & _keep_recent(self.dst, self.order, cap)
+            every = np.ones(self.n_edges, dtype=bool)
+            return every, every
+        return _keep_recent(self.src, self.order, cap), _keep_recent(self.dst, self.order, cap)
 
-    def adjacency(self, cap: int = 0, weight: str | None = None) -> sp.csr_matrix:
-        """Directed adjacency, A[u, v] = number (or total weight) of kept edges u -> v."""
-        keep = self.capped_edges(cap)
-        data = np.ones(int(keep.sum())) if weight is None else self.edge_attrs[weight][keep]
-        A = sp.csr_matrix(
-            (data, (self.src[keep], self.dst[keep])), shape=(self.n_nodes, self.n_nodes)
-        )
+    def out_matrix(self, cap: int = 0) -> sp.csr_matrix:
+        """Binary, deduplicated: M[u, v] = 1 if v is among u's kept out-neighbours."""
+        keep, _ = self.sampled(cap)
+        return _binary(self.src[keep], self.dst[keep], self.n_nodes)
+
+    def in_matrix(self, cap: int = 0) -> sp.csr_matrix:
+        """Binary, deduplicated: M[u, v] = 1 if v is among u's kept in-neighbours."""
+        _, keep = self.sampled(cap)
+        return _binary(self.dst[keep], self.src[keep], self.n_nodes)
+
+    def neighbours(self, cap: int = 0) -> sp.csr_matrix:
+        """Undirected sampled neighbourhood of each node (row), self-loops removed."""
+        M = (self.out_matrix(cap) + self.in_matrix(cap)).tocsr()
+        M.setdiag(0)
+        M.eliminate_zeros()
+        M.data[:] = 1.0
+        return M
+
+    def adjacency(self, weight: str | None = None) -> sp.csr_matrix:
+        """Directed, uncapped: A[u, v] = number (or total weight) of edges u -> v."""
+        data = np.ones(self.n_edges) if weight is None else self.edge_attrs[weight]
+        A = sp.csr_matrix((data, (self.src, self.dst)), shape=(self.n_nodes, self.n_nodes))
         A.sum_duplicates()
         return A
 
@@ -81,6 +99,13 @@ def _keep_recent(owner: IntArray, order: IntArray, cap: int) -> npt.NDArray[np.b
     keep = np.zeros(m, dtype=bool)
     keep[perm[rank < cap]] = True
     return keep
+
+
+def _binary(rows: IntArray, cols: IntArray, n: int) -> sp.csr_matrix:
+    M = sp.csr_matrix((np.ones(rows.shape[0]), (rows, cols)), shape=(n, n))
+    M.sum_duplicates()
+    M.data[:] = 1.0
+    return M
 
 
 def from_edges(

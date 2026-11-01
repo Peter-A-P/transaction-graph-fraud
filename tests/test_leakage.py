@@ -122,8 +122,7 @@ def test_default_registry_carries_no_neighbour_label_signal() -> None:
     by an edge, with identical row features everywhere. Any feature that reads a neighbour's
     label would separate the classes; every real feature must be constant within each label
     class's distribution, so a perfect split is impossible."""
-    # Until the first feature lands this skips; the features commit removes the skip.
-    default_registry = pytest.importorskip("consort.graph.features").default_registry
+    from consort.graph.features import default_registry
 
     rng = np.random.default_rng(0)
     n_pairs = 200
