@@ -54,6 +54,14 @@ export = [
   "onnxruntime>=1.20,<2",
 ]
 
+# The TabFM column. 1.0.1 (2026-07-09) is the latest release on PyPI and the one whose loader
+# names the google/tabfm-1.0.0-pytorch weights; a 1.1.0 weight set exists with no matching code
+# release. Exact pin: a zero-shot model's version is part of the result. Weights are under the
+# TabFM Non-Commercial License v1.0 and are fetched at run time, never committed.
+tabfm = [
+  "tabfm[pytorch]==1.0.1",
+]
+
 [dependency-groups]
 dev = [
   "pytest>=8,<10",
@@ -116,7 +124,7 @@ follow_imports = "skip"
 [[tool.mypy.overrides]]
 module = [
   "torch", "torch.*", "torch_geometric", "torch_geometric.*", "onnx", "onnx.*",
-  "onnxmltools", "onnxmltools.*", "onnxruntime", "onnxruntime.*",
+  "onnxmltools", "onnxmltools.*", "onnxruntime", "onnxruntime.*", "tabfm", "tabfm.*",
 ]
 ignore_missing_imports = true
 follow_imports = "skip"
