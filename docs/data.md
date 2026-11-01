@@ -100,9 +100,20 @@ a file differs.
   they are reported as "no named pattern", not dropped. The literal header and block format
   were written from the dataset's published description and are confirmed against the files
   on the first fetch; `tests/test_ibm.py` holds the fixture the parser is tested on.
-- **The pattern join** matches a pattern block's transaction to the transactions file on all
-  eleven columns, and is tested against the block counts the patterns file itself declares:
-  every pattern transaction must be found exactly once, or the loader refuses.
+- **The pattern join** matches a pattern block's transfer to the transfers file on every
+  column but the label (bank codes compared as numbers, since one file zero-pads them and the
+  other does not; amounts compared in cents). Every pattern transfer must be found, or the
+  loader refuses (`PatternJoinFailed`). Where the transfers file holds identical duplicate
+  rows, all of them carry the block's pattern, since nothing distinguishes them; a transfer
+  named by two blocks keeps the first. The loader reports both counts on the first fetch.
+- **Items and nodes.** Transfers are the items scored, as the generator labels them; accounts
+  (bank and account number together) are the nodes. A transfer's row features are its own
+  (amount in dollars, format, currencies, same bank, self transfer, hour, weekday); its graph
+  features are its two accounts'.
+- **Dollar amounts.** Amounts are converted to US dollars at rates the data implies: the
+  median ratio of amount received to amount paid on cross-currency transfers landing in
+  dollars (or leaving them, for a currency with none landing). The rates are written to the
+  build manifest.
 
 ## Elliptic++ actors (stretch)
 

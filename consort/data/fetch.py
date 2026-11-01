@@ -1,0 +1,146 @@
+"""Fetch a source's files from Kaggle with the reader's token, and verify them.
+
+The first fetch of a source writes manifests/<source>.json (file names, sizes, SHA-256) and
+that manifest is committed. Every later fetch, on any machine, is checked against it, and a
+file that differs stops the build: a number in the README is only reproducible if the bytes
+under it are the same bytes.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import shutil
+import subprocess
+from dataclasses import dataclass
+from datetime import date
+from pathlib import Path
+
+from pydantic import BaseModel
+
+RAW = Path("data/raw")
+MANIFESTS = Path("manifests")
+
+
+@dataclass(frozen=True)
+class Source:
+    name: str
+    kaggle: str
+    files: tuple[str, ...]
+    licence: str
+
+
+SOURCES: dict[str, Source] = {
+    "elliptic": Source(
+        "elliptic",
+        "ellipticco/elliptic-data-set",
+        (
+            "elliptic_bitcoin_dataset/elliptic_txs_features.csv",
+            "elliptic_bitcoin_dataset/elliptic_txs_classes.csv",
+            "elliptic_bitcoin_dataset/elliptic_txs_edgelist.csv",
+        ),
+        "CC BY-NC-ND 4.0",
+    ),
+    **{
+        f"ibm-{tier}": Source(
+            f"ibm-{tier}",
+            "ealtman2019/ibm-transactions-for-anti-money-laundering-aml",
+            (f"{tier}_Trans.csv", f"{tier}_Patterns.txt"),
+            "CDLA-Sharing-1.0",
+        )
+        for tier in ("HI-Small", "LI-Small", "HI-Medium", "LI-Medium")
+    },
+}
+
+
+class FileRecord(BaseModel):
+    path: str
+    bytes: int
+    sha256: str
+
+
+class Manifest(BaseModel):
+    source: str
+    kaggle: str
+    licence: str
+    first_fetched: date
+    files: list[FileRecord]
+
+
+class ChecksumMismatch(Exception):
+    """A fetched file is not the file the committed manifest recorded."""
+
+
+def sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for block in iter(lambda: f.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def record(root: Path, rel: str) -> FileRecord:
+    p = root / rel
+    return FileRecord(path=rel, bytes=p.stat().st_size, sha256=sha256(p))
+
+
+def verify(source: Source, root: Path, manifest: Manifest) -> None:
+    expected = {f.path: f for f in manifest.files}
+    for rel in source.files:
+        if rel not in expected:
+            raise ChecksumMismatch(f"{rel} is not in manifests/{source.name}.json")
+        got = record(root, rel)
+        if got != expected[rel]:
+            raise ChecksumMismatch(
+                f"{rel}: {got.bytes} bytes, sha256 {got.sha256[:12]}; "
+                f"manifest has {expected[rel].bytes} bytes, {expected[rel].sha256[:12]}"
+            )
+
+
+def _download(source: Source, root: Path) -> None:
+    kaggle = shutil.which("kaggle")
+    if kaggle is None:
+        raise RuntimeError("the kaggle command is not on PATH; run inside `uv run`")
+    root.mkdir(parents=True, exist_ok=True)
+    for rel in source.files:
+        if (root / rel).exists():
+            continue
+        dest = (root / rel).parent
+        dest.mkdir(parents=True, exist_ok=True)
+        subprocess.run(
+            [
+                kaggle,
+                "datasets",
+                "download",
+                source.kaggle,
+                "-f",
+                rel,
+                "-p",
+                str(dest),
+                "--unzip",
+                "-q",
+            ],
+            check=True,
+        )
+        # The CLI names a single-file download by its base name; a zipped one may unzip to it.
+        if not (root / rel).exists():
+            raise FileNotFoundError(f"kaggle download did not produce {root / rel}")
+
+
+def fetch(name: str, raw: Path = RAW, manifests: Path = MANIFESTS) -> Path:
+    source = SOURCES[name]
+    root = raw / name
+    _download(source, root)
+    mpath = manifests / f"{name}.json"
+    if mpath.exists():
+        verify(source, root, Manifest.model_validate_json(mpath.read_text()))
+    else:
+        manifests.mkdir(parents=True, exist_ok=True)
+        m = Manifest(
+            source=name,
+            kaggle=source.kaggle,
+            licence=source.licence,
+            first_fetched=date.today(),
+            files=[record(root, rel) for rel in source.files],
+        )
+        mpath.write_text(m.model_dump_json(indent=2) + "\n")
+    return root
