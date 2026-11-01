@@ -104,8 +104,6 @@ def _download(source: Source, root: Path) -> None:
     for rel in source.files:
         if (root / rel).exists():
             continue
-        dest = (root / rel).parent
-        dest.mkdir(parents=True, exist_ok=True)
         subprocess.run(
             [
                 kaggle,
@@ -115,13 +113,18 @@ def _download(source: Source, root: Path) -> None:
                 "-f",
                 rel,
                 "-p",
-                str(dest),
+                str(root),
                 "--unzip",
                 "-q",
             ],
             check=True,
         )
-        # The CLI names a single-file download by its base name; a zipped one may unzip to it.
+        # kaggle 2.x keeps the file's path inside the dataset; older versions saved the base
+        # name only. Move the latter into place so both land at root / rel.
+        flat = root / Path(rel).name
+        if not (root / rel).exists() and flat.exists():
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            flat.replace(root / rel)
         if not (root / rel).exists():
             raise FileNotFoundError(f"kaggle download did not produce {root / rel}")
 

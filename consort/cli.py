@@ -34,7 +34,7 @@ def _task(dataset: str, boot_group: str = "hour") -> Task:
     if dataset.startswith("ibm-"):
         tier = dataset.removeprefix("ibm-")
         data = ibm.load(fetch_mod.RAW / dataset, tier)
-        return ibm_task(data, boot_group=cast(BootGroup, boot_group))
+        return ibm_task(data, boot_group=cast("BootGroup", boot_group))
     raise typer.BadParameter(f"unknown dataset {dataset}")
 
 

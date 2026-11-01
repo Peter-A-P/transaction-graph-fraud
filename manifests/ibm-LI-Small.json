@@ -1,0 +1,18 @@
+{
+  "source": "ibm-LI-Small",
+  "kaggle": "ealtman2019/ibm-transactions-for-anti-money-laundering-aml",
+  "licence": "CDLA-Sharing-1.0",
+  "first_fetched": "2026-11-01",
+  "files": [
+    {
+      "path": "LI-Small_Trans.csv",
+      "bytes": 650422357,
+      "sha256": "f7a9940339c78b5d1476071505b5867c0f5319640b9c4279d13f531bf965319d"
+    },
+    {
+      "path": "LI-Small_Patterns.txt",
+      "bytes": 99156,
+      "sha256": "734c15b7ff4be1a04a3529bd1524b92c1e8b62289d3ce4881423596ee47a208f"
+    }
+  ]
+}
