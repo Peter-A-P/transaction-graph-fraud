@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1236" height="500" viewBox="0 0 1236 500" role="img" aria-label="One account with its row features and its k-hop neighbourhood, capped at a stated number of neighbours per hop, is scored three ways: gradient boosting on the row alone, gradient boosting on the row plus features computed from the neighbourhood with no feature allowed to read a label, and a graph neural network with neighbour sampling; the tabular foundation model scores the first two feature tables from a stratified context that keeps every positive; one evaluator reads every score the same way." font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#14201E"/></marker><marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#0E6E60"/></marker><marker id="arrow-signal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#A64C1C"/></marker><marker id="arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#5C6B67"/></marker></defs>
+<rect width="1236" height="500" fill="#FFFFFF"/>
+<text x="28" y="42" font-size="16" font-weight="700" fill="#14201E">One account through the three arms, and the column beside them</text>
+<path d="M 328.0 279.0 L 392.0 279.0 Q 398.0 279.0 398.0 273.0 L 398.0 104.0 Q 398.0 98.0 404.0 98.0 L 468.0 98.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 328.0 297.0 L 392.0 297.0 Q 398.0 297.0 398.0 291.0 L 398.0 208.0 Q 398.0 202.0 404.0 202.0 L 468.0 202.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 328.0 315.0 L 393.5 315.0 Q 398.0 315.0 398.0 310.5 L 398.0 310.5 Q 398.0 306.0 402.5 306.0 L 468.0 306.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 328.0 333.0 L 392.0 333.0 Q 398.0 333.0 398.0 339.0 L 398.0 404.0 Q 398.0 410.0 404.0 410.0 L 468.0 410.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 768.0 98.0 L 832.0 98.0 Q 838.0 98.0 838.0 104.0 L 838.0 172.0 Q 838.0 178.0 844.0 178.0 L 908.0 178.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 768.0 202.0 L 834.0 202.0 Q 838.0 202.0 838.0 198.0 L 838.0 198.0 Q 838.0 194.0 842.0 194.0 L 908.0 194.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 768.0 306.0 L 832.0 306.0 Q 838.0 306.0 838.0 300.0 L 838.0 216.0 Q 838.0 210.0 844.0 210.0 L 908.0 210.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 768.0 410.0 L 832.0 410.0 Q 838.0 410.0 838.0 404.0 L 838.0 232.0 Q 838.0 226.0 844.0 226.0 L 908.0 226.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 1058.0 242.0 L 1058.0 373.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 28.0 268.0 a 150.0 7 0 0 1 300.0 0 L 328.0 344.0 a 150.0 7 0 0 1 -300.0 0 Z" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/><path d="M 28.0 268.0 a 150.0 7 0 0 0 300.0 0" fill="none" stroke="#14201E" stroke-width="1.1"/>
+<text x="178.0" y="291.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">One account in the test split</text>
+<text x="178.0" y="307.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">row features; k-hop neighbourhood,</text>
+<text x="178.0" y="323.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">hub cap per hop; label hidden</text>
+<text x="178.0" y="340.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">consort.graph.neighbourhood</text>
+<rect x="468.0" y="66.0" width="300.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/>
+<text x="618.0" y="94.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">R: row only</text>
+<text x="618.0" y="110.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">XGBoost on the account&#x27;s own features</text>
+<rect x="468.0" y="162.0" width="300.0" height="80.0" rx="4" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
+<rect x="468.0" y="162.0" width="5" height="80.0" rx="2" fill="#0E6E60"/>
+<text x="618.0" y="183.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">G: graph features</text>
+<text x="618.0" y="199.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">XGBoost on row plus degree, counterparties,</text>
+<text x="618.0" y="215.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">aggregates, motifs; no feature reads a label</text>
+<text x="618.0" y="232.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">consort.graph.features, the registry</text>
+<rect x="468.0" y="273.0" width="300.0" height="66.0" rx="4" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
+<rect x="468.0" y="273.0" width="5" height="66.0" rx="2" fill="#0E6E60"/>
+<text x="618.0" y="294.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">N: graph neural network</text>
+<text x="618.0" y="310.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">GraphSAGE or GAT, sampled neighbours,</text>
+<text x="618.0" y="326.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">inductive; directed-multigraph flags</text>
+<rect x="468.0" y="377.0" width="300.0" height="66.0" rx="4" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/>
+<text x="618.0" y="398.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">TabFM column</text>
+<text x="618.0" y="414.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">zero-shot on R&#x27;s and G&#x27;s tables from a</text>
+<text x="618.0" y="430.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">stratified context, every positive kept</text>
+<rect x="908.0" y="162.0" width="300.0" height="80.0" rx="4" fill="#FFFFFF" stroke="#A64C1C" stroke-width="1.6"/>
+<rect x="908.0" y="162.0" width="5" height="80.0" rx="2" fill="#A64C1C"/>
+<text x="1058.0" y="183.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">One evaluator</text>
+<text x="1058.0" y="199.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">AUPRC, recall at 1% FPR, recall at 0.5%</text>
+<text x="1058.0" y="215.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">and 1% alert budget; by pattern; by hop</text>
+<text x="1058.0" y="232.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">consort.eval</text>
+<path d="M 908.0 380.0 a 150.0 7 0 0 1 300.0 0 L 1208.0 440.0 a 150.0 7 0 0 1 -300.0 0 Z" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/><path d="M 908.0 380.0 a 150.0 7 0 0 0 300.0 0" fill="none" stroke="#14201E" stroke-width="1.1"/>
+<text x="1058.0" y="403.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Outcomes per account</text>
+<text x="1058.0" y="419.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">intervals over groups; paired deltas</text>
+<text x="1058.0" y="436.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">data/runs</text>
+<rect x="361.0" y="168.5" width="74.0" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="398.0" y="180.5" font-size="12" text-anchor="middle" fill="#14201E">row features</text>
+<rect x="816.0" y="318.0" width="44.0" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="838.0" y="330.0" font-size="12" text-anchor="middle" fill="#14201E">scores</text>
+<rect x="998.0" y="297.5" width="120.1" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="1058.0" y="309.5" font-size="12" text-anchor="middle" fill="#14201E">per account, per arm</text>
+<rect x="28" y="464" width="26" height="16" rx="3" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
+<text x="62" y="476" font-size="11" fill="#5C6B67">the graph, built here</text>
+<rect x="201.19" y="464" width="26" height="16" rx="3" fill="#FFFFFF" stroke="#A64C1C" stroke-width="1.6"/>
+<text x="235.19" y="476" font-size="11" fill="#5C6B67">the one evaluator</text>
+<path d="M 352.8 471.0 a 13.0 7 0 0 1 26.0 0 L 378.8 473.0 a 13.0 7 0 0 1 -26.0 0 Z" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/><path d="M 352.8 471.0 a 13.0 7 0 0 0 26.0 0" fill="none" stroke="#14201E" stroke-width="1.1"/>
+<text x="386.82" y="476" font-size="11" fill="#5C6B67">data at rest</text>
+</svg>

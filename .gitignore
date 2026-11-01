@@ -1,0 +1,61 @@
+# Private working notes, never committed
+CLAUDE.local.md
+
+# Secrets and tokens
+.env
+.env.*
+*.key
+*.pem
+kaggle.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+dist/
+build/
+*.egg-info/
+
+# Data (loaders fetch and verify; nothing raw is committed). Manifests and split summaries
+# are in manifests/, committed.
+/data/
+data/raw/
+data/graphs/
+data/features/
+# Evaluation runs: scores, outcomes, explanations, serving traces. Evidence for the tables,
+# too large to commit; the report command publishes the summaries.
+data/runs*/
+data/bench/
+
+# Models, checkpoints, exports (the ONNX handover is published as a release asset, not here)
+checkpoints/
+models/
+*.pt
+*.onnx
+*.safetensors
+
+# Neo4j container state
+neo4j/
+
+# Runs and caches
+runs/
+.cache/
+*.duckdb
+*.duckdb.wal
+*.sqlite
+*.sqlite3
+
+# The built site (consort site writes it; the workflow deploys it)
+site/out/
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Claude Code session state (worktrees, local settings)
+.claude/
