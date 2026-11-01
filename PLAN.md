@@ -110,6 +110,11 @@ accounts, which is what a director can read as "of the fraud, how much does my t
 This is 09's expected-loss queue seen from the other side, and it is the number that decides
 whether the graph pays.
 
+Each budget is reported with its ceiling, the most recall any ranking could reach at it
+(alerts over positives, capped at 1). Elliptic's labelled test set is about 6% illicit, so a
+1% budget caps every arm near 0.17 there and arm R already sits at it; the ceiling stops that
+reading as a weak model. (Amended 2026-11-01, after arm R's first Elliptic run.)
+
 ### 2.5 Hops are measured on both axes
 
 Every arm runs at zero, one, two and three hops: arm G's features computed to that depth, arm

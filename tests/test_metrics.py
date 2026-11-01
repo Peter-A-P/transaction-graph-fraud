@@ -14,6 +14,7 @@ from consort.eval.metrics import (
     MismatchedItems,
     Ranked,
     average_precision,
+    budget_ceiling,
     evaluate,
     group_weights,
     paired_delta,
@@ -66,6 +67,15 @@ def test_perfect_ranking() -> None:
     assert average_precision(r, _w(5)) == 1.0
     assert recall_at_fpr(0.0)(r, _w(5)) == 1.0
     assert recall_at_budget(0.2)(r, _w(5)) == pytest.approx(0.5)
+
+
+def test_budget_ceiling_is_alerts_over_positives_and_a_perfect_ranking_reaches_it() -> None:
+    # 1,000 items, 60 positive: a 1% budget is 10 alerts, so no ranking passes 10/60.
+    labels = [1] * 60 + [0] * 940
+    r = _ranked(labels, list(range(1000, 0, -1)))
+    assert budget_ceiling(0.01)(r, _w(1000)) == pytest.approx(10 / 60)
+    assert recall_at_budget(0.01)(r, _w(1000)) == pytest.approx(10 / 60)
+    assert budget_ceiling(0.1)(r, _w(1000)) == 1.0
 
 
 def test_recall_at_fpr_stops_at_the_first_negative_over_the_rate() -> None:

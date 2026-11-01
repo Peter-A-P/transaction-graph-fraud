@@ -104,6 +104,23 @@ def recall_at_budget(budget: float) -> Metric:
     return metric
 
 
+def budget_ceiling(budget: float) -> Metric:
+    """The most recall any ranking could reach at the budget: min(1, alerts / positives).
+
+    Reported beside recall at a budget, since a budget smaller than the positive rate caps
+    recall well below 1 for every arm alike (Elliptic's labelled test set is about 6% illicit,
+    so a 1% budget caps recall near 0.17)."""
+
+    def metric(r: Ranked, w: FloatArray) -> float:
+        pos = float(np.sum(w * r.label))
+        if pos == 0:
+            return float("nan")
+        return float(min(1.0, budget * float(np.sum(w)) / pos))
+
+    metric.__name__ = f"budget_ceiling_{budget}"
+    return metric
+
+
 def recall_at_budget_among(budget: float, member: npt.NDArray[np.bool_]) -> Metric:
     """Recall at an alert budget over all items, counted only among the positives that are
     members (one laundering pattern, say). The budget is the same queue for everyone."""
@@ -130,6 +147,8 @@ METRICS: dict[str, Metric] = {
     "recall_at_1pct_fpr": recall_at_fpr(0.01),
     "recall_at_0.5pct_budget": recall_at_budget(0.005),
     "recall_at_1pct_budget": recall_at_budget(0.01),
+    "ceiling_at_0.5pct_budget": budget_ceiling(0.005),
+    "ceiling_at_1pct_budget": budget_ceiling(0.01),
 }
 
 
