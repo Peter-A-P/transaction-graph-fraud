@@ -35,7 +35,7 @@ from torch_geometric.nn import GATConv, SAGEConv
 
 from consort.data.leakage import check_training_rows
 from consort.data.splits import PARTITIONS, Partition
-from consort.data.tasks import EllipticTask, IBMTask, Task, ibm_node_table
+from consort.data.tasks import IBM_NODE_COLUMNS, EllipticTask, IBMTask, Task, ibm_node_table
 from consort.eval import outcomes as oc
 from consort.eval.metrics import Ranked, average_precision
 from consort.graph.build import Graph
@@ -255,12 +255,48 @@ def run_node(task: EllipticTask, cfg: GNNConfig, out_dir: Path) -> Path:
     return _write(task, idx["test"], scores, cfg, info, out_dir)
 
 
-def _edge_view(task: IBMTask, partition: Partition, cfg: GNNConfig) -> _View:
-    """The message-passing graph a partition may see, with node inputs from that window."""
-    g: Graph = task.window_graph(partition)
-    # Already log-scaled volume statistics of the window (ibm_node_table).
+def _graph_view(g: Graph, cfg: GNNConfig) -> _View:
+    # Node inputs are already log-scaled volume statistics of the same graph (ibm_node_table).
     x = torch.from_numpy(ibm_node_table(g).to_numpy(np.float32))
     return _View(x, CappedSampler(g, cfg.cap), cfg.hops)
+
+
+class _EdgeViews:
+    """The graph a transfer's neighbourhood is drawn from, as arm G's features see it: every
+    transfer from the days before its own (the task's prior-days view), or, for the gap, the
+    whole window of its partition. Day graphs are built on demand and the last few kept."""
+
+    def __init__(self, task: IBMTask, cfg: GNNConfig, keep: int = 3) -> None:
+        self.task, self.cfg, self.keep = task, cfg, keep
+        self.day = task.items["split_group"].to_numpy()
+        self._views: dict[tuple[str, int], _View] = {}
+
+    def __call__(self, partition: Partition, day: int) -> _View:
+        window = self.task.view == "window"
+        key: tuple[str, int] = (partition, -1) if window else ("day", day)
+        if key not in self._views:
+            if not window and len(self._views) >= self.keep:
+                self._views.pop(next(iter(self._views)))
+            g = (
+                self.task.window_graph(partition)
+                if window
+                else self.task._graph_upto(self.day < day)
+            )
+            self._views[key] = _graph_view(g, self.cfg)
+        return self._views[key]
+
+    def batches(
+        self, items: npt.NDArray[np.int64], size: int, shuffle: bool, rng: np.random.Generator
+    ) -> list[tuple[int, npt.NDArray[np.int64]]]:
+        """Batches that never mix days, so each is scored on one graph; shuffled across days
+        when training, in day order otherwise."""
+        out = []
+        for d in np.unique(self.day[items]):
+            of_day = items[self.day[items] == d]
+            out += [(int(d), of_day[c]) for c in _batches(len(of_day), size, shuffle, rng)]
+        if shuffle:
+            out = [out[i] for i in rng.permutation(len(out))]
+        return out
 
 
 def _edge_logits(
@@ -290,21 +326,20 @@ def run_edge(task: IBMTask, cfg: GNNConfig, out_dir: Path) -> Path:
     src, dst = t["src"].to_numpy(np.int64), t["dst"].to_numpy(np.int64)
     items = {p: np.flatnonzero(part == p).astype(np.int64) for p in PARTITIONS}
     check_training_rows(task.items["split_group"].to_numpy()[items["train"]], task.split, task.name)
-    views = {p: _edge_view(task, p, cfg) for p in PARTITIONS}
+    views = _EdgeViews(task, cfg)
     edge_x = _standardise(task.items[task.row_columns].to_numpy(np.float32), part == "train")
     y_all = torch.from_numpy(y.astype(np.float32))
     y_train = y[items["train"]]
     pos_weight = float((y_train == 0).sum() / max((y_train == 1).sum(), 1))
-    model = EdgeModel(views["train"].x.shape[1], edge_x.shape[1], cfg)
+    model = EdgeModel(len(IBM_NODE_COLUMNS), edge_x.shape[1], cfg)
     trainer = _Trainer(model, cfg, pos_weight)
     dev = _device()
 
     def train_epoch(m: nn.Module, opt: torch.optim.Optimizer, loss_fn: nn.Module) -> float:
         total = 0.0
-        for chunk in _batches(len(items["train"]), cfg.batch_size, True, rng):
-            batch = items["train"][chunk]
+        for day, batch in views.batches(items["train"], cfg.batch_size, True, rng):
             opt.zero_grad()
-            logit = _edge_logits(m, views["train"], batch, src, dst, edge_x, cfg, dev)
+            logit = _edge_logits(m, views("train", day), batch, src, dst, edge_x, cfg, dev)
             loss = loss_fn(logit, y_all[torch.from_numpy(batch)].to(dev))
             loss.backward()
             opt.step()
@@ -313,12 +348,13 @@ def run_edge(task: IBMTask, cfg: GNNConfig, out_dir: Path) -> Path:
 
     def score(m: nn.Module, p: Partition) -> npt.NDArray[np.float64]:
         m.eval()
-        out = []
-        for chunk in _batches(len(items[p]), cfg.batch_size, False, rng):
+        out = np.full(len(y), np.nan)
+        for day, batch in views.batches(items[p], cfg.batch_size, False, rng):
             with torch.no_grad():
-                logit = _edge_logits(m, views[p], items[p][chunk], src, dst, edge_x, cfg, dev)
-            out.append(torch.sigmoid(logit).cpu())
-        return np.asarray(torch.cat(out).numpy(), dtype=np.float64)
+                logit = _edge_logits(m, views(p, day), batch, src, dst, edge_x, cfg, dev)
+            out[batch] = torch.sigmoid(logit).cpu().numpy()
+        # Batches run day by day; the scores go back in the partition's item order.
+        return out[items[p]]
 
     info = trainer.fit(train_epoch, lambda m: score(m, "val"), y[items["val"]])
     return _write(task, items["test"], score(trainer.model, "test"), cfg, info, out_dir)

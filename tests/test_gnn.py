@@ -49,6 +49,7 @@ def test_edge_gnn_variants_run_and_score_every_test_transfer(
     )
     o = oc.read(run(task, cfg, tmp_path / "runs"))
     assert len(o) == int((task.partition() == "test").sum())
+    assert np.isfinite(o.score).all()
     assert (
         oc.read_meta(
             tmp_path
@@ -57,3 +58,19 @@ def test_edge_gnn_variants_run_and_score_every_test_transfer(
         ).arm
         == cfg.tag
     )
+
+
+def test_edge_views_draw_each_day_from_earlier_days_and_batch_within_a_day(tmp_path: Path) -> None:
+    from consort.models.gnn import _EdgeViews
+
+    task = ibm_task(
+        ibm.load(write_ibm(tmp_path, n_background=1500, n_cycles=10), "T"), boot_group="day"
+    )
+    views = _EdgeViews(task, GNNConfig(hops=1, cap=5))
+    day = task.items["split_group"].to_numpy()
+    test = np.flatnonzero(task.partition() == "test").astype(np.int64)
+    d = int(day[test].max())
+    assert views("test", d).sampler.g.n_edges == int((day < d).sum())
+    batches = views.batches(test, 64, True, np.random.default_rng(0))
+    assert all((day[b] == bd).all() for bd, b in batches)
+    assert sorted(np.concatenate([b for _, b in batches]).tolist()) == test.tolist()
