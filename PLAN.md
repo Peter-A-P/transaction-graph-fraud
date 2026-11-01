@@ -82,6 +82,16 @@ items, 06's and 16's grader rule carried over.
 - **DGraph-Fin, if reachable.** A real consumer-lending graph of 3.7 million users with fraud
   labels; its host did not resolve on 2026-10-31. A loader stub is kept.
 
+*Amended during the build (2026-10-31).* On IBM the item scored is the transfer, as the
+generator labels transfers and names patterns by transfer; accounts are the graph's nodes, and
+a transfer's graph features are its two accounts'. The alert budget is therefore a share of
+transfers on IBM and of transactions on Elliptic. The IBM split is by day, cut where the
+cumulative share of transfers passes 60 and 80 percent, and each partition's graph features
+are computed on the transfers up to the end of its own window. Bootstrap groups on IBM are
+hours by default rather than connected components: the transfer graph is expected to be one
+giant component, which would leave too few groups to resample. The component grouping is
+implemented and is reported beside the hour grouping once the data shows the component sizes.
+
 ### 2.3 Splits are temporal and inductive, and the random split is run once
 
 The headline split is by time: train on earlier steps, validate on the next, test on the
@@ -106,6 +116,15 @@ Every arm runs at zero, one, two and three hops: arm G's features computed to th
 N's sampler bounded to it. The gain per hop is reported beside the neighbourhood fetch latency
 per hop from section 2.7, so the curve says where the gain stops paying for the fetch. Hub
 accounts are capped at a stated number of sampled neighbours per hop and the cap is reported.
+
+*Amended during the build (2026-10-31).* The cap is a recency cap: every node keeps its `cap`
+most recent edges in each direction (a timestamp on IBM, file order on Elliptic). Arm G's
+features, arm N's sampler (`consort/graph/sampler.py`) and the serving fetch all use this one
+rule, so the three see identical neighbourhoods and the parity test can demand exact equality.
+Arm N does not use PyTorch Geometric's random neighbour samplers: they need `pyg-lib` or
+`torch-sparse`, which have no Windows wheels for the current torch, and random sampling would
+have given N a different neighbourhood from G's at the same hop and cap, confounding the hop
+curve. Degrees, amounts and velocity remain exact counts over all of a node's edges.
 
 ### 2.6 The shift, and the context swap
 
