@@ -104,16 +104,58 @@ def train(
     split: str = typer.Option("temporal", help="temporal, or random (run once, for the gap)"),
     boot_group: str = "hour",
     out: Path = RUNS,
+    onnx: bool = typer.Option(False, help="Also export the booster to checkpoints/ as ONNX"),
 ) -> None:
-    """Train an arm and write its test outcomes."""
+    """Train arm R or G and write its test outcomes."""
     from consort.models.run import SplitKind, run_tabular
 
     task = _task(dataset, boot_group)
     if split not in ("temporal", "random"):
         raise typer.BadParameter(f"unknown split {split}")
     kind = cast(SplitKind, split)
-    path = run_tabular(task, arm, hops, hub_cap if hops else 0, seed, out, split_kind=kind)
+    path = run_tabular(
+        task,
+        arm,
+        hops,
+        hub_cap if hops else 0,
+        seed,
+        out,
+        split_kind=kind,
+        onnx_dir=Path("checkpoints") if onnx else None,
+    )
     typer.echo(str(path))
+
+
+@app.command("train-gnn")
+def train_gnn(
+    dataset: str = typer.Option(..., help="elliptic, ibm-HI-Small, ibm-LI-Small"),
+    arch: str = "sage",
+    hops: int = 2,
+    hub_cap: int = 25,
+    seed: int = 0,
+    epochs: int = 40,
+    batch_size: int = 2048,
+    reverse_mp: bool = False,
+    ego_ids: bool = False,
+    boot_group: str = "hour",
+    out: Path = RUNS,
+) -> None:
+    """Train arm N (needs the gnn extra) and write its test outcomes."""
+    from consort.models.gnn import GNNConfig, run
+
+    if arch not in ("sage", "gat"):
+        raise typer.BadParameter(f"unknown architecture {arch}")
+    cfg = GNNConfig(
+        arch="sage" if arch == "sage" else "gat",
+        hops=hops,
+        cap=hub_cap,
+        seed=seed,
+        epochs=epochs,
+        batch_size=batch_size,
+        reverse_mp=reverse_mp,
+        ego_ids=ego_ids,
+    )
+    typer.echo(str(run(_task(dataset, boot_group), cfg, out)))
 
 
 @app.command("eval")

@@ -39,6 +39,7 @@ def run_tabular(
     split_kind: SplitKind = "temporal",
     extra: ExtraFn | None = None,
     arm_label: str | None = None,
+    onnx_dir: Path | None = None,
 ) -> Path:
     feats = ARMS[arm]
     labelled = task.labelled()
@@ -96,4 +97,8 @@ def run_tabular(
         notes=f"hub_cap={hub_cap}; best_iteration={fitted.best_iteration}; "
         f"features={len(fitted.columns)}",
     )
+    if onnx_dir is not None:
+        from consort.models.export import export
+
+        export(fitted, onnx_dir / f"{run}.onnx", arm=label, hops=hops, hub_cap=hub_cap)
     return oc.write(outcomes, meta, out_dir)
