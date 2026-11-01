@@ -1,0 +1,137 @@
+"""The k-hop neighbourhood fetch: one algorithm, run over any edge store.
+
+To score one node live, fetch every edge of the node itself (its degrees, amounts and
+velocity are exact counts), then expand: each node within k-1 hops contributes its `cap` most
+recent out-edges and `cap` most recent in-edges, and the nodes those reach form the next
+frontier. Because the cap keeps the most recent edges, a node's sampled neighbours in the
+fetched subgraph are exactly its sampled neighbours in the whole graph, for every node that was
+expanded; so arm G's registry, run on the fetched subgraph, gives the node the same features
+the batch run gave it. consort.serve.parity checks that, number for number.
+
+PageRank is global, so it is never recomputed from a neighbourhood: the serving path reads it
+from a stored column, as it would read any batch-maintained node property.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import Protocol
+
+import numpy as np
+import numpy.typing as npt
+import pandas as pd
+
+from consort.graph.build import Graph, _keep_recent, from_edges
+from consort.graph.registry import FeatureRegistry
+
+IntArray = npt.NDArray[np.int64]
+FloatArray = npt.NDArray[np.float64]
+STORED = ("pagerank",)
+
+
+@dataclass(frozen=True)
+class Edges:
+    edge_id: IntArray
+    src: IntArray
+    dst: IntArray
+    order: IntArray
+    attrs: dict[str, FloatArray]
+
+    @staticmethod
+    def concat(parts: Sequence[Edges]) -> Edges:
+        """Union of edge sets, deduplicated by edge id, in edge-id order."""
+        eid = np.concatenate([p.edge_id for p in parts])
+        _, first = np.unique(eid, return_index=True)
+
+        def cat(get: str) -> IntArray:
+            return np.concatenate([getattr(p, get) for p in parts])[first]
+
+        names = parts[0].attrs.keys()
+        return Edges(
+            edge_id=eid[first],
+            src=cat("src"),
+            dst=cat("dst"),
+            order=cat("order"),
+            attrs={k: np.concatenate([p.attrs[k] for p in parts])[first] for k in names},
+        )
+
+
+class EdgeSource(Protocol):
+    def incident(self, node: int) -> Edges:
+        """Every edge with the node at either end."""
+        ...
+
+    def capped(self, nodes: IntArray, cap: int) -> Edges:
+        """For each node, its `cap` most recent out-edges and `cap` most recent in-edges."""
+        ...
+
+
+class MemorySource:
+    """The batch side: the same queries answered from a Graph in memory."""
+
+    def __init__(self, graph: Graph) -> None:
+        self.g = graph
+        self._out_keep: dict[int, npt.NDArray[np.bool_]] = {}
+        self._in_keep: dict[int, npt.NDArray[np.bool_]] = {}
+
+    def _edges(self, mask: npt.NDArray[np.bool_]) -> Edges:
+        idx = np.flatnonzero(mask)
+        g = self.g
+        return Edges(
+            idx.astype(np.int64),
+            g.src[idx],
+            g.dst[idx],
+            g.order[idx],
+            {k: v[idx] for k, v in g.edge_attrs.items()},
+        )
+
+    def incident(self, node: int) -> Edges:
+        return self._edges((self.g.src == node) | (self.g.dst == node))
+
+    def capped(self, nodes: IntArray, cap: int) -> Edges:
+        if cap not in self._out_keep:
+            self._out_keep[cap] = _keep_recent(self.g.src, self.g.order, cap)
+            self._in_keep[cap] = _keep_recent(self.g.dst, self.g.order, cap)
+        mask = (self._out_keep[cap] & np.isin(self.g.src, nodes)) | (
+            self._in_keep[cap] & np.isin(self.g.dst, nodes)
+        )
+        return self._edges(mask)
+
+
+def fetch(source: EdgeSource, centre: int, hops: int, cap: int) -> Edges:
+    parts = [source.incident(centre)]
+    seen = {centre}
+    frontier = np.array([centre], dtype=np.int64)
+    for _ in range(hops):
+        got = source.capped(frontier, cap)
+        parts.append(got)
+        reached = np.union1d(got.src, got.dst)
+        frontier = np.array(sorted(set(reached.tolist()) - seen), dtype=np.int64)
+        seen.update(frontier.tolist())
+        if frontier.size == 0:
+            break
+    return Edges.concat(parts)
+
+
+def local_features(
+    edges: Edges,
+    centre: int,
+    registry: FeatureRegistry,
+    node_columns: pd.DataFrame,
+    hops: int,
+    cap: int,
+    stored: pd.DataFrame | None = None,
+) -> pd.Series:
+    """The centre's feature row, computed by the registry on the fetched subgraph. Local ids
+    keep the global order, so sparse sums run in the same order as in the batch run."""
+    nodes = np.union1d(np.union1d(edges.src, edges.dst), [centre])
+    local = np.searchsorted(nodes, edges.src), np.searchsorted(nodes, edges.dst)
+    g = from_edges(len(nodes), local[0], local[1], order=edges.order, **edges.attrs)
+    table = registry.compute(g, node_columns.iloc[nodes].reset_index(drop=True), hops, cap)
+    row = table.iloc[int(np.searchsorted(nodes, centre))].copy()
+    if stored is not None:
+        for col in STORED:
+            if col in row.index:
+                row[col] = stored.iloc[centre][col]
+    return row
