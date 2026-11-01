@@ -6,7 +6,10 @@ graph and on synthetic bank transfers with labelled laundering patterns; three a
 graph features, graph neural network), a tabular foundation model as a fourth column, the hop
 curve, the shift at Elliptic's step 43, the leakage gap, explanation faithfulness and the cost
 of a live neighbourhood fetch. The plan is in [PLAN.md](PLAN.md); the diagrams in
-[docs/architecture.md](docs/architecture.md). Status: plan only, nothing built (2026-10-31).
+[docs/architecture.md](docs/architecture.md). Status: building since 2026-10-31. The package, the leakage test, the evaluator, the
+loaders, arms R, G and N, the TabFM wrapper, the serving fetch with its parity test, the ONNX
+export and the faithfulness metric are built and tested on toy graphs; no dataset has been
+fetched (that needs a Kaggle token), so nothing is measured.
 
 ## Read first
 

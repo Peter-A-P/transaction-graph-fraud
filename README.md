@@ -89,6 +89,31 @@ different items. The design, the splits, the leakage test, the serving benchmark
 arithmetic are in [PLAN.md](PLAN.md); the figures are in
 [docs/architecture.md](docs/architecture.md).
 
+## Running it
+
+Python 3.13 and [uv](https://docs.astral.sh/uv/). The datasets are fetched with your own
+Kaggle API token (accept each dataset's terms on its Kaggle page once); nothing raw is in this
+repository, and every fetched file is checked against the committed checksum manifest.
+
+```
+uv sync --extra gnn --extra export
+uv run consort data fetch elliptic
+uv run consort data fetch ibm-HI-Small
+uv run consort data check elliptic
+uv run consort patterns --tier HI-Small
+uv run consort train R --dataset elliptic
+uv run consort train G --dataset elliptic --hops 2 --hub-cap 50
+uv run consort train-gnn --dataset elliptic --hops 2 --hub-cap 25
+uv run consort eval data/runs/elliptic.temporal.G.h2.cap50.s0.outcomes.parquet \
+  --against data/runs/elliptic.temporal.R.h0.cap0.s0.outcomes.parquet
+uv run pytest
+```
+
+The licences, as quoted before the first fetch, are in [docs/data.md](docs/data.md); model
+versions and settings in [docs/models.md](docs/models.md); the laundering patterns in
+[docs/patterns.md](docs/patterns.md); the serving path and its parity test in
+[docs/serving.md](docs/serving.md).
+
 ## Part of a portfolio
 
 One of seventeen projects on [peterparker.ca](https://peterparker.ca), each of which ends in a

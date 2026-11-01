@@ -156,6 +156,16 @@ account (the account, its top neighbours, the features that drove the score, the
 the generator planted one) is written as JSON and rendered on the demo. No language model
 writes a narrative; that is deferred and would route through 04.
 
+*Amended during the build (2026-10-31).* The neighbour importance that faithfulness grades is
+occlusion for every arm: fetch the flagged node's neighbourhood with the serving path, remove
+one direct neighbour and its edges, rescore, and rank neighbours by the fall
+(`consort/explain/faithfulness.py`). One method for all arms means the faithfulness numbers
+compare the arms rather than the attribution methods, and arm G gets neighbour-level
+explanations, which SHAP on aggregated features cannot give it. SHAP (XGBoost's own TreeSHAP
+contributions) still supplies the case file's "features that drove the score", and
+GNNExplainer stays available as a second reading of arm N if the occlusion number needs a
+check.
+
 ### 2.9 The demo shows a ring, and models nothing
 
 consort.peterparker.ca is a static site on Azure Static Web Apps, the 01, 08 and 16 pattern: an
