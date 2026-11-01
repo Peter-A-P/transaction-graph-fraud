@@ -229,8 +229,11 @@ def paired_delta(
     seed: int = 0,
     alpha: float = 0.05,
 ) -> dict[str, Estimate]:
-    """B minus A on identical items, both scored on the same group resample each time."""
-    metrics = metrics or METRICS
+    """B minus A on identical items, both scored on the same group resample each time.
+
+    The budget ceilings are left out by default: they depend only on the labels, which
+    identical items share, so their delta is zero by construction."""
+    metrics = metrics or {k: m for k, m in METRICS.items() if not k.startswith("ceiling_")}
     a2, b2 = align(a, b)
     ra = Ranked.of(a2.label, a2.score, a2.group)
     rb = Ranked.of(b2.label, b2.score, b2.group)
