@@ -64,6 +64,18 @@ What the table says:
 - **On the real sets, the alert budget cannot separate the arms.** At 1% every arm sits at or
   near its ceiling, so the AUPRC column is where they differ.
 
+**How far another seed moves it.** The tables read seed 0. Arm N's headline runs were repeated
+at seeds 1 and 2. Arm N moves by about 0.12 AUPRC from one seed to another on both real
+sets, as much as some of the differences above; at its best seed it is still below the row
+model on Elliptic and below arm G on Elliptic++. IBM's seeds are still running.
+
+<!-- report:seeds -->
+| Dataset | Run | Hops | AUPRC by seed | Spread (largest minus smallest) |
+|---|---|---|---|---|
+| Elliptic (real, transactions) | N-sage | 2 | seed 0: 0.583; seed 1: 0.536; seed 2: 0.657 | 0.121 |
+| Elliptic++ (real, wallets) | N-sage | 2 | seed 0: 0.418; seed 1: 0.301; seed 2: 0.406 | 0.117 |
+<!-- /report:seeds -->
+
 **Which shapes only the graph can see.** Recall at a 1% alert budget by laundering pattern on
 IBM HI-Small, all test days: of each pattern's laundering transfers, the share one shared queue
 reaches. The patterns are the generator's; this table measures what it plants, not what a bank

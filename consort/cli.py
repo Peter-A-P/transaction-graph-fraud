@@ -360,6 +360,7 @@ def report(
         "shift": tb.shift_table(summaries),
         "leakage": tb.leakage_table(summaries),
         "serving": tb.serving_table(timed),
+        "seeds": tb.seed_table(summaries),
     }
     readme.write_text(tb.fill(readme.read_text(encoding="utf8"), tables), encoding="utf8")
     rejected = Path("docs/rejected.md")

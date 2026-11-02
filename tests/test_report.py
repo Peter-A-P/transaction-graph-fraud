@@ -107,3 +107,9 @@ def test_tables_fill_only_between_markers(runs: Path, tmp_path: Path) -> None:
     assert once == "<!-- report:main -->\nx\n<!-- /report:main -->\n"
     assert tb.fill(once, {"main": "x"}) == once
     assert np.isfinite(summaries[0].metrics["auprc"][0])
+    # Seeds: one seed is no spread to report; a second seed of the same run is.
+    assert tb.NOT_RUN in tb.seed_table(summaries)
+    g = next(s for s in summaries if s.arm == "G")
+    other = g.model_copy(update={"seed": 1, "metrics": {**g.metrics, "auprc": (0.5, 0.4, 0.6)}})
+    row = tb.seed_table([*summaries, other]).splitlines()[-1]
+    assert f"seed 0: {g.metrics['auprc'][0]:.3f}; seed 1: 0.500" in row

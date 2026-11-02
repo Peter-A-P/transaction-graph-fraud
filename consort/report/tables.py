@@ -213,6 +213,31 @@ def leakage_table(runs: Sequence[RunSummary]) -> str:
     return "\n".join(lines)
 
 
+def seed_table(runs: Sequence[RunSummary]) -> str:
+    """Every temporal run repeated at more than one seed: AUPRC at each, and the spread. The
+    other tables read seed 0; this one says how far another seed would move them."""
+    groups: dict[tuple[str, str, int], dict[int, RunSummary]] = {}
+    for r in runs:
+        if r.kind == "temporal":
+            groups.setdefault((r.dataset, r.arm, r.hops), {})[r.seed] = r
+    lines = [
+        "| Dataset | Run | Hops | AUPRC by seed | Spread (largest minus smallest) |",
+        "|---|---|---|---|---|",
+    ]
+    found = False
+    for (ds, arm, hops), by_seed in sorted(groups.items()):
+        if len(by_seed) < 2:
+            continue
+        found = True
+        points = {k: _metrics(v)["auprc"][0] for k, v in sorted(by_seed.items())}
+        cells = "; ".join(f"seed {k}: {v:.3f}" for k, v in points.items())
+        spread = max(points.values()) - min(points.values())
+        lines.append(f"| {DATASETS.get(ds, ds)} | {arm} | {hops} | {cells} | {spread:.3f} |")
+    if not found:
+        lines.append(f"| {NOT_RUN} | | | | |")
+    return "\n".join(lines)
+
+
 def serving_table(timed: Sequence[dict[str, Any]]) -> str:
     """Every reportable serving result: one live score per call, on the machine named."""
     lines = [
