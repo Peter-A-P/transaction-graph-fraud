@@ -60,9 +60,15 @@ def _delta(s: RunSummary) -> dict[str, Triple]:
     return s.slice_delta.get(TAIL, s.delta) if s.dataset.startswith("ibm-") else s.delta
 
 
+def of_arm(run_arm: str, arm: str) -> bool:
+    """Arm N's runs are tagged by variant (N-sage, N-gat+rmp+ego); the variant, like the hop
+    count, is chosen on validation."""
+    return run_arm == arm or (arm == "N" and run_arm.startswith("N-"))
+
+
 def headline(runs: Sequence[RunSummary], dataset: str, arm: str) -> RunSummary | None:
     """The arm's temporal run on the dataset with the best validation AUPRC (seed 0)."""
-    pool = [r for r in runs if r.dataset == dataset and r.arm == arm and r.kind == "temporal"]
+    pool = [r for r in runs if r.dataset == dataset and of_arm(r.arm, arm) and r.kind == "temporal"]
     pool = [r for r in pool if r.seed == 0]
     if not pool:
         return None
@@ -70,7 +76,11 @@ def headline(runs: Sequence[RunSummary], dataset: str, arm: str) -> RunSummary |
 
 
 def _arms(runs: Sequence[RunSummary], dataset: str) -> list[str]:
-    seen = {r.arm for r in runs if r.dataset == dataset and r.kind == "temporal"}
+    seen = {
+        "N" if r.arm.startswith("N-") else r.arm
+        for r in runs
+        if r.dataset == dataset and r.kind == "temporal"
+    }
     order = ["R", "G", "N", *sorted(a for a in seen if a.startswith("TabFM"))]
     return [a for a in order if a in seen or a in ("R", "G", "N")]
 
@@ -91,6 +101,8 @@ def main_table(runs: Sequence[RunSummary]) -> str:
                 continue
             m, d = _metrics(s), _delta(s)
             hop = f", {s.hops} hop{'s' if s.hops != 1 else ''}" if arm != "R" else ""
+            if s.arm.startswith("N-"):
+                hop = f" ({s.arm.removeprefix('N-')}){hop}"
             cell = {
                 b: f"{fmt(m.get(f'recall_at_{b}_budget'))}; ceiling "
                 f"{m.get(f'ceiling_at_{b}_budget', (float('nan'),))[0]:.3f}"

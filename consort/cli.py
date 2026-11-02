@@ -286,6 +286,37 @@ def report(
     typer.echo(f"{len(summaries)} runs; tables written to {readme}")
 
 
+@app.command("pod-up")
+def pod_up(
+    name: str = typer.Option(..., help="Must start with consort- (the watchdog's prefix)"),
+    gpu: str = typer.Option("NVIDIA RTX A5000", help="A RunPod gpuTypes id"),
+    cloud: str = "COMMUNITY",
+) -> None:
+    """Rent one pod with a public IP, wait for its SSH port, print id, host, port and price."""
+    from consort.ops.pod import Pods, PodSpec
+    from consort.ops.watchdog import key_from_env
+
+    env.load()
+    pods = Pods(key_from_env())
+    pod_id, cost = pods.deploy(PodSpec(name, gpu, cloud=cloud))
+    try:
+        ssh = pods.wait_ssh(pod_id)
+    except BaseException:
+        pods.delete(pod_id)  # a pod that never came up is not left running
+        raise
+    typer.echo(json.dumps({"id": pod_id, "host": ssh.host, "port": ssh.port, "cost_per_hr": cost}))
+
+
+@app.command("pod-down")
+def pod_down(pod_id: str) -> None:
+    """Delete a pod."""
+    from consort.ops.watchdog import RunPod, key_from_env
+
+    env.load()
+    RunPod(key_from_env()).delete(pod_id)
+    typer.echo(f"deleted {pod_id}")
+
+
 @app.command()
 def watchdog(
     self_pod: bool = typer.Option(

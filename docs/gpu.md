@@ -46,3 +46,29 @@ It never touches a pod without the prefix: the RunPod account is shared with oth
 
 The key is `RUNPOD_API_KEY`, from the environment or `.env`, never printed or committed. The
 idle and lifetime rules, the prefix and every exit path are tested in `tests/test_watchdog.py`.
+
+## Running arm N on a pod
+
+    NAME=consort-gnn-1 GPU="NVIDIA RTX A5000" bash ops/pod-run.sh
+
+From the laptop, one command rents the pod, runs everything on it, copies the outcomes back
+into `data/runs` and deletes it:
+
+1. `consort pod-up` rents one Community pod with a public IP (06 learned that without one SSH
+   goes through a proxy that copies no files) and waits for its public SSH port; a pod that
+   never shows one is deleted.
+2. The code goes over SSH as a `git archive` of HEAD, and a `.env` with only the RunPod key,
+   the pod's own id and the Kaggle token. No GitHub token goes on a rented machine.
+3. On the pod, `ops/pod-setup.sh` starts the watchdog first, with the image's Python, before
+   anything is installed; then checks the card (driver, and a 4096 by 4096 matrix multiply
+   under the pinned torch, which a bad host fails); then installs the locked environment and
+   fetches every dataset against the committed manifests.
+4. `ops/pod-queue.sh` runs each line of `ops/gnn-runs.txt` through `consort train-gnn`,
+   logging ok or FAIL with the time, and packs the outcomes after every run.
+5. The laptop polls every two minutes, copies the log to `data/pod-logs/` and the outcomes
+   into `data/runs`, and deletes the pod on every exit path. If the laptop goes away, the
+   pod's watchdog deletes it after 30 idle minutes or 10 hours.
+
+Training time is not a reported number, so a Community pod is right here. Arm N's neighbour
+sampling runs on the CPU, so the pod asks for at least 8 vCPUs and 48 GB of memory.
+

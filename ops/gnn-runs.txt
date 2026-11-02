@@ -1,0 +1,15 @@
+# Arm N, first pod: GraphSAGE on every dataset at hops 1 and 2 with arm G's cap of 50, then
+# hops 0 and 3 on the real sets for the hop curve, then GAT at 2 hops. Seed 0.
+--dataset elliptic --arch sage --hops 1 --hub-cap 50
+--dataset elliptic --arch sage --hops 2 --hub-cap 50
+--dataset ellipticpp --arch sage --hops 1 --hub-cap 50
+--dataset ellipticpp --arch sage --hops 2 --hub-cap 50
+--dataset ibm-HI-Small --arch sage --hops 1 --hub-cap 50
+--dataset ibm-HI-Small --arch sage --hops 2 --hub-cap 50
+--dataset ibm-LI-Small --arch sage --hops 2 --hub-cap 50
+--dataset elliptic --arch sage --hops 0 --hub-cap 50
+--dataset elliptic --arch sage --hops 3 --hub-cap 50
+--dataset ellipticpp --arch sage --hops 0 --hub-cap 50
+--dataset elliptic --arch gat --hops 2 --hub-cap 50
+--dataset ellipticpp --arch gat --hops 2 --hub-cap 50
+--dataset ibm-HI-Small --arch gat --hops 2 --hub-cap 50
