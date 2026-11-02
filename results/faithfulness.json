@@ -1,0 +1,48 @@
+[
+ {
+  "dataset": "elliptic",
+  "run": "elliptic.temporal.G.h1.cap50.s0",
+  "k": 1,
+  "flagged": 124,
+  "graded": 14,
+  "n_groups": 3,
+  "explained": [
+   0.5714,
+   0.5,
+   1.0
+  ],
+  "random": [
+   0.5164,
+   0.45,
+   0.53
+  ],
+  "lift": [
+   0.055,
+   -0.0208,
+   0.55
+  ]
+ },
+ {
+  "dataset": "elliptic",
+  "run": "elliptic.temporal.G.h2.cap50.s0",
+  "k": 1,
+  "flagged": 124,
+  "graded": 12,
+  "n_groups": 3,
+  "explained": [
+   0.4167,
+   0.0,
+   1.0
+  ],
+  "random": [
+   0.505,
+   0.5,
+   0.54
+  ],
+  "lift": [
+   -0.0883,
+   -0.54,
+   0.48
+  ]
+ }
+]

@@ -458,22 +458,28 @@ def bench(
 
 @app.command()
 def explain(
-    run: Path = typer.Option(..., help="An arm G run's outcomes file on Elliptic"),
+    run: Path = typer.Option(..., help="An arm G run's outcomes file (Elliptic or IBM)"),
     model: Path = typer.Option(..., help="That run's ONNX export (train --onnx)"),
     out: Path = Path("results/faithfulness.json"),
+    sample: int = typer.Option(300, help="IBM: transfers drawn from the alert queue"),
     n_boot: int = 1000,
 ) -> None:
     """Explanation faithfulness for the run's alert queue: occlusion against random k."""
-    from consort.data.tasks import EllipticTask
+    from consort.data.tasks import EllipticTask, IBMTask
     from consort.eval import outcomes as oc
-    from consort.explain.run import run_faithfulness
+    from consort.explain.run import run_faithfulness, run_faithfulness_ibm
 
     meta = oc.read_meta(run)
     task = _task(meta.dataset)
-    if not isinstance(task, EllipticTask):
-        raise typer.BadParameter("faithfulness runs on Elliptic (a node task)")
     cap = int(meta.run.split(".cap")[1].split(".")[0])
-    results = run_faithfulness(task, run, model, meta.hops, cap, n_boot=n_boot)
+    if isinstance(task, EllipticTask):
+        results = run_faithfulness(task, run, model, meta.hops, cap, n_boot=n_boot)
+    elif isinstance(task, IBMTask):
+        results = run_faithfulness_ibm(
+            task, run, model, meta.hops, cap, sample=sample, n_boot=n_boot
+        )
+    else:
+        raise typer.BadParameter(f"no faithfulness run for {meta.dataset}")
     for r in results:
         typer.echo(f"k={r.k}: explained {r.explained}, random {r.random}, lift {r.lift}")
     old = json.loads(out.read_text()) if out.exists() else []

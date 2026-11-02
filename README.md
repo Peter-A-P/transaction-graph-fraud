@@ -126,20 +126,22 @@ days, the leak this build found in itself and fixed (PLAN.md 2.2). All test days
 | IBM AML LI-Small (synthetic) | G, graph features | 0.156 (0.124 to 0.196) | not run yet | not applicable |
 <!-- /report:leakage -->
 
-**Can an investigator read why?** For each run's alert queue (its top 1% of test items), every
-direct neighbour of a flagged transaction is occluded in turn on the served neighbourhood and
-the transaction rescored through the same exported model; the neighbours whose removal drops
-the score most are its explanation. Among flagged transactions with at least one known-illicit
-neighbour, how often the top k hold one, against k neighbours drawn at random. Intervals over
-time steps. Elliptic's own aggregated features are fixed per transaction, so occlusion moves
-only the features this project computes.
+**Can an investigator read why?** For each run's alert queue (its top 1% of test items; on
+IBM a random 300 of it), every direct neighbour of a flagged item is occluded in turn on the
+served neighbourhood and the item rescored through the same exported model; the neighbours
+whose removal drops the score most are its explanation. On IBM a transfer's neighbours are its
+two accounts', on the graph of the days before it. Among flagged items with more than k
+neighbours (with k or fewer, any k is all of them) and at least one known-illicit neighbour,
+how often the top k hold one, against k neighbours drawn at random. Intervals over time steps
+on Elliptic and hours on IBM. Elliptic's own aggregated features, and IBM's degree and volume
+counts, are fixed per node, so occlusion moves only the neighbourhood features this project
+computes. Most of Elliptic's flagged transactions have one or two neighbours, so few qualify.
 
 <!-- report:faithfulness -->
 | Run | k | Flagged | Graded | Top-k holds a known-illicit neighbour | k random neighbours do | Lift |
 |---|---|---|---|---|---|---|
-| elliptic.temporal.G.h1.cap50.s0 | 1 | 124 | 22 | 0.727 (0.617 to 1.000) | 0.692 (0.625 to 0.906) | 0.035 (-0.016 to 0.212) |
-| elliptic.temporal.G.h1.cap50.s0 | 3 | 124 | 22 | 1.000 (1.000 to 1.000) | 1.000 (1.000 to 1.000) | 0.000 (0.000 to 0.000) |
-| elliptic.temporal.G.h1.cap50.s0 | 5 | 124 | 22 | 1.000 (1.000 to 1.000) | 1.000 (1.000 to 1.000) | 0.000 (0.000 to 0.000) |
+| elliptic.temporal.G.h1.cap50.s0 | 1 | 124 | 14 | 0.571 (0.500 to 1.000) | 0.516 (0.450 to 0.530) | 0.055 (-0.021 to 0.550) |
+| elliptic.temporal.G.h2.cap50.s0 | 1 | 124 | 12 | 0.417 (0.000 to 1.000) | 0.505 (0.500 to 0.540) | -0.088 (-0.540 to 0.480) |
 <!-- /report:faithfulness -->
 
 The serving cost per million scores follows in the same shape, with its price date, once the

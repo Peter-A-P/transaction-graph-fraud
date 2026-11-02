@@ -54,6 +54,26 @@ def explain(source: EdgeSource, node: int, hops: int, cap: int, score: ScoreFn) 
     return Explanation(node, base, direct[order].tolist(), imp[order].tolist())
 
 
+PairScoreFn = Callable[[Edges, Edges], float]
+
+
+def explain_transfer(
+    source: EdgeSource, transfer: int, src: int, dst: int, hops: int, cap: int, score: PairScoreFn
+) -> Explanation:
+    """A transfer's explanation (IBM): the direct neighbours of either account, each occluded
+    from both accounts' fetched neighbourhoods at once. `transfer` names the explanation."""
+    es, ed = fetch(source, src, hops, cap), fetch(source, dst, hops, cap)
+    base = score(es, ed)
+    direct = np.union1d(
+        np.union1d(es.dst[es.src == src], es.src[es.dst == src]),
+        np.union1d(ed.dst[ed.src == dst], ed.src[ed.dst == dst]),
+    )
+    direct = direct[(direct != src) & (direct != dst)]
+    imp = np.array([base - score(_without(es, int(u)), _without(ed, int(u))) for u in direct])
+    order = np.argsort(-imp, kind="stable")
+    return Explanation(transfer, base, direct[order].tolist(), imp[order].tolist())
+
+
 @dataclass(frozen=True)
 class Faithfulness:
     k: int
@@ -69,14 +89,15 @@ def graded(
     seed: int = 0,
     n_random: int = 100,
 ) -> tuple[npt.NDArray[np.int64], npt.NDArray[np.float64], npt.NDArray[np.float64]]:
-    """Per graded node (one with a known-illicit direct neighbour): its id, whether its top k
+    """Per graded node (more than k direct neighbours, one of them known illicit): its id, whether its top k
     hold one (0 or 1), and the chance that k random neighbours do. Bootstrapping these over
     groups gives faithfulness its interval."""
     rng = np.random.default_rng(seed)
     nodes, hit, rand = [], [], []
     for e in explanations:
         nb = np.array(e.neighbours, dtype=np.int64)
-        if nb.size == 0 or not illicit[nb].any():
+        # A node with k or fewer neighbours has nothing to rank: any k of them is all of them.
+        if nb.size <= k or not illicit[nb].any():
             continue
         nodes.append(e.node)
         hit.append(float(illicit[nb[:k]].any()))
@@ -95,12 +116,13 @@ def faithfulness(
     n_random: int = 100,
 ) -> Faithfulness:
     """Hit rate of the top-k explanatory neighbours against random k neighbours, over the
-    explained nodes that have a known-illicit direct neighbour to find."""
+    explained nodes with more than k neighbours, one of them known illicit to find."""
     rng = np.random.default_rng(seed)
     hits, rand, graded = 0.0, 0.0, 0
     for e in explanations:
         nb = np.array(e.neighbours, dtype=np.int64)
-        if nb.size == 0 or not illicit[nb].any():
+        # A node with k or fewer neighbours has nothing to rank: any k of them is all of them.
+        if nb.size <= k or not illicit[nb].any():
             continue
         graded += 1
         hits += float(illicit[nb[:k]].any())
