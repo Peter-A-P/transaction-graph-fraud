@@ -1,0 +1,16 @@
+# The third pod (2026-11-02): what the first left undone, then seeds. TabFM on Elliptic's
+# graph features (out of card memory before query batches were cut to 1,000 rows) and the
+# context swap; arm N's headline variants at seeds 1 and 2, for the spread over seeds; and
+# last, TabFM on Elliptic++'s graph features, the run during which the first pod went
+# unreachable, so that if it takes this pod down too nothing else is lost.
+train-tabfm --dataset elliptic --features G --hops 1 --hub-cap 50 --context-size 10000 --device cuda
+train-tabfm --dataset elliptic --features R --context-size 10000 --swap-window 4 --device cuda
+train-gnn --dataset elliptic --arch sage --hops 2 --hub-cap 50 --seed 1
+train-gnn --dataset elliptic --arch sage --hops 2 --hub-cap 50 --seed 2
+train-gnn --dataset ellipticpp --arch sage --hops 2 --hub-cap 50 --seed 1
+train-gnn --dataset ellipticpp --arch sage --hops 2 --hub-cap 50 --seed 2
+train-gnn --dataset ibm-HI-Small --arch sage --hops 2 --hub-cap 50 --neg-share 0.2 --reverse-mp --ego-ids --seed 1
+train-gnn --dataset ibm-HI-Small --arch sage --hops 2 --hub-cap 50 --neg-share 0.2 --reverse-mp --ego-ids --seed 2
+train-gnn --dataset ibm-LI-Small --arch sage --hops 2 --hub-cap 50 --neg-share 0.2 --seed 1
+train-gnn --dataset ibm-LI-Small --arch sage --hops 2 --hub-cap 50 --neg-share 0.2 --seed 2
+train-tabfm --dataset ellipticpp --features G --hops 1 --hub-cap 50 --context-size 30000 --device cuda
