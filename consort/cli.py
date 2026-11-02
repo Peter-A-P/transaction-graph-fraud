@@ -223,6 +223,70 @@ def eval_cmd(
 
 
 @app.command()
+def report(
+    runs: Path = RUNS,
+    out: Path = Path("results/summary.json"),
+    readme: Path = Path("README.md"),
+    n_boot: int = 1000,
+    tables_only: bool = typer.Option(False, help="Rebuild the tables from the summary file"),
+) -> None:
+    """Summarise every run (cached by its outcomes file) and fill the README's tables."""
+    from consort.data.splits import ELLIPTIC_TEMPORAL
+    from consort.eval import outcomes as oc
+    from consort.report import summary as sm
+    from consort.report import tables as tb
+
+    if not tables_only:
+        metas = {
+            p.name.removesuffix(".meta.json"): oc.RunMeta.model_validate_json(p.read_text())
+            for p in sorted(runs.glob("*.meta.json"))
+        }
+        contexts: dict[str, sm.Context | None] = {}
+
+        def context(dataset: str) -> sm.Context | None:
+            if dataset not in contexts:
+                if dataset in ("elliptic", "ellipticpp"):
+                    # Bootstrap groups are the split's groups: the step, or the first step.
+                    contexts[dataset] = sm.Context(ELLIPTIC_TEMPORAL)
+                elif dataset.startswith("ibm-"):
+                    from consort.data.tasks import IBMTask
+
+                    task = _task(dataset)
+                    assert isinstance(task, IBMTask) and task.data is not None
+                    ids = task.items["item_id"].tolist()
+                    t = task.data.transfers
+                    contexts[dataset] = sm.Context(
+                        task.split,
+                        split_group=dict(zip(ids, task.items["split_group"].tolist(), strict=True)),
+                        pattern_of=dict(zip(ids, t["pattern"].tolist(), strict=True)),
+                    )
+                else:
+                    contexts[dataset] = None
+            return contexts[dataset]
+
+        done = []
+        for name in metas:
+            typer.echo(f"summarising {name}")
+            path = runs / f"{name}.outcomes.parquet"
+            done.append(sm.summarise(path, metas, context, Path("data/report"), n_boot))
+        sm.write_all(done, out)
+    summaries = sm.read_all(out)
+
+    def fetch(dataset: str, hops: int) -> tuple[str, str]:
+        return ("not measured yet", "not measured yet")
+
+    tables = {
+        "main": tb.main_table(summaries),
+        "patterns": tb.pattern_table(summaries),
+        "hops": tb.hop_table(summaries, fetch),
+        "shift": tb.shift_table(summaries),
+        "leakage": tb.leakage_table(summaries),
+    }
+    readme.write_text(tb.fill(readme.read_text(encoding="utf8"), tables), encoding="utf8")
+    typer.echo(f"{len(summaries)} runs; tables written to {readme}")
+
+
+@app.command()
 def watchdog(
     self_pod: bool = typer.Option(
         False, "--self", help="On a pod: watch only this pod (RUNPOD_POD_ID) and delete it"

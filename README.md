@@ -16,56 +16,53 @@ what a neighbourhood costs to fetch and score when the decision is live.
 
 ## Result
 
-Nothing is measured yet. The plan was written before the first line of code
-([PLAN.md](PLAN.md)); these are the tables the build fills, by `consort report`.
+Partly measured: arms R and G on all four datasets, single seed, on the laptop; arm N and the
+TabFM column need the rented GPU and are still empty. Every table below is written by
+`consort report` from `results/summary.json`; none is edited by hand. Every number is a point
+estimate with its 95% bootstrap interval, resampled over groups (time steps on Elliptic, first
+steps on Elliptic++, hours on IBM), never over single items.
 
-**Does the graph help?** Per dataset, 95% bootstrap intervals over groups, paired deltas on
-identical accounts.
+**Does the graph help?** The headline hop count for arms G and N is the one with the best
+validation AUPRC, never chosen on test. "Minus R" is a paired difference on identical items.
+An alert budget flags that share of all test items; its ceiling is the most recall any ranking
+could reach at it (alerts over positives), which binds on the real sets, where 4 to 6% of
+labelled test items are illicit. IBM rows leave out the generator's tail, days at the end that
+are nearly all laundering (PLAN.md 2.2); the leakage table below reads all test days.
 
-| Dataset | Arm | AUPRC | Recall at 1% FPR | Recall at 0.5% alert budget | Recall at 1% alert budget |
-|---|---|---|---|---|---|
-| Elliptic (real) | R, row only | | | | |
-| Elliptic (real) | G, graph features | | | | |
-| Elliptic (real) | N, graph neural network | | | | |
-| Elliptic (real) | TabFM on R's and G's features | | | | |
-| IBM AML HI-Small (synthetic) | R, G, N, TabFM | | | | |
-| IBM AML LI-Small (synthetic) | R, G, N, TabFM | | | | |
+<!-- report:main -->
+<!-- /report:main -->
 
-**Which shapes only the graph can see.** Recall by laundering pattern on the synthetic set. The
-patterns are the generator's; this table measures what it plants, not what a bank sees.
+**Which shapes only the graph can see.** Recall at a 1% alert budget by laundering pattern on
+IBM HI-Small, all test days: of each pattern's laundering transfers, the share one shared queue
+reaches. The patterns are the generator's; this table measures what it plants, not what a bank
+sees, and about a fifth of the attempts behind each name are too small to show their shape
+([docs/patterns.md](docs/patterns.md)).
 
-| Pattern | R | G | N |
-|---|---|---|---|
-| Fan-in | | | |
-| Fan-out | | | |
-| Cycle | | | |
-| Scatter-gather | | | |
-| Gather-scatter | | | |
-| Bipartite | | | |
-| Stack | | | |
-| Random | | | |
+<!-- report:patterns -->
+<!-- /report:patterns -->
 
-**How far guilt travels.** Gain per hop beside the cost of fetching it.
+**How far guilt travels.** AUPRC by hop count (hop 0 of arm G is arm R), beside the cost of
+fetching that neighbourhood live. Fetch latency comes only from the rented machine or the VPS,
+never from the laptop.
 
-| Hops | G, AUPRC | N, AUPRC | Fetch p50 (ms) | Fetch p99 (ms) |
-|---|---|---|---|---|
-| 0 | | | | |
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
+<!-- report:hops -->
+<!-- /report:hops -->
 
-**When the world shifts.** Elliptic, trained before time step 43 (the dark-market shutdown),
-tested before and after it; and the context swap.
+**When the world shifts.** Trained on steps 1 to 34, tested before and after the dark-market
+shutdown at step 43. The recovery column (TabFM's context swap, retraining) is still to run.
 
-| Arm | Before step 43 | After step 43 | Recovery by context swap or retraining |
-|---|---|---|---|
-| R | | | |
-| G | | | |
-| N | | | |
-| TabFM, recent-context | | | |
+<!-- report:shift -->
+<!-- /report:shift -->
 
-**The leakage gap, the explanation faithfulness and the serving cost** follow in the same
-shape, each with its interval and its price date.
+**The leakage gap.** The same arm under the temporal, inductive split this project reports;
+under the random split most papers use; and, on IBM, with graph features that could see later
+days, the leak this build found in itself and fixed (PLAN.md 2.2). All test days.
+
+<!-- report:leakage -->
+<!-- /report:leakage -->
+
+The explanation faithfulness and the serving cost follow in the same shape, each with its
+interval and its price date, once arm N and the rented machine have run.
 
 ## What this does not do
 
