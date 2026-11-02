@@ -369,14 +369,15 @@ class _EdgeViews:
     def batches(
         self, items: npt.NDArray[np.int64], size: int, shuffle: bool, rng: np.random.Generator
     ) -> list[tuple[int, npt.NDArray[np.int64]]]:
-        """Batches that never mix days, so each is scored on one graph; shuffled across days
-        when training, in day order otherwise."""
+        """Batches that never mix days, so each is scored on one graph, and a day's batches run
+        together, so each day's graph is built once per pass. Training shuffles the days and
+        the items within a day; scoring runs in day order. (Shuffling batches across days made
+        nearly every batch rebuild a day graph: a HI-Small run took 4 hours, 2026-11-02.)"""
         out = []
-        for d in np.unique(self.day[items]):
+        days = np.unique(self.day[items])
+        for d in rng.permutation(days) if shuffle else days:
             of_day = items[self.day[items] == d]
             out += [(int(d), of_day[c]) for c in _batches(len(of_day), size, shuffle, rng)]
-        if shuffle:
-            out = [out[i] for i in rng.permutation(len(out))]
         return out
 
 

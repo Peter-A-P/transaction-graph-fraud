@@ -59,42 +59,46 @@ class CappedSampler:
         self.eid = eid[order].astype(np.int64)
         self.g = graph
         self.n_kept = int(kept.shape[0])
+        self._local = np.full(graph.n_nodes, -1, dtype=np.int64)
 
     def batch(self, seeds: npt.ArrayLike, hops: int) -> Batch:
         seeds_a = np.asarray(seeds, dtype=np.int64)
-        uniq_seeds = list(dict.fromkeys(seeds_a.tolist()))
-        seen = set(uniq_seeds)
-        ordered = list(uniq_seeds)
-        frontier = np.array(uniq_seeds, dtype=np.int64)
+        # `local` maps a global id to its position in the batch, -1 outside it; it is reset
+        # after each batch, so the work is the batch's size, not the graph's.
+        local = self._local
+        nodes = _first_seen(seeds_a)
+        n_seeds = int(nodes.size)
+        local[nodes] = np.arange(n_seeds)
+        frontier = nodes
         expanded: list[IntArray] = []
-        for _ in range(hops):
-            if frontier.size == 0:
-                break
-            expanded.append(frontier)
-            pos, _ = _gather(self.indptr, frontier)
-            new = [v for v in dict.fromkeys(self.other[pos].tolist()) if v not in seen]
-            seen.update(new)
-            ordered.extend(new)
-            frontier = np.array(new, dtype=np.int64)
-        nodes = np.array(ordered, dtype=np.int64)
-        if expanded:
-            pos, _ = _gather(self.indptr, np.concatenate(expanded))
-            eids = np.unique(self.eid[pos])
-        else:
-            eids = np.empty(0, np.int64)
-        sorter = np.argsort(nodes)
-        src, dst = self.g.src[eids], self.g.dst[eids]
-        inside = np.isin(src, nodes) & np.isin(dst, nodes)
-        eids, src, dst = eids[inside], src[inside], dst[inside]
-        local = np.stack(
-            [
-                sorter[np.searchsorted(nodes, src, sorter=sorter)],
-                sorter[np.searchsorted(nodes, dst, sorter=sorter)],
-            ]
-        )
-        return Batch(
-            nodes=nodes, edge_index=local.astype(np.int64), edge_id=eids, n_seeds=len(uniq_seeds)
-        )
+        try:
+            for _ in range(hops):
+                if frontier.size == 0:
+                    break
+                expanded.append(frontier)
+                pos, _ = _gather(self.indptr, frontier)
+                cand = _first_seen(self.other[pos])
+                new = cand[local[cand] < 0]
+                local[new] = np.arange(nodes.size, nodes.size + new.size)
+                nodes = np.concatenate([nodes, new])
+                frontier = new
+            if expanded:
+                pos, _ = _gather(self.indptr, np.concatenate(expanded))
+                eids = np.unique(self.eid[pos])
+            else:
+                eids = np.empty(0, np.int64)
+            ls, ld = local[self.g.src[eids]], local[self.g.dst[eids]]
+            inside = (ls >= 0) & (ld >= 0)
+            edge_index = np.stack([ls[inside], ld[inside]]).astype(np.int64)
+        finally:
+            local[nodes] = -1
+        return Batch(nodes=nodes, edge_index=edge_index, edge_id=eids[inside], n_seeds=n_seeds)
+
+
+def _first_seen(a: IntArray) -> IntArray:
+    """The distinct values of `a` in order of first appearance."""
+    _, first = np.unique(a, return_index=True)
+    return a[np.sort(first)]
 
 
 def local_ids(batch: Batch, ids: npt.ArrayLike) -> IntArray:
