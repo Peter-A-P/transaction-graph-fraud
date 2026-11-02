@@ -1,4 +1,5 @@
-"""Fetch a source's files from Kaggle with the reader's token, and verify them.
+"""Fetch a source's files, from Kaggle with the reader's token or from the authors' public
+Google Drive folder, and verify them.
 
 The first fetch of a source writes manifests/<source>.json (file names, sizes, SHA-256) and
 that manifest is committed. Every later fetch, on any machine, is checked against it, and a
@@ -24,9 +25,10 @@ MANIFESTS = Path("manifests")
 @dataclass(frozen=True)
 class Source:
     name: str
-    kaggle: str
+    kaggle: str  # the Kaggle slug, or "gdrive:<folder id>" for a Drive source
     files: tuple[str, ...]
     licence: str
+    drive_ids: tuple[str, ...] = ()  # one Google Drive file id per file, for a Drive source
 
 
 SOURCES: dict[str, Source] = {
@@ -49,6 +51,18 @@ SOURCES: dict[str, Source] = {
         )
         for tier in ("HI-Small", "LI-Small", "HI-Medium", "LI-Medium")
     },
+    # The actor (wallet address) graph only; ids from the authors' folder, listed 2026-11-01.
+    "ellipticpp": Source(
+        "ellipticpp",
+        "gdrive:1MRPXz79Lu_JGLlJ21MDfML44dKN9R08l",
+        ("wallets_features.csv", "wallets_classes.csv", "AddrAddr_edgelist.csv"),
+        "none stated; used with both authors' written permission of 2026-11-01 (docs/data.md)",
+        drive_ids=(
+            "1mhrrobYdnaxYBIVK06EpKB2EwV-ERlce",
+            "1ZaACVE4wSIx7r8Z9ze7ExQnJ0wzGrVkp",
+            "1x5JdNWX8fVM3FO8I0wOLDAeh2qaB53uV",
+        ),
+    ),
 }
 
 
@@ -96,7 +110,34 @@ def verify(source: Source, root: Path, manifest: Manifest) -> None:
             )
 
 
+def _download_drive(source: Source, root: Path) -> None:
+    import gdown
+
+    root.mkdir(parents=True, exist_ok=True)
+    for rel, file_id in zip(source.files, source.drive_ids, strict=True):
+        if (root / rel).exists():
+            continue
+        part = root / f"{rel}.part"
+        # Drive drops long transfers now and then; resume from what arrived, a few times.
+        for attempt in range(1, 6):
+            try:
+                if gdown.download(id=file_id, output=str(part), quiet=True, resume=True):
+                    break
+            except OSError as e:
+                if attempt == 5:
+                    raise
+                print(f"{rel}: download interrupted ({e}); resuming")
+        else:
+            raise FileNotFoundError(f"Google Drive download of {rel} ({file_id}) failed")
+        part.replace(root / rel)
+        for stray in root.glob(f"{rel}.part*"):  # gdown's own temporary files on a resume
+            stray.unlink()
+
+
 def _download(source: Source, root: Path) -> None:
+    if source.drive_ids:
+        _download_drive(source, root)
+        return
     kaggle = shutil.which("kaggle")
     if kaggle is None:
         raise RuntimeError("the kaggle command is not on PATH; run inside `uv run`")

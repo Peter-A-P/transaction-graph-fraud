@@ -136,6 +136,19 @@ a file differs.
   aggregates are reported; the paper is cited in the README. The authors are sent the results
   when they are in.
 
+- **Files fetched** 2026-11-01 from the authors' Google Drive folder (the actor graph only):
+  `wallets_features.csv`, `wallets_classes.csv`, `AddrAddr_edgelist.csv`, checksums in
+  `manifests/ellipticpp.json`. The counts match the paper: 822,942 addresses (14,266 illicit,
+  251,088 licit, 557,588 unknown) and 2,868,964 address-to-address edges.
+- **The wallet features are lifetime aggregates.** `wallets_features.csv` has 1,268,260 rows,
+  one per address and time step it appears in, but every row of an address carries the same
+  values: its last block, its lifetime in blocks, the number of steps it appears in and its
+  totals over all 49 steps (checked on all 273,268 addresses that appear in more than one
+  step). Under a temporal split, an address first seen in a training step would carry its
+  activity from the test steps. The address-to-address edges carry no time step either. So
+  these files cannot feed a temporal arm as they are; how Elliptic++ is used is decided in
+  PLAN.md before any arm runs on it.
+
 ## DGraph-Fin (stub)
 
 - **Source:** Huang et al., NeurIPS 2022. Host `dgraph.xinye.com` did not resolve on
