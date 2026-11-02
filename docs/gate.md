@@ -33,9 +33,16 @@ the 1% alert budget, with a margin of 3 points.
 | 2026-11-02 | elliptic | R | N, GraphSAGE, 2 hops | 17.3% | 15.6% | -1.7 points (-4.7 to +1.5) | block |
 | 2026-11-02 | ellipticpp | R | G, 3 hops, cap 50 | 20.7% | 21.9% | +1.1 points (-0.1 to +2.4) | pass |
 | 2026-11-02 | ellipticpp | R | N, GraphSAGE, 2 hops | 20.7% | 20.2% | -0.5 points (-1.7 to +0.7) | pass |
+| 2026-11-02 | ibm-hi-small | R | N, GraphSAGE with reverse messages and ego ids, 2 hops | 57.9% | 64.7% (62.4 to 67.0) | +6.9 points (+4.2 to +9.7) | pass |
+| 2026-11-02 | ibm-li-small | R | N, GraphSAGE, 2 hops | 33.2% | 47.1% (43.6 to 50.6) | +14.0 points (+10.0 to +18.2) | pass |
+| 2026-11-02 | elliptic | R | G, 3 hops, cap 50 | 17.3% | 17.3% | +0.0 points (-2.9 to +3.1) | pass |
 
 Each candidate is the arm's headline run, its hop count (and for arm N its architecture)
-chosen on validation AUPRC. Arm N on IBM waits for its rerun (docs/gpu.md).
+chosen on validation AUPRC. Elliptic's arm G headline moved from two hops to three when the
+three-hop run, which had no validation score, was rerun with one: the two runs reach exactly
+the same share at the budget, and the gate's lower bound sits at -3.1 points for one and -2.9
+for the other, on either side of the margin. That flip is resampling noise at the edge of the
+margin, not a difference between the runs, and it is reported as both decisions.
 
 Read the verdicts as what they are: non-inferiority at a 3-point margin, not improvement.
 "block" on Elliptic means the gate cannot rule out a 3-point drop, not that one was seen: the
@@ -45,7 +52,7 @@ alert illicit); arm N's queue holds 12 licit transactions. The same holds on Ell
 alerts against 3,259 illicit addresses, a ceiling of 22%), where the larger test set narrows
 the interval enough for both challengers to pass. On the real sets the 1% budget asks too
 little to separate the arms; the README's AUPRC column is where they differ. On IBM, where
-the budget reaches most of the laundering, arm G's gain is twenty points or more.
+the budget reaches most of the laundering, arm G's gain is twenty points or more, and arm N's seven to fourteen.
 
 On every decision so far the gate's recall at the budget equals the evaluator's to the third
 decimal (0.579 and 0.786 on HI-Small), two independent implementations agreeing.
