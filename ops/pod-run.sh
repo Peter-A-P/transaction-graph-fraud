@@ -17,18 +17,24 @@ GPUS="${GPUS:-NVIDIA RTX A5000,NVIDIA GeForce RTX 3090,NVIDIA RTX 5000 Ada Gener
 KEY="${KEY:-$HOME/.ssh/runpod_smallprint}"
 mkdir -p data/pod-logs
 
+# On every exit, terminate every pod with this run's name: a launch that failed half way
+# (2026-11-01: two pods outlived a failed launch) leaves nothing running.
+sweep() { uv run --no-sync consort pod-down --name "$NAME" || echo "SWEEP FAILED: check the console"; }
+trap 'echo "exit: sweeping pods named $NAME"; sweep' EXIT
 info=""
 IFS=, read -ra cards <<< "$GPUS"
 for GPU in "${cards[@]}"; do
-  if info=$(uv run --no-sync consort pod-up --name "$NAME" --gpu "$GPU" 2>/dev/null); then break; fi
-  echo "no $GPU in supply"
+  if info=$(uv run --no-sync consort pod-up --name "$NAME" --gpu "$GPU" 2>data/pod-logs/pod-up.err); then break; fi
   info=""
+  if grep -q "SUPPLY_CONSTRAINT\|no longer any instances" data/pod-logs/pod-up.err; then
+    echo "no $GPU in supply"
+  else
+    echo "pod-up failed on $GPU:"; tail -5 data/pod-logs/pod-up.err; exit 1
+  fi
 done
-[ -n "$info" ] || { echo "no card in supply; nothing rented"; exit 1; }
+[ -n "$info" ] || { echo "no card in supply"; exit 1; }
 read -r id host port cost < <(python -c "import json,sys; d=json.loads(sys.argv[1]); print(d['id'], d['host'], d['port'], d['cost_per_hr'])" "$info")
 echo "pod $id ($GPU, US\$$cost/h) at $host:$port, $(date -u +%FT%TZ)"
-down() { uv run --no-sync consort pod-down "$id" || true; }
-trap 'echo "stopping: deleting $id"; down' EXIT
 
 SSH=(ssh -i "$KEY" -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30 -o ConnectTimeout=30 -p "$port" "root@$host")
 for i in $(seq 1 20); do "${SSH[@]}" true 2>/dev/null && break; sleep 15; done

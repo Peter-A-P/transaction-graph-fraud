@@ -50,3 +50,21 @@ def test_only_a_public_ssh_port_counts() -> None:
     assert public_ssh(proxied) is None
     s = public_ssh(public)
     assert s is not None and (s.host, s.port) == ("1.2.3.4", 40123)
+
+
+def test_queries_are_well_formed_graphql_strings() -> None:
+    from consort.ops.pod import pod_query
+    from consort.ops.watchdog import terminate_mutation
+
+    for q in (pod_query("abc123"), terminate_mutation("abc123")):
+        assert q.count("{") == q.count("}")
+        assert '"abc123"' in q
+    assert terminate_mutation("x").startswith("mutation { podTerminate(")
+
+
+def test_a_sweep_sees_pods_that_are_still_starting() -> None:
+    from consort.ops.watchdog import parse
+
+    payload = {"data": {"myself": {"pods": [{"id": "s", "name": "consort-x", "runtime": None}]}}}
+    assert parse(payload, 0.0) == []
+    assert [p.pod_id for p in parse(payload, 0.0, include_starting=True)] == ["s"]

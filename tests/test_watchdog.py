@@ -72,7 +72,7 @@ class FakeAPI(RunPod):
         self.deleted: list[str] = []
         self.n = 0
 
-    def pods(self, at: float) -> list[Sample]:
+    def pods(self, at: float, include_starting: bool = False) -> list[Sample]:
         self.n += 1
         if self.fail_at == self.n:
             raise ValueError("unexpected answer")

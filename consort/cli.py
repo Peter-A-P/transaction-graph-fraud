@@ -14,6 +14,9 @@ from consort import env
 from consort.data import fetch as fetch_mod
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
+    import pandas as pd
+
     from consort.data.tasks import BootGroup, FeatureView, Task
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
@@ -108,6 +111,12 @@ def patterns(tier: str = "HI-Small") -> None:
         typer.echo(f"| {name} | {total} | {same} ({same / total:.0%}) | {other} |")
 
 
+def _nlr(task: Task, visible: npt.NDArray[np.bool_]) -> pd.DataFrame:
+    from consort.eval.leak import neighbour_label_rate
+
+    return neighbour_label_rate(task, visible)
+
+
 @app.command()
 def train(
     arm: str = typer.Argument(..., help="R or G"),
@@ -119,6 +128,11 @@ def train(
     boot_group: str = "hour",
     out: Path = RUNS,
     onnx: bool = typer.Option(False, help="Also export the booster to checkpoints/ as ONNX"),
+    neighbour_label_rate: bool = typer.Option(
+        False,
+        help="Add the neighbour-label-rate feature, built outside the registry, for the "
+        "rejected-approach experiment only (docs/rejected.md); never a headline run",
+    ),
     feature_view: str = typer.Option(
         "prior-days",
         help="IBM: prior-days (each transfer sees earlier days only), or window (sees its "
@@ -140,7 +154,14 @@ def train(
         seed,
         out,
         split_kind=kind,
-        arm_label=f"{arm}-window" if feature_view == "window" and arm == "G" else None,
+        extra=_nlr if neighbour_label_rate else None,
+        arm_label=(
+            f"{arm}+nlr"
+            if neighbour_label_rate
+            else f"{arm}-window"
+            if feature_view == "window" and arm == "G"
+            else None
+        ),
         onnx_dir=Path("checkpoints") if onnx else None,
     )
     typer.echo(str(path))
@@ -308,13 +329,24 @@ def pod_up(
 
 
 @app.command("pod-down")
-def pod_down(pod_id: str) -> None:
-    """Delete a pod."""
-    from consort.ops.watchdog import RunPod, key_from_env
+def pod_down(
+    pod_id: str = typer.Argument("", help="The pod to terminate"),
+    name: str = typer.Option("", help="Instead: terminate every pod with this exact name"),
+) -> None:
+    """Terminate a pod, or every pod with a name (the launcher's sweep on every exit)."""
+    from consort.ops.watchdog import PREFIX, RunPod, key_from_env
 
     env.load()
-    RunPod(key_from_env()).delete(pod_id)
-    typer.echo(f"deleted {pod_id}")
+    api = RunPod(key_from_env())
+    if name:
+        if not name.startswith(PREFIX):
+            raise typer.BadParameter(f"only this project's pods ({PREFIX}...) are swept")
+        ids = [s.pod_id for s in api.pods(0.0, include_starting=True) if s.name == name]
+    else:
+        ids = [pod_id] if pod_id else []
+    for i in ids:
+        api.delete(i)
+        typer.echo(f"terminated {i}")
 
 
 @app.command()

@@ -57,6 +57,14 @@ It never touches a pod without the prefix: the RunPod account is shared with oth
 The key is `RUNPOD_API_KEY`, from the environment or `.env`, never printed or committed. The
 idle and lifetime rules, the prefix and every exit path are tested in `tests/test_watchdog.py`.
 
+**Terminating goes through GraphQL (`podTerminate`).** RunPod's REST delete answers 403 to this
+account's key. That was found on 2026-11-01, the hard way: a launch failed after two pods were
+created (a malformed query), its clean-up called the REST delete, and both pods kept running
+until they were found by listing the account and terminated through GraphQL, minutes later.
+The launcher now sweeps every pod with its run's name on every exit, and the whole path (rent,
+wait for the public SSH port, sweep by name, confirm the account empty) was run live on a
+US$0.12 card before the first real queue.
+
 ## Running arm N on a pod
 
     NAME=consort-gnn-1 GPU="NVIDIA RTX A5000" bash ops/pod-run.sh

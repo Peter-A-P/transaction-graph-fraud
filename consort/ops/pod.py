@@ -68,11 +68,12 @@ class Ssh:
         return f"ssh -i {key} -p {self.port} root@{self.host}"
 
 
-POD_QUERY = (
-    'query {{ pod(input: {{podId: "{id}"}}) {{ id desiredStatus costPerHr '
-    "machine { gpuDisplayName } runtime { uptimeInSeconds ports { ip isIpPublic privatePort "
-    "publicPort type } } } }"
-)
+def pod_query(pod_id: str) -> str:
+    return (
+        f"query {{ pod(input: {{podId: {json.dumps(pod_id)}}}) {{ id desiredStatus costPerHr "
+        "machine { gpuDisplayName } runtime { uptimeInSeconds ports { ip isIpPublic "
+        "privatePort publicPort type } } } }"
+    )
 
 
 class Pods(RunPod):
@@ -90,7 +91,7 @@ class Pods(RunPod):
         return str(pod["id"]), float(pod.get("costPerHr") or 0.0)
 
     def ssh(self, pod_id: str) -> Ssh | None:
-        pod = self._graphql(POD_QUERY.format(id=pod_id))["data"]["pod"]
+        pod = self._graphql(pod_query(pod_id))["data"]["pod"]
         return public_ssh(pod)
 
     def wait_ssh(

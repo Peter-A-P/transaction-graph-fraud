@@ -27,7 +27,6 @@ from dataclasses import dataclass, field
 from typing import Any
 
 GRAPHQL = "https://api.runpod.io/graphql"
-REST = "https://rest.runpod.io/v1/pods"
 PREFIX = "consort-"
 QUERY = (
     "query { myself { pods { id name desiredStatus costPerHr runtime { uptimeInSeconds "
@@ -91,8 +90,9 @@ class Tracker:
         return out
 
 
-def parse(payload: Any, at: float) -> list[Sample]:
-    """Samples from the GraphQL answer; a pod with no runtime yet (starting) is skipped."""
+def parse(payload: Any, at: float, include_starting: bool = False) -> list[Sample]:
+    """Samples from the GraphQL answer. A pod with no runtime yet (starting) is skipped for
+    the idle rule, or kept with zero uptime when a sweep needs every pod."""
     data = payload.get("data")
     if not isinstance(data, dict):
         raise RuntimeError(f"RunPod answered without data: {payload.get('errors')}")
@@ -100,6 +100,8 @@ def parse(payload: Any, at: float) -> list[Sample]:
     for pod in data["myself"]["pods"]:
         rt = pod.get("runtime")
         if not rt:
+            if include_starting:
+                out.append(Sample(pod["id"], pod.get("name") or "", at, 0.0, 0.0, 0.0, 0.0))
             continue
         gpus = [float(g.get("gpuUtilPercent") or 0) for g in (rt.get("gpus") or [])]
         out.append(
@@ -128,12 +130,23 @@ class RunPod:
         with urllib.request.urlopen(req, timeout=self._timeout) as r:
             return bytes(r.read())
 
-    def pods(self, at: float) -> list[Sample]:
+    def pods(self, at: float, include_starting: bool = False) -> list[Sample]:
         raw = self._call(GRAPHQL, "POST", json.dumps({"query": QUERY}).encode())
-        return parse(json.loads(raw), at)
+        return parse(json.loads(raw), at, include_starting)
 
     def delete(self, pod_id: str) -> None:
-        self._call(f"{REST}/{pod_id}", "DELETE")
+        """Terminate the pod through GraphQL. The REST endpoint answers 403 to this account's
+        key (found 2026-11-01, when two pods outlived a failed launch), so it is not used."""
+        raw = self._call(
+            GRAPHQL, "POST", json.dumps({"query": terminate_mutation(pod_id)}).encode()
+        )
+        out = json.loads(raw)
+        if out.get("errors"):
+            raise RuntimeError(f"RunPod refused to terminate {pod_id}: {out['errors']}")
+
+
+def terminate_mutation(pod_id: str) -> str:
+    return f"mutation {{ podTerminate(input: {{podId: {json.dumps(pod_id)}}}) }}"
 
 
 def watch(
