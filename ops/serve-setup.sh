@@ -4,6 +4,9 @@
 # in Docker), with a password made here and never written anywhere but this pod's environment.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+export PATH="$HOME/.local/bin:$PATH"
+# The Neo4j driver is its own extra; a sync names every extra it keeps, or it drops the rest.
+uv sync --frozen --extra gnn --extra export --extra tabfm --extra neo4j
 apt-get update -qq && apt-get install -y -qq openjdk-21-jre-headless curl > /dev/null
 if [ ! -d /opt/neo4j ]; then
   curl -fsSL https://dist.neo4j.org/neo4j-community-5.26.0-unix.tar.gz | tar -xz -C /opt
