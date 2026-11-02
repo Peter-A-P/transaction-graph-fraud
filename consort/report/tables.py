@@ -44,7 +44,13 @@ PATTERN_NAMES = {
     "RANDOM": "Random",
     "NONE": "No named pattern",
 }
-ARM_NAMES = {"R": "R, row only", "G": "G, graph features", "N": "N, graph neural network"}
+ARM_NAMES = {
+    "R": "R, row only",
+    "G": "G, graph features",
+    "N": "N, graph neural network",
+    "R-retrain": "R, retrained each test step on the latest labels",
+    "TabFM-R-swap": "TabFM-R, context swapped each test step to the latest labels",
+}
 
 
 def fmt(t: Triple | None) -> str:
@@ -76,13 +82,23 @@ def headline(runs: Sequence[RunSummary], dataset: str, arm: str) -> RunSummary |
     return max(pool, key=lambda r: (r.val_auprc is not None, r.val_auprc or 0.0, -r.hops))
 
 
-def _arms(runs: Sequence[RunSummary], dataset: str) -> list[str]:
+RECOVERY = ("-swap", "-retrain")
+
+
+def _arms(runs: Sequence[RunSummary], dataset: str, recovery: bool = False) -> list[str]:
+    """The frozen arms, then TabFM's; with `recovery`, also the runs refitted step by step
+    on labels from test steps before the one scored (PLAN.md 2.6), which only the shift table
+    shows: they use labels the frozen arms never see, so they sit beside them, not among them."""
     seen = {
         "N" if r.arm.startswith("N-") else r.arm
         for r in runs
         if r.dataset == dataset and r.kind == "temporal"
     }
-    order = ["R", "G", "N", *sorted(a for a in seen if a.startswith("TabFM"))]
+    frozen = {a for a in seen if not a.endswith(RECOVERY)}
+    order = ["R", "G", "N", *sorted(a for a in frozen if a.startswith("TabFM"))]
+    if recovery:
+        order += sorted(a for a in seen if a.endswith("-retrain"))
+        order += sorted(a for a in seen if a.endswith("-swap"))
     return [a for a in order if a in seen or a in ("R", "G", "N")]
 
 
@@ -158,7 +174,7 @@ def shift_table(runs: Sequence[RunSummary]) -> str:
         "|---|---|---|---|---|",
     ]
     for ds in ("elliptic", "ellipticpp"):
-        for arm in _arms(runs, ds):
+        for arm in _arms(runs, ds, recovery=True):
             s = headline(runs, ds, arm)
             name = ARM_NAMES.get(arm, arm)
             if s is None or not s.slices:

@@ -58,8 +58,12 @@ def test_summaries_are_cached_by_the_outcomes_file(runs: Path, tmp_path: Path) -
     for p in cached:  # mark every cached summary; a cache hit must return the mark
         s = sm.RunSummary.model_validate_json(p.read_text())
         s.metrics["auprc"] = (0.123, 0.1, 0.2)
+        s.val_auprc = -1.0
         p.write_text(s.model_dump_json())
-    assert {s.metrics["auprc"][0] for s in _summaries(runs, tmp_path / "cache")} == {0.123}
+    again = _summaries(runs, tmp_path / "cache")
+    assert {s.metrics["auprc"][0] for s in again} == {0.123}
+    # The validation score is the meta file's, read afresh: a rerun can add it.
+    assert [s.val_auprc for s in again] == [s.val_auprc for s in first]
 
 
 def test_headline_hop_is_chosen_on_validation(runs: Path, tmp_path: Path) -> None:

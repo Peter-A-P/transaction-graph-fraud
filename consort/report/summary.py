@@ -115,7 +115,9 @@ def summarise(
     if key.exists():
         cached = RunSummary.model_validate_json(key.read_text())
         if cached.baseline == base_name:
-            return cached
+            # The meta file can change without the outcomes (a rerun that adds the validation
+            # score scores the same items the same way): its fields are read afresh.
+            return cached.model_copy(update={"val_auprc": meta.val_auprc})
     o = oc.read(path)
     kind = "random" if meta.split.endswith("-random") else "temporal"
     est = evaluate(o, n_boot=n_boot)

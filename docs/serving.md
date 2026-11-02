@@ -88,6 +88,23 @@ sorted by source only. Calls now run on one thread in every library, the benchma
 the container's usable CPUs, and DuckDB keeps one table per end. Its results are kept
 outside the repository with the first run's.
 
+## The run reported (2026-11-02)
+
+On a Secure Cloud RTX 4090 pod at US$0.89 an hour (read 2026-11-02), whose host reported 48
+cores and whose container could use 10.2 of them, one thread per call. The README's serving
+table is written from `results/serving.json` by `consort report`. What it shows:
+
+- **The account's own history is the tail.** Fetching it whole puts p99 at 100 ms or more in
+  every store and near 10 seconds in Neo4j, because a transfer that touches a hub pulls
+  thousands of edges (9,600 on average per call). Reading the counts from counters instead
+  brings p99 to within a few milliseconds of p50 in memory and DuckDB, and to 134 ms in Neo4j
+  at one hop.
+- **At one hop, every store is fast enough to sit behind a decision.** With counters, p50 is
+  4.4 ms in memory, 10.2 in DuckDB and 16.5 in Neo4j, for a whole call: both accounts'
+  fetches, arm G's features and the ONNX score.
+- **The second hop costs the stores the most.** In memory it doubles the call; in DuckDB and
+  Neo4j it multiplies it by three to four and a half, at about 545 edges fetched.
+
 ## Running it
 
     NAME=consort-serve-1 CLOUD=SECURE SERVE=1 RUNS_FILE=ops/serve-runs.txt bash ops/pod-run.sh

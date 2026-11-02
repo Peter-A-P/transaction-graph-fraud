@@ -16,8 +16,8 @@ what a neighbourhood costs to fetch and score when the decision is live.
 
 ## Result
 
-Partly measured: arms R and G on all four datasets, single seed, on the laptop; arm N and the
-TabFM column need the rented GPU and are still empty. Every table below is written by
+Measured on all four datasets: arms R and G on the laptop, arm N, the TabFM column and the
+serving benchmark on rented machines. Every table reads seed 0. Every table below is written by
 `consort report` from `results/summary.json`; none is edited by hand. Every number is a point
 estimate with its 95% bootstrap interval, resampled over groups (time steps on Elliptic, first
 steps on Elliptic++, hours on IBM), never over single items.
@@ -33,8 +33,9 @@ are nearly all laundering (PLAN.md 2.2); the leakage table below reads all test 
 | Dataset | Arm | AUPRC | AUPRC minus R, same items | Recall at 1% FPR | Recall at 0.5% alert budget | Recall at 1% alert budget |
 |---|---|---|---|---|---|---|
 | Elliptic (real, transactions) | R, row only | 0.694 (0.373 to 0.835) |  | 0.621 (0.317 to 0.765) | 0.086 (0.057 to 0.157); ceiling 0.086 | 0.172 (0.115 to 0.297); ceiling 0.172 |
-| Elliptic (real, transactions) | G, graph features, 2 hops | 0.718 (0.406 to 0.851) | 0.023 (0.007 to 0.047) | 0.643 (0.333 to 0.789) | 0.086 (0.057 to 0.156); ceiling 0.086 | 0.172 (0.115 to 0.293); ceiling 0.172 |
+| Elliptic (real, transactions) | G, graph features, 3 hops | 0.720 (0.409 to 0.851) | 0.025 (0.008 to 0.051) | 0.639 (0.333 to 0.785) | 0.086 (0.057 to 0.157); ceiling 0.086 | 0.172 (0.115 to 0.293); ceiling 0.172 |
 | Elliptic (real, transactions) | N, graph neural network (sage), 2 hops | 0.583 (0.225 to 0.758) | -0.112 (-0.256 to -0.034) | 0.481 (0.210 to 0.631) | 0.085 (0.055 to 0.118); ceiling 0.086 | 0.156 (0.108 to 0.214); ceiling 0.172 |
+| Elliptic (real, transactions) | TabFM-G, 1 hop | 0.776 (0.491 to 0.891) | 0.082 (0.009 to 0.193) | 0.637 (0.345 to 0.787) | 0.086 (0.057 to 0.154); ceiling 0.086 | 0.172 (0.115 to 0.277); ceiling 0.172 |
 | Elliptic (real, transactions) | TabFM-R, 0 hops | 0.698 (0.376 to 0.834) | 0.004 (-0.030 to 0.051) | 0.582 (0.293 to 0.728) | 0.086 (0.057 to 0.155); ceiling 0.086 | 0.172 (0.115 to 0.277); ceiling 0.172 |
 | Elliptic++ (real, wallets) | R, row only | 0.389 (0.276 to 0.522) |  | 0.292 (0.191 to 0.445) | 0.108 (0.073 to 0.173); ceiling 0.110 | 0.207 (0.139 to 0.306); ceiling 0.221 |
 | Elliptic++ (real, wallets) | G, graph features, 3 hops | 0.595 (0.396 to 0.791) | 0.207 (0.069 to 0.388) | 0.477 (0.275 to 0.695) | 0.110 (0.073 to 0.178); ceiling 0.110 | 0.219 (0.147 to 0.336); ceiling 0.221 |
@@ -42,11 +43,26 @@ are nearly all laundering (PLAN.md 2.2); the leakage table below reads all test 
 | Elliptic++ (real, wallets) | TabFM-R, 0 hops | 0.280 (0.173 to 0.399) | -0.109 (-0.175 to -0.053) | 0.229 (0.137 to 0.350) | 0.069 (0.041 to 0.109); ceiling 0.110 | 0.132 (0.088 to 0.201); ceiling 0.221 |
 | IBM AML HI-Small (synthetic), without the tail | R, row only | 0.088 (0.068 to 0.112) |  | 0.487 (0.442 to 0.523) | 0.373 (0.338 to 0.408); ceiling 1.000 | 0.474 (0.435 to 0.514); ceiling 1.000 |
 | IBM AML HI-Small (synthetic), without the tail | G, graph features, 1 hop | 0.377 (0.335 to 0.417) | 0.289 (0.257 to 0.317) | 0.720 (0.680 to 0.752) | 0.589 (0.551 to 0.624); ceiling 1.000 | 0.708 (0.672 to 0.739); ceiling 1.000 |
-| IBM AML HI-Small (synthetic), without the tail | N, graph neural network (sage), 1 hop | 0.060 (0.048 to 0.075) | -0.028 (-0.047 to -0.010) | 0.449 (0.404 to 0.488) | 0.298 (0.265 to 0.334); ceiling 1.000 | 0.432 (0.393 to 0.471); ceiling 1.000 |
+| IBM AML HI-Small (synthetic), without the tail | N, graph neural network (sage+rmp+ego), 2 hops | 0.083 (0.066 to 0.104) | -0.006 (-0.021 to 0.010) | 0.586 (0.546 to 0.626) | 0.365 (0.334 to 0.402); ceiling 1.000 | 0.566 (0.518 to 0.606); ceiling 1.000 |
 | IBM AML LI-Small (synthetic), without the tail | R, row only | 0.019 (0.013 to 0.027) |  | 0.268 (0.237 to 0.312) | 0.171 (0.143 to 0.202); ceiling 1.000 | 0.266 (0.234 to 0.309); ceiling 1.000 |
 | IBM AML LI-Small (synthetic), without the tail | G, graph features, 1 hop | 0.094 (0.068 to 0.126) | 0.075 (0.052 to 0.105) | 0.527 (0.484 to 0.575) | 0.421 (0.384 to 0.464); ceiling 1.000 | 0.525 (0.480 to 0.570); ceiling 1.000 |
-| IBM AML LI-Small (synthetic), without the tail | N, graph neural network | not run yet | | | | |
+| IBM AML LI-Small (synthetic), without the tail | N, graph neural network (sage), 2 hops | 0.025 (0.020 to 0.031) | 0.006 (-0.002 to 0.013) | 0.439 (0.401 to 0.480) | 0.304 (0.268 to 0.339); ceiling 1.000 | 0.437 (0.396 to 0.473); ceiling 1.000 |
 <!-- /report:main -->
+
+What the table says:
+
+- **Graph features pay where the laundering is a shape.** Arm G adds 0.29 AUPRC on IBM
+  HI-Small, 0.08 on LI-Small and 0.21 on Elliptic++, each interval clear of zero. On Elliptic,
+  whose own features already aggregate each transaction's neighbours, it adds 0.025.
+- **The graph neural network never beats the graph features**, on any set. On Elliptic it is
+  worse than the row model (-0.11). On IBM its AUPRC is the row model's, yet its 1% alert
+  queue reaches more laundering: project 03's gate passes it at +6.9 points of recall on
+  HI-Small and +14.0 on LI-Small ([docs/gate.md](docs/gate.md)). It ranks the top of the queue
+  better than the rest of it.
+- **TabFM, handed arm G's table, scores Elliptic best of all** (0.776, 0.08 above the row
+  model), with no training. Handed only the row on Elliptic++, it is 0.11 below the row model.
+- **On the real sets, the alert budget cannot separate the arms.** At 1% every arm sits at or
+  near its ceiling, so the AUPRC column is where they differ.
 
 **Which shapes only the graph can see.** Recall at a 1% alert budget by laundering pattern on
 IBM HI-Small, all test days: of each pattern's laundering transfers, the share one shared queue
@@ -57,16 +73,20 @@ sees, and about a fifth of the attempts behind each name are too small to show t
 <!-- report:patterns -->
 | Pattern | R | G | N |
 |---|---|---|---|
-| Fan-in | 0.740 (0.667 to 0.832) | 0.959 (0.910 to 0.992) | 0.488 (0.388 to 0.579) |
-| Fan-out | 0.809 (0.725 to 0.885) | 0.870 (0.805 to 0.922) | 0.481 (0.385 to 0.583) |
-| Cycle | 0.697 (0.604 to 0.811) | 0.838 (0.752 to 0.895) | 0.525 (0.430 to 0.615) |
-| Scatter-gather | 0.728 (0.683 to 0.780) | 0.900 (0.861 to 0.944) | 0.515 (0.454 to 0.576) |
-| Gather-scatter | 0.709 (0.656 to 0.776) | 0.948 (0.924 to 0.969) | 0.530 (0.473 to 0.586) |
-| Bipartite | 0.651 (0.544 to 0.758) | 0.803 (0.716 to 0.891) | 0.515 (0.404 to 0.627) |
-| Stack | 0.718 (0.621 to 0.797) | 0.880 (0.824 to 0.943) | 0.547 (0.446 to 0.663) |
-| Random | 0.583 (0.483 to 0.670) | 0.845 (0.767 to 0.919) | 0.571 (0.463 to 0.691) |
-| No named pattern | 0.124 (0.093 to 0.164) | 0.402 (0.361 to 0.442) | 0.299 (0.258 to 0.342) |
+| Fan-in | 0.740 (0.667 to 0.832) | 0.959 (0.910 to 0.992) | 0.797 (0.723 to 0.879) |
+| Fan-out | 0.809 (0.725 to 0.885) | 0.870 (0.805 to 0.922) | 0.756 (0.676 to 0.840) |
+| Cycle | 0.697 (0.604 to 0.811) | 0.838 (0.752 to 0.895) | 0.727 (0.632 to 0.828) |
+| Scatter-gather | 0.728 (0.683 to 0.780) | 0.900 (0.861 to 0.944) | 0.782 (0.730 to 0.852) |
+| Gather-scatter | 0.709 (0.656 to 0.776) | 0.948 (0.924 to 0.969) | 0.795 (0.746 to 0.839) |
+| Bipartite | 0.651 (0.544 to 0.758) | 0.803 (0.716 to 0.891) | 0.651 (0.540 to 0.753) |
+| Stack | 0.718 (0.621 to 0.797) | 0.880 (0.824 to 0.943) | 0.658 (0.548 to 0.743) |
+| Random | 0.583 (0.483 to 0.670) | 0.845 (0.767 to 0.919) | 0.655 (0.536 to 0.782) |
+| No named pattern | 0.124 (0.093 to 0.164) | 0.402 (0.361 to 0.442) | 0.294 (0.249 to 0.345) |
 <!-- /report:patterns -->
+
+Arm G reaches more of every named pattern than the row model, most of all fan-in (96% against
+74%) and gather-scatter (95% against 71%), the shapes defined by many accounts meeting at one.
+Arm N sits between the two on most patterns and below the row model on fan-out and stack.
 
 **How far guilt travels.** AUPRC by hop count (hop 0 of arm G is arm R), beside the cost of
 fetching that neighbourhood live. Fetch latency comes only from the rented machine or the VPS,
@@ -84,30 +104,47 @@ never from the laptop.
 | Elliptic++ (real, wallets) | 2 | 0.595 (0.399 to 0.794) | 0.418 (0.301 to 0.556) | not measured yet | not measured yet |
 | Elliptic++ (real, wallets) | 3 | 0.595 (0.396 to 0.791) | not run yet | not measured yet | not measured yet |
 | IBM AML HI-Small (synthetic) | 0 | 0.088 (0.068 to 0.112) | not run yet | not measured yet | not measured yet |
-| IBM AML HI-Small (synthetic) | 1 | 0.377 (0.335 to 0.417) | 0.060 (0.048 to 0.075) | not measured yet | not measured yet |
-| IBM AML HI-Small (synthetic) | 2 | 0.380 (0.336 to 0.422) | not run yet | not measured yet | not measured yet |
+| IBM AML HI-Small (synthetic) | 1 | 0.377 (0.335 to 0.417) | 0.068 (0.056 to 0.083) | memory 4.4; duckdb 10.2; neo4j 16.5 | memory 5.0; duckdb 11.2; neo4j 134.3 |
+| IBM AML HI-Small (synthetic) | 2 | 0.380 (0.336 to 0.422) | 0.072 (0.059 to 0.089) | memory 10.1; duckdb 45.9; neo4j 48.0 | memory 12.1; duckdb 125.9; neo4j 348.4 |
 | IBM AML HI-Small (synthetic) | 3 | not run yet | not run yet | not measured yet | not measured yet |
 | IBM AML LI-Small (synthetic) | 0 | 0.019 (0.013 to 0.027) | not run yet | not measured yet | not measured yet |
-| IBM AML LI-Small (synthetic) | 1 | 0.094 (0.068 to 0.126) | not run yet | not measured yet | not measured yet |
-| IBM AML LI-Small (synthetic) | 2 | 0.110 (0.083 to 0.142) | not run yet | not measured yet | not measured yet |
+| IBM AML LI-Small (synthetic) | 1 | 0.094 (0.068 to 0.126) | 0.029 (0.024 to 0.036) | not measured yet | not measured yet |
+| IBM AML LI-Small (synthetic) | 2 | 0.110 (0.083 to 0.142) | 0.025 (0.020 to 0.031) | not measured yet | not measured yet |
 | IBM AML LI-Small (synthetic) | 3 | not run yet | not run yet | not measured yet | not measured yet |
 <!-- /report:hops -->
 
+On Elliptic one hop is all the graph features need, and arm N is best at one hop and worse
+with each hop after. Elliptic++'s wallets gain up to two hops. On IBM the second hop adds nothing measurable
+to arm G and costs two to four and a half times as much to fetch, so one hop, from counters, is
+the live design: under 20 ms at p50 in every store tested.
+
 **When the world shifts.** Trained on steps 1 to 34, tested before and after the dark-market
-shutdown at step 43. The recovery column (TabFM's context swap, retraining) is still to run.
+shutdown at step 43. The last two Elliptic rows recover with labels: before each test step,
+the row model is retrained, and TabFM's context replaced, on the four steps just before it,
+labels the frozen arms never see (PLAN.md 2.6). Same rows for both.
 
 <!-- report:shift -->
 | Dataset | Arm | Before step 43 | From step 43 | From step 43, minus R |
 |---|---|---|---|---|
 | Elliptic (real, transactions) | R, row only | 0.887 (0.812 to 0.957) | 0.039 (0.026 to 0.072) |  |
-| Elliptic (real, transactions) | G, graph features | 0.896 (0.828 to 0.964) | 0.054 (0.035 to 0.113) | 0.015 (0.002 to 0.047) |
+| Elliptic (real, transactions) | G, graph features | 0.897 (0.831 to 0.963) | 0.056 (0.035 to 0.122) | 0.017 (0.002 to 0.051) |
 | Elliptic (real, transactions) | N, graph neural network | 0.805 (0.706 to 0.869) | 0.038 (0.027 to 0.068) | -0.001 (-0.020 to 0.016) |
+| Elliptic (real, transactions) | TabFM-G | 0.908 (0.820 to 0.969) | 0.172 (0.093 to 0.363) | 0.133 (0.054 to 0.302) |
 | Elliptic (real, transactions) | TabFM-R | 0.877 (0.786 to 0.947) | 0.067 (0.038 to 0.140) | 0.028 (0.003 to 0.068) |
+| Elliptic (real, transactions) | R, retrained each test step on the latest labels | 0.891 (0.800 to 0.943) | 0.311 (0.137 to 0.542) | 0.272 (0.107 to 0.474) |
+| Elliptic (real, transactions) | TabFM-R, context swapped each test step to the latest labels | 0.929 (0.842 to 0.979) | 0.649 (0.094 to 0.915) | 0.610 (0.056 to 0.847) |
 | Elliptic++ (real, wallets) | R, row only | 0.589 (0.517 to 0.699) | 0.283 (0.143 to 0.410) |  |
 | Elliptic++ (real, wallets) | G, graph features | 0.697 (0.640 to 0.758) | 0.542 (0.247 to 0.834) | 0.259 (0.055 to 0.512) |
 | Elliptic++ (real, wallets) | N, graph neural network | 0.663 (0.593 to 0.784) | 0.290 (0.124 to 0.432) | 0.007 (-0.042 to 0.093) |
 | Elliptic++ (real, wallets) | TabFM-R | 0.477 (0.385 to 0.587) | 0.183 (0.072 to 0.308) | -0.100 (-0.173 to -0.019) |
 <!-- /report:shift -->
+
+After the shutdown the frozen arms collapse on Elliptic: AUPRC falls from about 0.9 to under
+0.07, graph or not. The exception is TabFM handed arm G's table, which holds 0.17. Recovering with the
+latest labels works: retraining the row model brings it to 0.31, and swapping TabFM's context
+to the same rows brings it to 0.65. The swap costs only inference. Its interval is wide (0.09
+to 0.92) and overlaps retraining's, so it is the better recovery on this test, not a proven
+one. Elliptic++'s wallets fall less, and there arm G keeps more than half its AUPRC.
 
 **The leakage gap.** The same arm under the temporal, inductive split this project reports;
 under the random split most papers use; and, on IBM, with graph features that could see later
@@ -117,7 +154,7 @@ days, the leak this build found in itself and fixed (PLAN.md 2.2). All test days
 | Dataset | Arm | Temporal split, AUPRC | Random split, AUPRC | Features that saw later days, AUPRC |
 |---|---|---|---|---|
 | Elliptic (real, transactions) | R, row only | 0.694 (0.373 to 0.835) | 0.985 (0.972 to 0.993) | not applicable |
-| Elliptic (real, transactions) | G, graph features | 0.718 (0.406 to 0.851) | 0.987 (0.976 to 0.994) | not applicable |
+| Elliptic (real, transactions) | G, graph features | 0.720 (0.409 to 0.851) | 0.987 (0.976 to 0.994) | not applicable |
 | Elliptic++ (real, wallets) | R, row only | 0.389 (0.276 to 0.522) | 0.965 (0.944 to 0.979) | not applicable |
 | Elliptic++ (real, wallets) | G, graph features | 0.595 (0.396 to 0.791) | 0.981 (0.970 to 0.989) | not applicable |
 | IBM AML HI-Small (synthetic) | R, row only | 0.212 (0.172 to 0.278) | 0.086 (0.073 to 0.105) | not applicable |
@@ -164,7 +201,18 @@ per million scores assumes the machine busy half the hour.
 <!-- report:serving -->
 | Dataset | Store | Account's own counts | Hops | p50 (ms) | p99 (ms) | Edges fetched, mean | US$ per million scores | Machine, price (date) |
 |---|---|---|---|---|---|---|---|---|
-| not run yet | | | | | | | | |
+| IBM AML HI-Small (synthetic) | duckdb | stored counters | 1 | 10.2 | 11.2 | 94 | 5.04 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
+| IBM AML HI-Small (synthetic) | memory | stored counters | 1 | 4.4 | 5.0 | 94 | 2.19 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
+| IBM AML HI-Small (synthetic) | neo4j | stored counters | 1 | 16.5 | 134.3 | 94 | 11.26 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
+| IBM AML HI-Small (synthetic) | duckdb | stored counters | 2 | 45.9 | 125.9 | 545 | 25.70 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
+| IBM AML HI-Small (synthetic) | memory | stored counters | 2 | 10.1 | 12.1 | 545 | 5.07 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
+| IBM AML HI-Small (synthetic) | neo4j | stored counters | 2 | 48.0 | 348.4 | 545 | 37.53 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
+| IBM AML HI-Small (synthetic) | duckdb | fetched whole | 1 | 11.6 | 114.5 | 9,608 | 8.48 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
+| IBM AML HI-Small (synthetic) | memory | fetched whole | 1 | 3.8 | 105.8 | 9,608 | 4.62 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
+| IBM AML HI-Small (synthetic) | neo4j | fetched whole | 1 | 22.0 | 9549.2 | 9,608 | 271.93 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
+| IBM AML HI-Small (synthetic) | duckdb | fetched whole | 2 | 46.5 | 298.2 | 9,971 | 30.49 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
+| IBM AML HI-Small (synthetic) | memory | fetched whole | 2 | 9.5 | 181.8 | 9,971 | 9.42 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
+| IBM AML HI-Small (synthetic) | neo4j | fetched whole | 2 | 53.8 | 9911.4 | 9,971 | 302.00 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
 <!-- /report:serving -->
 
 ## What this does not do
