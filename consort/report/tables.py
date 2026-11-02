@@ -195,6 +195,27 @@ def leakage_table(runs: Sequence[RunSummary]) -> str:
     return "\n".join(lines)
 
 
+def rejected_table(runs: Sequence[RunSummary], dataset: str = "elliptic") -> str:
+    """The neighbour-label-rate experiment: arm G with and without the feature, on both splits,
+    the difference paired on identical items."""
+    lines = [
+        "| Split | Arm G, AUPRC | Arm G with the neighbour-label rate, AUPRC "
+        "| Difference, same items |",
+        "|---|---|---|---|",
+    ]
+    for kind, name in (("temporal", "Temporal, inductive"), ("random", "Random")):
+        leak = [r for r in runs if r.dataset == dataset and r.arm == "G+nlr" and r.kind == kind]
+        if not leak:
+            lines.append(f"| {name} | {NOT_RUN} | | |")
+            continue
+        base = [r for r in runs if r.run == leak[0].baseline]
+        lines.append(
+            f"| {name} | {fmt(base[0].metrics.get('auprc')) if base else NOT_RUN} "
+            f"| {fmt(leak[0].metrics.get('auprc'))} | {fmt(leak[0].delta.get('auprc'))} |"
+        )
+    return "\n".join(lines)
+
+
 def fill(text: str, tables: dict[str, str]) -> str:
     for name, body in tables.items():
         pattern = re.compile(

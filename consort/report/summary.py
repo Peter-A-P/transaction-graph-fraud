@@ -4,7 +4,8 @@ its paired delta against its baseline and, on IBM, recall by pattern.
 A summary is cached under data/report/ by the outcomes file's SHA-256, so the bootstrap runs
 once per run; results/summary.json collects them all and is what the README tables are built
 from. Baselines: arm R for every arm on the same dataset, split and seed; the window-view run
-against the prior-days run it was the leak of.
+against the prior-days run it was the leak of; a neighbour-label-rate run against the same run
+without that feature.
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ from consort.eval.bypattern import recall_by_pattern
 from consort.eval.metrics import Estimate, evaluate, paired_delta
 from consort.eval.shift import by_slice
 
-VERSION = 1  # bump when what a summary holds changes, to invalidate the cache
+VERSION = 2  # bump when what a summary holds changes, to invalidate the cache
 Triple = tuple[float, float, float]
 
 
@@ -77,8 +78,10 @@ def baseline_of(meta: oc.RunMeta, available: Mapping[str, oc.RunMeta]) -> str | 
     kind = "random" if meta.split.endswith("-random") else "temporal"
     if meta.arm == "R":
         return None
-    if meta.arm.endswith("-window"):
-        want = meta.run.replace(f".{meta.arm}.", f".{meta.arm.removesuffix('-window')}.")
+    if meta.arm.endswith("-window") or meta.arm.endswith("+nlr"):
+        # The leak runs pair against the same run without the leak.
+        plain = meta.arm.removesuffix("-window").removesuffix("+nlr")
+        want = meta.run.replace(f".{meta.arm}.", f".{plain}.")
     else:
         want = f"{meta.dataset}.{kind}.R.h0.cap0.s{meta.seed}"
     return want if want in available else None

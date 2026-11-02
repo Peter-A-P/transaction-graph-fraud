@@ -339,6 +339,12 @@ def report(
         "leakage": tb.leakage_table(summaries),
     }
     readme.write_text(tb.fill(readme.read_text(encoding="utf8"), tables), encoding="utf8")
+    rejected = Path("docs/rejected.md")
+    if rejected.exists():
+        text = tb.fill(
+            rejected.read_text(encoding="utf8"), {"rejected": tb.rejected_table(summaries)}
+        )
+        rejected.write_text(text, encoding="utf8")
     typer.echo(f"{len(summaries)} runs; tables written to {readme}")
 
 
