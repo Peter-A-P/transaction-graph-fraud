@@ -79,6 +79,11 @@ into `data/runs` and deletes it:
    into `data/runs`, and deletes the pod on every exit path. If the laptop goes away, the
    pod's watchdog deletes it after 30 idle minutes or 10 hours.
 
-Training time is not a reported number, so a Community pod is right here. Arm N's neighbour
-sampling runs on the CPU, so the pod asks for at least 8 vCPUs and 48 GB of memory.
+Training time is not a reported number, so a Community pod is right here. The pod asks for
+at least 4 vCPUs and 24 GB of memory: the sampler is mostly one thread, and the largest graph
+(IBM HI-Small, about 5 million transfers) fits well within it. On 2026-11-01 (a Sunday evening)
+no A5000, 3090, A6000 or A40 was in stock on the Community cloud with a public IP, at 8 vCPUs
+and 48 GB or at the lower minimums; the cheapest card in stock with a public IP and enough
+memory for two-hop batches was the 32 GB RTX 5000 Ada at US$0.49 an hour, added to the list
+after the A5000 and 3090.
 

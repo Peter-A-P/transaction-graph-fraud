@@ -13,7 +13,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 NAME="${NAME:-consort-gnn-1}"
-GPUS="${GPUS:-NVIDIA RTX A5000,NVIDIA GeForce RTX 3090,NVIDIA RTX A6000,NVIDIA A40}"
+GPUS="${GPUS:-NVIDIA RTX A5000,NVIDIA GeForce RTX 3090,NVIDIA RTX 5000 Ada Generation,NVIDIA RTX A6000,NVIDIA A40}"
 KEY="${KEY:-$HOME/.ssh/runpod_smallprint}"
 mkdir -p data/pod-logs
 

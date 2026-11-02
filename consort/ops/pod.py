@@ -27,8 +27,8 @@ class PodSpec:
     gpu_type: str  # a RunPod gpuTypes id, such as "NVIDIA RTX A5000"
     cloud: str = "COMMUNITY"
     container_disk_gb: int = 80
-    min_vcpu: int = 8
-    min_memory_gb: int = 48
+    min_vcpu: int = 4
+    min_memory_gb: int = 24
     image: str = IMAGE
 
     def __post_init__(self) -> None:
