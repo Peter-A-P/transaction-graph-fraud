@@ -60,6 +60,7 @@ class CappedSampler:
         self.g = graph
         self.n_kept = int(kept.shape[0])
         self._local = np.full(graph.n_nodes, -1, dtype=np.int64)
+        self._edge_mark = np.zeros(graph.n_edges, dtype=bool)
 
     def batch(self, seeds: npt.ArrayLike, hops: int) -> Batch:
         seeds_a = np.asarray(seeds, dtype=np.int64)
@@ -84,7 +85,10 @@ class CappedSampler:
                 frontier = new
             if expanded:
                 pos, _ = _gather(self.indptr, np.concatenate(expanded))
-                eids = np.unique(self.eid[pos])
+                # Distinct and sorted, as np.unique would give, without hashing every entry.
+                self._edge_mark[self.eid[pos]] = True
+                eids = np.flatnonzero(self._edge_mark)
+                self._edge_mark[eids] = False
             else:
                 eids = np.empty(0, np.int64)
             ls, ld = local[self.g.src[eids]], local[self.g.dst[eids]]

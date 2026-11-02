@@ -159,6 +159,13 @@ Arm N does not use PyTorch Geometric's random neighbour samplers: they need `pyg
 have given N a different neighbourhood from G's at the same hop and cap, confounding the hop
 curve. Degrees, amounts and velocity remain exact counts over all of a node's edges.
 
+*Amended during the build (2026-11-02).* On IBM, arm N trains each epoch on every illicit
+training transfer and a fresh fifth of the licit ones, with the loss reweighted to the full
+ratio; validation and test score every transfer. HI-Small has 3.2 million training transfers,
+and at two hops the sampler's batch of 2,048 transfers reaches some 50,000 accounts, so a full
+epoch is about 1,600 such batches; the first full run took four hours at one hop. Arm G's
+booster still sees every row. The share is recorded in each run's notes.
+
 ### 2.6 The shift, and the context swap
 
 On Elliptic, every arm is trained on steps 1 to 34, validated on 35 to 38, and tested on 39 to

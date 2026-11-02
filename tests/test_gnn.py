@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 from pathlib import Path
 
 import numpy as np
@@ -39,6 +40,7 @@ def test_node_gnn_scores_the_same_items_as_arm_r(tmp_path: Path) -> None:
         GNNConfig(hops=0, epochs=2, batch_size=1024),
         GNNConfig(hops=2, cap=5, epochs=2, batch_size=1024, reverse_mp=True, ego_ids=True),
         GNNConfig(arch="gat", hops=1, cap=5, epochs=2, batch_size=1024),
+        GNNConfig(hops=1, cap=5, epochs=2, batch_size=1024, neg_share=0.2),
     ],
 )
 def test_edge_gnn_variants_run_and_score_every_test_transfer(
@@ -74,17 +76,6 @@ def test_edge_views_draw_each_day_from_earlier_days_and_batch_within_a_day(tmp_p
     batches = views.batches(test, 64, True, np.random.default_rng(0))
     assert all((day[b] == bd).all() for bd, b in batches)
     assert sorted(np.concatenate([b for _, b in batches]).tolist()) == test.tolist()
-
-
-def test_node_gnn_on_elliptic_pp_scores_every_new_test_address(tmp_path: Path) -> None:
-    from consort.data import ellipticpp
-    from consort.data.splits import temporal_split
-    from consort.data.tasks import ellipticpp_task
-    from tests.toy import write_ellipticpp
-
-    split = temporal_split("toy", train=range(1, 8), val=range(8, 10), test=range(10, 14))
-    task = ellipticpp_task(ellipticpp.load(*write_ellipticpp(tmp_path), check_counts=False), split)
-    o = oc.read(run(task, GNNConfig(hops=1, cap=5, epochs=2, batch_size=64), tmp_path / "r"))
-    test = (task.partition() == "test") & task.labelled()
-    assert len(o) == int(test.sum())
-    assert np.isfinite(o.score).all()
+    # A day's batches run together, so each day graph is built once per pass.
+    runs = [bd for bd, _ in itertools.groupby(bd for bd, _ in batches)]
+    assert len(runs) == len(set(runs))

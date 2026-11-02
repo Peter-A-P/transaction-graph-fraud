@@ -178,6 +178,7 @@ def train_gnn(
     batch_size: int = 2048,
     reverse_mp: bool = False,
     ego_ids: bool = False,
+    neg_share: float = typer.Option(1.0, help="IBM: share of licit transfers per epoch"),
     boot_group: str = "hour",
     out: Path = RUNS,
 ) -> None:
@@ -195,6 +196,7 @@ def train_gnn(
         batch_size=batch_size,
         reverse_mp=reverse_mp,
         ego_ids=ego_ids,
+        neg_share=neg_share,
     )
     typer.echo(str(run(_task(dataset, boot_group), cfg, out)))
 

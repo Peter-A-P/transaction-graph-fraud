@@ -1,0 +1,9 @@
+# Arm N on IBM, after the first queue's runs there took hours on the CPU (docs/gpu.md): each
+# epoch keeps every illicit training transfer and a fresh fifth of the licit ones (PLAN.md 2.5).
+# GraphSAGE at one and two hops on both sets, then the multigraph flags and GAT on HI-Small.
+train-gnn --dataset ibm-HI-Small --arch sage --hops 1 --hub-cap 50 --neg-share 0.2
+train-gnn --dataset ibm-HI-Small --arch sage --hops 2 --hub-cap 50 --neg-share 0.2
+train-gnn --dataset ibm-LI-Small --arch sage --hops 1 --hub-cap 50 --neg-share 0.2
+train-gnn --dataset ibm-LI-Small --arch sage --hops 2 --hub-cap 50 --neg-share 0.2
+train-gnn --dataset ibm-HI-Small --arch sage --hops 2 --hub-cap 50 --neg-share 0.2 --reverse-mp --ego-ids
+train-gnn --dataset ibm-HI-Small --arch gat --hops 2 --hub-cap 50 --neg-share 0.2

@@ -65,6 +65,9 @@ class GNNConfig:
     batch_size: int = 2048
     reverse_mp: bool = False
     ego_ids: bool = False
+    # IBM: the share of licit training transfers drawn afresh each epoch (every illicit one is
+    # kept and the loss reweighted to match); 1.0 trains on all of them.
+    neg_share: float = 1.0
     seed: int = 0
 
     @property
@@ -412,21 +415,25 @@ def run_edge(task: IBMTask, cfg: GNNConfig, out_dir: Path) -> Path:
     edge_x = _standardise(task.items[task.row_columns].to_numpy(np.float32), part == "train")
     y_all = torch.from_numpy(y.astype(np.float32))
     y_train = y[items["train"]]
-    pos_weight = float((y_train == 0).sum() / max((y_train == 1).sum(), 1))
+    pos_weight = cfg.neg_share * float((y_train == 0).sum() / max((y_train == 1).sum(), 1))
     model = EdgeModel(len(IBM_NODE_COLUMNS), edge_x.shape[1], cfg)
     trainer = _Trainer(model, cfg, pos_weight)
     dev = _device()
 
     def train_epoch(m: nn.Module, opt: torch.optim.Optimizer, loss_fn: nn.Module) -> float:
         total = 0.0
-        for day, batch in views.batches(items["train"], cfg.batch_size, True, rng):
+        train = items["train"]
+        if cfg.neg_share < 1.0:
+            keep = (y[train] == 1) | (rng.random(len(train)) < cfg.neg_share)
+            train = train[keep]
+        for day, batch in views.batches(train, cfg.batch_size, True, rng):
             opt.zero_grad()
             logit = _edge_logits(m, views("train", day), batch, src, dst, edge_x, cfg, dev)
             loss = loss_fn(logit, y_all[torch.from_numpy(batch)].to(dev))
             loss.backward()
             opt.step()
             total += float(loss.detach()) * len(batch)
-        return total / len(items["train"])
+        return total / len(train)
 
     def score(m: nn.Module, p: Partition) -> npt.NDArray[np.float64]:
         m.eval()
