@@ -146,8 +146,18 @@ a file differs.
   totals over all 49 steps (checked on all 273,268 addresses that appear in more than one
   step). Under a temporal split, an address first seen in a training step would carry its
   activity from the test steps. The address-to-address edges carry no time step either. So
-  these files cannot feed a temporal arm as they are; how Elliptic++ is used is decided in
-  PLAN.md before any arm runs on it.
+  these files cannot feed a temporal arm as they are.
+- **How it is used instead** (PLAN.md, amended 2026-11-01). The transaction side of the same
+  folder (`txs_features.csv`, `AddrTx_edgelist.csv`, `TxAddr_edgelist.csv`; checksums in
+  `manifests/ellipticpp-txs.json`) gives each address's transactions and their steps. From
+  these, `consort.data.ellipticpp` rebuilds every feature as of a step: an address is scored
+  at the end of the step it first appears in, from that step's transactions, and its graph is
+  every transaction's input-to-output address pairs up to that step. Pairing each
+  transaction's inputs with its outputs gives 2,868,964 edges, the published edge list's
+  count exactly, now each with its step. Split by first step on Elliptic's steps: 172,903
+  labelled addresses in training (9,377 illicit), 20,571 in validation (1,630), 71,880 in test
+  (3,259), every test address new. `wallets_features.csv` is fetched (its checksum pins the
+  published file) and read by nothing.
 
 ## DGraph-Fin (stub)
 

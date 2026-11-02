@@ -63,6 +63,19 @@ SOURCES: dict[str, Source] = {
             "1x5JdNWX8fVM3FO8I0wOLDAeh2qaB53uV",
         ),
     ),
+    # The transaction side of the same folder, from which each wallet's features are rebuilt
+    # step by step (the published wallet features are lifetime aggregates; docs/data.md).
+    "ellipticpp-txs": Source(
+        "ellipticpp-txs",
+        "gdrive:1MRPXz79Lu_JGLlJ21MDfML44dKN9R08l",
+        ("txs_features.csv", "AddrTx_edgelist.csv", "TxAddr_edgelist.csv"),
+        "none stated; used with both authors' written permission of 2026-11-01 (docs/data.md)",
+        drive_ids=(
+            "19q09IFhfkOOBOXvn_dKhWjILJtjCcsjc",
+            "16eWZTe-dsjEqgsOqFtg78m4fYhcxKlmZ",
+            "1SYpun0DMDt-h3sbI60G55jNsfwnFTHXg",
+        ),
+    ),
 }
 
 

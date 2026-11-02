@@ -99,3 +99,49 @@ def write_elliptic(root: Path, per_step: int = 60, seed: int = 0) -> Path:
     (base / "elliptic_txs_classes.csv").write_text("\n".join(classes) + "\n")
     (base / "elliptic_txs_edgelist.csv").write_text("\n".join(edges) + "\n")
     return root
+
+
+def write_ellipticpp(
+    root: Path,
+    n_addr: int = 300,
+    n_tx: int = 900,
+    steps: int = 12,
+    seed: int = 0,
+    late: int = 0,
+) -> tuple[Path, Path]:
+    """A small Elliptic++: transactions over `steps` steps with one to three inputs and outputs
+    among `n_addr` addresses; illicit addresses trade with each other. `late` adds that many
+    transactions in a step after the last, among the first twenty addresses."""
+    rng = np.random.default_rng(seed)
+    actors, txs = root / "actors", root / "txs"
+    actors.mkdir(parents=True, exist_ok=True)
+    txs.mkdir(parents=True, exist_ok=True)
+    names = [f"a{i:05d}" for i in range(n_addr)]
+    illicit = set(range(0, n_addr, 10))
+    cls = ["address,class"] + [
+        f"{a},{1 if i in illicit else (2 if i % 3 else 3)}" for i, a in enumerate(names)
+    ]
+    (actors / "wallets_classes.csv").write_text("\n".join(cls) + "\n")
+    feats = ["txId,Time step,total_BTC,fees,size,num_input_addresses,num_output_addresses"]
+    ins, outs = ["input_address,txId"], ["txId,output_address"]
+
+    def tx(i: int, step: int, pool: list[int]) -> None:
+        k_in, k_out = int(rng.integers(1, 4)), int(rng.integers(1, 4))
+        a_in = rng.choice(pool, k_in, replace=False)
+        a_out = rng.choice(pool, k_out, replace=False)
+        feats.append(
+            f"{i},{step},{rng.lognormal(0, 1):.6f},0.0001,{rng.integers(200, 900)},{k_in},{k_out}"
+        )
+        ins.extend(f"{names[a]},{i}" for a in a_in)
+        outs.extend(f"{i},{names[a]}" for a in a_out)
+
+    for i in range(n_tx):
+        step = 1 + i * steps // n_tx
+        pool = sorted(illicit) if rng.random() < 0.15 else list(range(n_addr))
+        tx(1000 + i, step, pool)
+    for j in range(late):
+        tx(5000 + j, steps + 1, list(range(20)))
+    (txs / "txs_features.csv").write_text("\n".join(feats) + "\n")
+    (txs / "AddrTx_edgelist.csv").write_text("\n".join(ins) + "\n")
+    (txs / "TxAddr_edgelist.csv").write_text("\n".join(outs) + "\n")
+    return actors, txs

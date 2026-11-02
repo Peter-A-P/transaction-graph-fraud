@@ -1,0 +1,23 @@
+{
+  "source": "ellipticpp-txs",
+  "kaggle": "gdrive:1MRPXz79Lu_JGLlJ21MDfML44dKN9R08l",
+  "licence": "none stated; used with both authors' written permission of 2026-11-01 (docs/data.md)",
+  "first_fetched": "2026-11-01",
+  "files": [
+    {
+      "path": "txs_features.csv",
+      "bytes": 694789588,
+      "sha256": "2db326ec8ddb68f1d810c1834e1ff62e0a8300378f0984a1e3b2ca82a439821b"
+    },
+    {
+      "path": "AddrTx_edgelist.csv",
+      "bytes": 21248388,
+      "sha256": "f5f903f752387f66a1bccaeff54e293b2e8470fcddf5eb56b88aa06fd23a8f3b"
+    },
+    {
+      "path": "TxAddr_edgelist.csv",
+      "bytes": 36702878,
+      "sha256": "9f5afbdde7bc3d91fb7a4655be55799d6504cd0063ae55a0753a5a41189932b8"
+    }
+  ]
+}

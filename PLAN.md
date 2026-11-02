@@ -79,6 +79,21 @@ items, 06's and 16's grader rule carried over.
 - **Elliptic++ actors (wallet addresses), as a stretch.** Real, 822,942 addresses with
   labels, no licence stated by its authors. Fetched only after an email to them is answered;
   otherwise its row stays empty and says why.
+  *Amended 2026-11-01:* both authors agreed the same day (docs/data.md). The published wallet
+  features are lifetime aggregates over all 49 steps, repeated on every step's row, and the
+  address-to-address edges carry no step, so neither is used. Instead every wallet's features
+  are rebuilt from the transaction-level files, as of a step, from transactions in that step
+  and earlier only. An item is a labelled address, scored at the end of the step it first
+  appears in and assigned to the partition of that step (Elliptic's 1 to 34, 35 to 38, 39 to
+  49 and the same slices), so test addresses are new addresses: the split is inductive by
+  construction. Its row features are what its first step's transactions say about it (how
+  many it sent from and received in, and those transactions' sizes, fees, amounts and
+  counterparty counts; per-address amounts are not in the data). Its graph is the
+  input-to-output address pairs of every transaction up to that step, each edge dated by its
+  transaction's step, and its neighbours' features are theirs as of the same step. Arm N
+  follows the same step-by-step graphs. The published wallet features are kept out of every
+  arm; a leakage test requires an address's features to be unchanged when later steps'
+  transactions are added.
 - **DGraph-Fin, if reachable.** A real consumer-lending graph of 3.7 million users with fraud
   labels; its host did not resolve on 2026-10-31. A loader stub is kept.
 

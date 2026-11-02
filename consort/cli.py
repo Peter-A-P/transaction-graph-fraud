@@ -34,6 +34,13 @@ def _task(dataset: str, boot_group: str = "hour", view: str = "prior-days") -> T
 
     if dataset == "elliptic":
         return elliptic_task(elliptic.load(fetch_mod.RAW / "elliptic"))
+    if dataset == "ellipticpp":
+        from consort.data import ellipticpp
+        from consort.data.tasks import ellipticpp_task
+
+        return ellipticpp_task(
+            ellipticpp.load(fetch_mod.RAW / "ellipticpp", fetch_mod.RAW / "ellipticpp-txs")
+        )
     if dataset.startswith("ibm-"):
         tier = dataset.removeprefix("ibm-")
         data = ibm.load(fetch_mod.RAW / dataset, tier)
@@ -200,7 +207,9 @@ def eval_cmd(
             if meta.dataset not in tasks:
                 tasks[meta.dataset] = _task(meta.dataset)
             task = tasks[meta.dataset]
-            group = dict(zip(task.items["item_id"], task.items["split_group"].astype(int), strict=True))
+            group = dict(
+                zip(task.items["item_id"], task.items["split_group"].astype(int), strict=True)
+            )
             for name, ests in by_slice(o, task.split, n_boot, split_group=group).items():
                 for k, est in ests.items():
                     typer.echo(f"  [{name}] {k}: {est.as_text()}")

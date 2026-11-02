@@ -27,6 +27,7 @@ import numpy.typing as npt
 import pandas as pd
 
 from consort.data import elliptic as ell
+from consort.data import ellipticpp as epp
 from consort.data import ibm as ibm_mod
 from consort.data.splits import ELLIPTIC_TEMPORAL, PARTITIONS, Partition, Split, temporal_split
 from consort.graph.build import Graph, from_edges
@@ -84,6 +85,52 @@ def elliptic_task(data: ell.Elliptic, split: Split = ELLIPTIC_TEMPORAL) -> Ellip
     items = pd.concat([items, n[data.row_columns].astype(np.float32)], axis=1)
     return EllipticTask(
         name="elliptic", items=items, row_columns=data.row_columns, split=split, data=data
+    )
+
+
+@dataclass
+class EllipticPPTask(Task):
+    """Addresses scored at the end of the step they first appear in; their features, their
+    neighbours' and the graph all as of that step (consort.data.ellipticpp)."""
+
+    data: epp.EllipticPP | None = None
+    _steps: dict[tuple[int, int], tuple[pd.DataFrame, set[int]]] = field(
+        default_factory=dict, repr=False
+    )
+
+    def graph_features(self, partition: Partition, hops: int, hub_cap: int) -> pd.DataFrame:
+        assert self.data is not None
+        first = self.data.first_step
+        end = max(self.split.groups[partition])
+        table, done = self._steps.get((hops, hub_cap), (pd.DataFrame(), set()))
+        reg = default_registry(epp.NODE_COLUMNS, ("amount",))
+        for s in sorted(set(np.unique(first[first <= end]).tolist()) - done):
+            rows = np.flatnonzero(first == s)
+            nodes = self.data.node_table(self.data.inc_step <= s)
+            block = reg.compute(self.data.graph_upto(s), nodes, hops, hub_cap).iloc[rows]
+            if table.empty:
+                table = pd.DataFrame(
+                    np.nan, index=range(len(self.items)), columns=block.columns, dtype=np.float32
+                )
+            table.iloc[rows] = block.to_numpy(np.float32)
+            done.add(s)
+        self._steps[(hops, hub_cap)] = (table, done)
+        return table
+
+
+def ellipticpp_task(data: epp.EllipticPP, split: Split = ELLIPTIC_TEMPORAL) -> EllipticPPTask:
+    rows = data.row_table().astype(np.float32)
+    items = pd.DataFrame(
+        {
+            "item_id": data.addresses,
+            "split_group": data.first_step,
+            "boot_group": data.first_step,
+            "label": data.label,
+        }
+    )
+    items = pd.concat([items, rows], axis=1)
+    return EllipticPPTask(
+        name="ellipticpp", items=items, row_columns=list(epp.NODE_COLUMNS), split=split, data=data
     )
 
 
