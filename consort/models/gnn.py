@@ -35,7 +35,14 @@ from torch_geometric.nn import GATConv, SAGEConv
 
 from consort.data.leakage import check_training_rows
 from consort.data.splits import PARTITIONS, Partition
-from consort.data.tasks import IBM_NODE_COLUMNS, EllipticTask, IBMTask, Task, ibm_node_table
+from consort.data.tasks import (
+    IBM_NODE_COLUMNS,
+    EllipticPPTask,
+    EllipticTask,
+    IBMTask,
+    Task,
+    ibm_node_table,
+)
 from consort.eval import outcomes as oc
 from consort.eval.metrics import Ranked, average_precision
 from consort.graph.build import Graph
@@ -169,7 +176,11 @@ class _Trainer:
                 stale += 1
                 if stale >= self.cfg.patience:
                     break
-        assert best_state is not None
+        if best_state is None:
+            raise ValueError(
+                f"validation AUPRC was never a number ({history[-1]['val_auprc']}): the "
+                "validation partition has no labelled positives to rank"
+            )
         self.model.load_state_dict(best_state)
         return {"best_val_auprc": best, "epochs_run": len(history)}
 
@@ -253,6 +264,76 @@ def run_node(task: EllipticTask, cfg: GNNConfig, out_dir: Path) -> Path:
     info = trainer.fit(train_epoch, lambda m: _score_nodes(m, view, idx["val"], cfg), y[idx["val"]])
     scores = _score_nodes(trainer.model, view, idx["test"], cfg)
     return _write(task, idx["test"], scores, cfg, info, out_dir)
+
+
+def run_node_steps(task: EllipticPPTask, cfg: GNNConfig, out_dir: Path) -> Path:
+    """Elliptic++: each address is scored on the graph and the node features as of the step it
+    first appears in (consort.data.ellipticpp). Batches never mix first steps; step views are
+    built on demand and the last three kept."""
+    torch.manual_seed(cfg.seed)
+    rng = np.random.default_rng(cfg.seed)
+    data = task.data
+    assert data is not None
+    part = task.partition()
+    y = task.items["label"].to_numpy(np.int8)
+    lab = y >= 0
+    idx = {p: np.flatnonzero((part == p) & lab).astype(np.int64) for p in PARTITIONS}
+    check_training_rows(task.items["split_group"].to_numpy()[idx["train"]], task.split, task.name)
+    rows = task.items[task.row_columns].to_numpy(np.float32)
+    mu = rows[idx["train"]].mean(axis=0)
+    sd = rows[idx["train"]].std(axis=0) + 1e-6
+    first = data.first_step
+    views: dict[int, _View] = {}
+
+    def view(step: int) -> _View:
+        if step not in views:
+            if len(views) >= 3:
+                views.pop(next(iter(views)))
+            nodes = data.node_table(data.inc_step <= step).to_numpy(np.float32)
+            x = torch.from_numpy(((nodes - mu) / sd).astype(np.float32))
+            views[step] = _View(x, CappedSampler(data.graph_upto(step), cfg.cap), cfg.hops)
+        return views[step]
+
+    def batches(
+        items: npt.NDArray[np.int64], shuffle: bool
+    ) -> list[tuple[int, npt.NDArray[np.int64]]]:
+        out = []
+        for st in np.unique(first[items]):
+            of = items[first[items] == st]
+            out += [(int(st), of[c]) for c in _batches(len(of), cfg.batch_size, shuffle, rng)]
+        return [out[i] for i in rng.permutation(len(out))] if shuffle else out
+
+    y_all = torch.from_numpy(y.astype(np.float32))
+    y_train = y[idx["train"]]
+    pos_weight = float((y_train == 0).sum() / max((y_train == 1).sum(), 1))
+    trainer = _Trainer(NodeModel(rows.shape[1], cfg), cfg, pos_weight)
+    dev = _device()
+
+    def logits(m: nn.Module, step: int, seeds: npt.NDArray[np.int64]) -> Tensor:
+        xb, ei, ego, b = view(step).tensors(seeds, dev)
+        out: Tensor = m(xb, ei, _seed_ego(cfg, ego))[torch.from_numpy(local_ids(b, seeds)).to(dev)]
+        return out
+
+    def train_epoch(m: nn.Module, opt: torch.optim.Optimizer, loss_fn: nn.Module) -> float:
+        total = 0.0
+        for step, seeds in batches(idx["train"], True):
+            opt.zero_grad()
+            loss = loss_fn(logits(m, step, seeds), y_all[torch.from_numpy(seeds)].to(dev))
+            loss.backward()
+            opt.step()
+            total += float(loss.detach()) * len(seeds)
+        return total / len(idx["train"])
+
+    def score(m: nn.Module, p: Partition) -> npt.NDArray[np.float64]:
+        m.eval()
+        out = np.full(len(y), np.nan)
+        for step, seeds in batches(idx[p], False):
+            with torch.no_grad():
+                out[seeds] = torch.sigmoid(logits(m, step, seeds)).cpu().numpy()
+        return out[idx[p]]
+
+    info = trainer.fit(train_epoch, lambda m: score(m, "val"), y[idx["val"]])
+    return _write(task, idx["test"], score(trainer.model, "test"), cfg, info, out_dir)
 
 
 def _graph_view(g: Graph, cfg: GNNConfig) -> _View:
@@ -395,4 +476,6 @@ def run(task: Task, cfg: GNNConfig, out_dir: Path) -> Path:
         return run_node(task, cfg, out_dir)
     if isinstance(task, IBMTask):
         return run_edge(task, cfg, out_dir)
+    if isinstance(task, EllipticPPTask):
+        return run_node_steps(task, cfg, out_dir)
     raise TypeError(f"no GNN task for {type(task).__name__}")

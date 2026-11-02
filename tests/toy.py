@@ -118,10 +118,6 @@ def write_ellipticpp(
     txs.mkdir(parents=True, exist_ok=True)
     names = [f"a{i:05d}" for i in range(n_addr)]
     illicit = set(range(0, n_addr, 10))
-    cls = ["address,class"] + [
-        f"{a},{1 if i in illicit else (2 if i % 3 else 3)}" for i, a in enumerate(names)
-    ]
-    (actors / "wallets_classes.csv").write_text("\n".join(cls) + "\n")
     feats = ["txId,Time step,total_BTC,fees,size,num_input_addresses,num_output_addresses"]
     ins, outs = ["input_address,txId"], ["txId,output_address"]
 
@@ -135,12 +131,22 @@ def write_ellipticpp(
         ins.extend(f"{names[a]},{i}" for a in a_in)
         outs.extend(f"{i},{names[a]}" for a in a_out)
 
+    # Addresses arrive over time, as real ones do, so every step has new addresses to score.
     for i in range(n_tx):
         step = 1 + i * steps // n_tx
-        pool = sorted(illicit) if rng.random() < 0.15 else list(range(n_addr))
+        live = list(range(max(40, n_addr * step // steps)))  # at least 4 illicit to pick from
+        pool = [a for a in live if a in illicit] if rng.random() < 0.15 else live
         tx(1000 + i, step, pool)
     for j in range(late):
         tx(5000 + j, steps + 1, list(range(20)))
+    # Only addresses that took part in a transaction are listed, as in the real classes file.
+    used = sorted(
+        {int(r.split(",")[0][1:]) for r in ins[1:]} | {int(r.split(",")[1][1:]) for r in outs[1:]}
+    )
+    cls = ["address,class"] + [
+        f"{names[i]},{1 if i in illicit else (2 if i % 3 else 3)}" for i in used
+    ]
+    (actors / "wallets_classes.csv").write_text("\n".join(cls) + "\n")
     (txs / "txs_features.csv").write_text("\n".join(feats) + "\n")
     (txs / "AddrTx_edgelist.csv").write_text("\n".join(ins) + "\n")
     (txs / "TxAddr_edgelist.csv").write_text("\n".join(outs) + "\n")
