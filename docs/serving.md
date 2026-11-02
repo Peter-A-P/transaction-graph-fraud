@@ -47,7 +47,27 @@ Every result carries the machine name, host, CPU, core count, price and price da
 
 **Nothing timed is reported from the laptop.** A result is reportable only when the benchmark
 was run with an explicit machine and price and `reportable` set; the report refuses any other
-(`NotReportable`). No reportable timing exists yet.
+(`NotReportable`).
+
+## The account's own counts
+
+An account's degrees, amounts and velocity are exact counts over all its edges, so the first
+design fetched its whole history on every call. On IBM a transfer often touches a hub, and the
+first run fetched 9,600 edges per call on average. With `counters` the fetch reads those counts
+from stored columns, as counters a service updates on every write, and starts from the
+account's capped edges, so a call fetches at most the cap's worth per expanded account; the
+parity test runs both ways and demands the same features. The benchmark times both, and the
+README's hop curve quotes the counters design.
+
+## The first run, superseded (2026-11-02)
+
+The first reportable run, on a Secure Cloud L4, timed every store at about 300 ms per call at
+the median and is not reported, for two reasons found in its numbers. The in-memory store
+answered each lookup by scanning all 5 million edges, so it measured a scan, not a store; it
+now indexes edges by each end. And DuckDB and Neo4j broke ties in recency differently from
+the batch features (IBM's timestamps are to the minute and tie often), so under a binding cap
+they could keep different edges; both now break ties by the larger edge id, and a test with
+tied timestamps fails the old queries. Its results are kept outside the repository.
 
 ## Running it
 

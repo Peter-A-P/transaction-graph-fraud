@@ -197,6 +197,29 @@ def leakage_table(runs: Sequence[RunSummary]) -> str:
     return "\n".join(lines)
 
 
+def serving_table(timed: Sequence[dict[str, Any]]) -> str:
+    """Every reportable serving result: one live score per call, on the machine named."""
+    lines = [
+        "| Dataset | Store | Account's own counts | Hops | p50 (ms) | p99 (ms) "
+        "| Edges fetched, mean | US$ per million scores | Machine, price (date) |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
+    if not timed:
+        lines.append(f"| {NOT_RUN} | | | | | | | | |")
+    centre = {"history": "fetched whole", "counters": "stored counters"}
+    for t in sorted(
+        timed, key=lambda t: (t["dataset"], t.get("centre", "history"), t["hops"], t["store"])
+    ):
+        m = t["machine"]
+        lines.append(
+            f"| {DATASETS.get(t['dataset'], t['dataset'])} | {t['store']} "
+            f"| {centre[t.get('centre', 'history')]} | {t['hops']} | {t['p50_ms']:.1f} "
+            f"| {t['p99_ms']:.1f} | {t['mean_edges_fetched']:,.0f} | {t['usd_per_million']:.2f} "
+            f"| {m['name']}, US${m['usd_per_hour']:.2f}/h ({m['price_date']}) |"
+        )
+    return "\n".join(lines)
+
+
 def faithfulness_table(results: Sequence[dict[str, Any]]) -> str:
     lines = [
         "| Run | k | Flagged | Graded | Top-k holds a known-illicit neighbour "

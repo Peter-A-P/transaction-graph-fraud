@@ -82,6 +82,22 @@ def test_tables_fill_only_between_markers(runs: Path, tmp_path: Path) -> None:
     assert tb.NOT_RUN in filled  # arm N and the datasets not run here say so
     with pytest.raises(ValueError):
         tb.fill("no markers", {"main": "x"})
+    timed = [
+        {
+            "dataset": "ibm-HI-Small",
+            "store": "duckdb",
+            "centre": "counters",
+            "hops": 1,
+            "p50_ms": 4.25,
+            "p99_ms": 9.0,
+            "mean_edges_fetched": 180.0,
+            "usd_per_million": 1.5,
+            "machine": {"name": "RunPod L4", "usd_per_hour": 0.59, "price_date": "2026-11-02"},
+        }
+    ]
+    row = tb.serving_table(timed).splitlines()[-1]
+    assert "| duckdb | stored counters | 1 | 4.2 | 9.0 | 180 | 1.50 |" in row
+    assert "US$0.59/h (2026-11-02)" in row
     # Adjacent markers, as a fresh README has them, fill too; and filling twice is stable.
     once = tb.fill("<!-- report:main -->\n<!-- /report:main -->\n", {"main": "x"})
     assert once == "<!-- report:main -->\nx\n<!-- /report:main -->\n"

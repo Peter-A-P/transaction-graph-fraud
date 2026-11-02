@@ -10,6 +10,12 @@ the batch run gave it. consort.serve.parity checks that, number for number.
 
 PageRank is global, so it is never recomputed from a neighbourhood: the serving path reads it
 from a stored column, as it would read any batch-maintained node property.
+
+With `counters`, the node's own exact counts (degrees, amounts, velocity) are read from stored
+columns too, as counters a feature service updates on every write, and the fetch starts from
+the node's capped edges instead of its whole history. The features are the same; what a call
+fetches is bounded by the cap even at a hub, whose whole history can run to tens of thousands
+of edges (consort.serve.bench measures both).
 """
 
 from __future__ import annotations
@@ -28,6 +34,22 @@ from consort.graph.registry import FeatureRegistry
 IntArray = npt.NDArray[np.int64]
 FloatArray = npt.NDArray[np.float64]
 STORED = ("pagerank",)
+# The node's exact counts over all its edges (consort.graph.features: degrees, amounts,
+# velocity), which `counters` reads from storage instead of the fetched edges.
+COUNTERS = (
+    "deg_out",
+    "deg_in",
+    "uniq_out",
+    "uniq_in",
+    "reciprocal",
+    "amt_out_sum",
+    "amt_in_sum",
+    "amt_out_max",
+    "amt_in_max",
+    "amt_pass_through",
+    "vel_out_per_h",
+    "vel_in_per_h",
+)
 
 
 @dataclass(frozen=True)
@@ -112,8 +134,9 @@ class MemorySource:
         return self._edges(self._take(np.asarray(nodes, dtype=np.int64), cap))
 
 
-def fetch(source: EdgeSource, centre: int, hops: int, cap: int) -> Edges:
-    parts = [source.incident(centre)]
+def fetch(source: EdgeSource, centre: int, hops: int, cap: int, counters: bool = False) -> Edges:
+    first = source.capped(np.empty(0, np.int64), cap) if counters else source.incident(centre)
+    parts = [first]
     seen = {centre}
     frontier = np.array([centre], dtype=np.int64)
     for _ in range(hops):
@@ -135,6 +158,7 @@ def local_features(
     hops: int,
     cap: int,
     stored: pd.DataFrame | None = None,
+    counters: bool = False,
 ) -> pd.Series:
     """The centre's feature row, computed by the registry on the fetched subgraph. Local ids
     keep the global order, so sparse sums run in the same order as in the batch run."""
@@ -144,7 +168,7 @@ def local_features(
     table = registry.compute(g, node_columns.iloc[nodes].reset_index(drop=True), hops, cap)
     row = table.iloc[int(np.searchsorted(nodes, centre))].copy()
     if stored is not None:
-        for col in STORED:
+        for col in STORED + (COUNTERS if counters else ()):
             if col in row.index:
                 row[col] = stored.iloc[centre][col]
     return row

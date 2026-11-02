@@ -31,13 +31,15 @@ def check(
     nodes: Sequence[int],
     hops: int,
     cap: int,
+    counters: bool = False,
 ) -> list[Mismatch]:
     """Every (node, column) where the serving value differs from the batch value. Exact
     equality: the fetch is designed to reproduce the batch arithmetic, not approximate it."""
     out: list[Mismatch] = []
     for v in nodes:
+        edges = fetch(source, v, hops, cap, counters=counters)
         row = local_features(
-            fetch(source, v, hops, cap), v, registry, node_columns, hops, cap, stored=batch
+            edges, v, registry, node_columns, hops, cap, stored=batch, counters=counters
         )
         want = batch.iloc[v]
         for col in batch.columns:

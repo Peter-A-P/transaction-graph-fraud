@@ -26,7 +26,10 @@ def toy(tmp_path_factory: pytest.TempPathFactory) -> ibm.IBM:
 
 @pytest.mark.parametrize("hops", [1, 2])
 @pytest.mark.parametrize("backend", ["memory", "duckdb"])
-def test_serving_features_equal_batch_features(toy: ibm.IBM, hops: int, backend: str) -> None:
+@pytest.mark.parametrize("counters", [False, True])
+def test_serving_features_equal_batch_features(
+    toy: ibm.IBM, hops: int, backend: str, counters: bool
+) -> None:
     g = toy.graph
     cap = 5  # small, so that the cap binds on most accounts
     reg = default_registry(IBM_NODE_COLUMNS, ("amount", "t"))
@@ -37,8 +40,12 @@ def test_serving_features_equal_batch_features(toy: ibm.IBM, hops: int, backend:
     busiest = np.argsort(-np.bincount(g.src, minlength=g.n_nodes))[:10]
     rng = np.random.default_rng(0)
     chosen = [*busiest.tolist(), *rng.choice(g.n_nodes, 10, replace=False).tolist()]
-    bad = parity.check(source, reg, nodes, batch, chosen, hops, cap)
+    bad = parity.check(source, reg, nodes, batch, chosen, hops, cap, counters=counters)
     assert bad == []
+    if counters:  # the fetch is bounded by the cap even at the busiest account
+        hub = int(busiest[0])
+        assert fetch(source, hub, 1, cap, counters=True).edge_id.size <= 2 * cap
+        assert fetch(source, hub, 1, cap).edge_id.size > 2 * cap
 
 
 def test_the_cap_bounds_the_fetch(toy: ibm.IBM) -> None:

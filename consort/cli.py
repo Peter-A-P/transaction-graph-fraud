@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import json
 from collections import Counter
 from pathlib import Path
@@ -335,7 +336,14 @@ def report(
     timed = [t for t in timed if t["machine"]["reportable"]]  # never a laptop timing
 
     def fetch(dataset: str, hops: int) -> tuple[str, str]:
-        rows = [t for t in timed if t["dataset"] == dataset and t["hops"] == hops]
+        # The hop curve's latency is the counters design's, the one a service would run.
+        rows = [
+            t
+            for t in timed
+            if t["dataset"] == dataset
+            and t["hops"] == hops
+            and t.get("centre", "history") == "counters"
+        ]
         if not rows:
             return ("not measured yet", "not measured yet")
         p = {q: "; ".join(f"{t['store']} {t[q]:.1f}" for t in rows) for q in ("p50_ms", "p99_ms")}
@@ -351,6 +359,7 @@ def report(
         "hops": tb.hop_table(summaries, fetch),
         "shift": tb.shift_table(summaries),
         "leakage": tb.leakage_table(summaries),
+        "serving": tb.serving_table(timed),
     }
     readme.write_text(tb.fill(readme.read_text(encoding="utf8"), tables), encoding="utf8")
     rejected = Path("docs/rejected.md")
@@ -369,6 +378,9 @@ def bench(
     hops: str = "1,2",
     hub_cap: int = 50,
     calls: int = 1000,
+    centre: str = typer.Option(
+        "history,counters", help="Fetch the account's whole history, or read its counters"
+    ),
     models: Path = Path("checkpoints"),
     machine: str = typer.Option(..., help="The machine's name, as the README will print it"),
     usd_per_hour: float = typer.Option(..., help="Its price"),
@@ -428,7 +440,7 @@ def bench(
         model = models / f"{dataset}.temporal.G.h{h}.cap{hub_cap}.s0.onnx"
         score = bn.onnx_scorer(model)
         stored = reg.compute(g, node_table, h, hub_cap)
-        for name, src in sources.items():
+        for (name, src), mode in itertools.product(sources.items(), centre.split(",")):
             r = bn.run_transfers(
                 name,
                 dataset,
@@ -442,13 +454,21 @@ def bench(
                 h,
                 hub_cap,
                 m,
+                counters=mode == "counters",
             )
-            typer.echo(f"{name} h{h}: p50 {r.p50_ms:.1f} ms, p99 {r.p99_ms:.1f} ms")
+            typer.echo(f"{name} {mode} h{h}: p50 {r.p50_ms:.1f} ms, p99 {r.p99_ms:.1f} ms")
             results.append(r)
     old = json.loads(out.read_text()) if out.exists() else []
 
     def key(d: dict[str, Any]) -> tuple[Any, ...]:
-        return (d["dataset"], d["store"], d["hops"], d["hub_cap"], d["machine"]["name"])
+        return (
+            d["dataset"],
+            d["store"],
+            d.get("centre", "history"),
+            d["hops"],
+            d["hub_cap"],
+            d["machine"]["name"],
+        )
 
     new = [json.loads(r.model_dump_json()) for r in results]
     keep = [d for d in old if key(d) not in {key(n) for n in new}]

@@ -60,19 +60,26 @@ def test_transfer_bench_scores_through_the_onnx_export(tmp_path: Path) -> None:
     stored = reg.compute(g, nodes, 1, 5)
     t = data.transfers
     machine = bench.Machine(name="laptop", usd_per_hour=0.0, price_date=date(2026, 11, 1))
-    res = bench.run_transfers(
-        "memory",
-        "ibm-T",
-        MemorySource(g),
-        reg,
-        nodes,
-        stored,
-        bench.onnx_scorer(model),
-        t.iloc[:25].reset_index(drop=True),
-        data.row_columns,
-        1,
-        5,
-        machine,
-        warmup=3,
-    )
-    assert res.unit == "transfer" and res.calls == 25 and res.p50_ms > 0
+    res = {
+        counters: bench.run_transfers(
+            "memory",
+            "ibm-T",
+            MemorySource(g),
+            reg,
+            nodes,
+            stored,
+            bench.onnx_scorer(model),
+            t.iloc[:25].reset_index(drop=True),
+            data.row_columns,
+            1,
+            5,
+            machine,
+            warmup=3,
+            counters=counters,
+        )
+        for counters in (False, True)
+    }
+    assert res[False].unit == "transfer" and res[False].calls == 25 and res[False].p50_ms > 0
+    assert (res[False].centre, res[True].centre) == ("history", "counters")
+    # Stored counters bound the fetch by the cap: at most 2 x 5 edges per account.
+    assert res[True].mean_edges_fetched <= min(20, res[False].mean_edges_fetched)

@@ -43,6 +43,9 @@ class BenchResult(BaseModel):
     store: str
     dataset: str = ""
     unit: str = "account"  # what one call scores: an account, or a transfer (both its accounts)
+    # "history": the account's own edges are fetched whole, for its exact counts; "counters":
+    # those counts are stored columns and the fetch starts from its capped edges.
+    centre: str = "history"
     hops: int
     hub_cap: int
     calls: int
@@ -124,6 +127,7 @@ def run_transfers(
     machine: Machine,
     utilisation: float = 0.5,
     warmup: int = 20,
+    counters: bool = False,
 ) -> BenchResult:
     """IBM's scored item is a transfer, so one live score fetches both its accounts'
     neighbourhoods, computes arm G's features for each (src_ and dst_, as in the batch table)
@@ -135,9 +139,11 @@ def run_transfers(
         size = 0
         for end in ("src", "dst"):
             v = int(t[end])
-            edges = fetch(source, v, hops, hub_cap)
+            edges = fetch(source, v, hops, hub_cap, counters=counters)
             size += int(edges.edge_id.shape[0])
-            feats = local_features(edges, v, registry, node_columns, hops, hub_cap, stored=stored)
+            feats = local_features(
+                edges, v, registry, node_columns, hops, hub_cap, stored=stored, counters=counters
+            )
             parts.append(feats.add_prefix(f"{end}_"))
         score(pd.concat(parts).to_frame().T)
         return size
@@ -155,6 +161,7 @@ def run_transfers(
         store=store,
         dataset=dataset,
         unit="transfer",
+        centre="counters" if counters else "history",
         hops=hops,
         hub_cap=hub_cap,
         calls=len(transfers),

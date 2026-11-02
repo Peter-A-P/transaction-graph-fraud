@@ -144,8 +144,19 @@ computes. Most of Elliptic's flagged transactions have one or two neighbours, so
 | elliptic.temporal.G.h2.cap50.s0 | 1 | 124 | 12 | 0.417 (0.000 to 1.000) | 0.505 (0.500 to 0.540) | -0.088 (-0.540 to 0.480) |
 <!-- /report:faithfulness -->
 
-The serving cost per million scores follows in the same shape, with its price date, once the
-rented machine has run.
+**What a live score costs.** One call scores one IBM transfer from scratch: both accounts'
+neighbourhoods fetched from the store, arm G's features computed on them by the batch run's own
+registry, and the transfer scored through the ONNX export; 1,000 transfers at random after 20
+warm-up calls, one worker. An account's own counts (degrees, amounts, velocity) are either
+computed from its whole fetched history or read from counters a service would keep; the
+features are identical either way ([docs/serving.md](docs/serving.md)), the fetch is not. Cost
+per million scores assumes the machine busy half the hour.
+
+<!-- report:serving -->
+| Dataset | Store | Account's own counts | Hops | p50 (ms) | p99 (ms) | Edges fetched, mean | US$ per million scores | Machine, price (date) |
+|---|---|---|---|---|---|---|---|---|
+| not run yet | | | | | | | | |
+<!-- /report:serving -->
 
 ## What this does not do
 
