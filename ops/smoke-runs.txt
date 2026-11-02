@@ -1,0 +1,2 @@
+# A smoke run of the whole pod path: one short arm N run on Elliptic.
+train-gnn --dataset elliptic --arch sage --hops 1 --hub-cap 50 --epochs 2 --out data/smoke

@@ -51,7 +51,7 @@ git archive --format=tar HEAD | "${SSH[@]}" "mkdir -p /root/consort && tar -x -C
   echo "PRICE=$cost"
   echo "PRICE_DATE=$(date -u +%F)"
 } | "${SSH[@]}" "cat > /root/consort/.env && chmod 600 /root/consort/.env"
-SETUP="bash ops/pod-setup.sh"
+SETUP="DATASETS='${DATASETS:-}' bash ops/pod-setup.sh"
 [ -n "${SERVE:-}" ] && SETUP="$SETUP && bash ops/serve-setup.sh"
 "${SSH[@]}" "cd /root/consort && nohup bash -c '$SETUP && RUNS_FILE=${RUNS_FILE:-ops/gnn-runs.txt} bash ops/pod-queue.sh; echo ALLDONE' > /root/run.log 2>&1 &"
 
