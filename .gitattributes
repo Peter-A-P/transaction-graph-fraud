@@ -1,0 +1,4 @@
+# Shell scripts and the run lists run on Linux pods; they keep LF on every checkout and
+# in every git archive, whatever the local line-ending setting.
+*.sh text eol=lf
+ops/*.txt text eol=lf
