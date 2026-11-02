@@ -24,9 +24,19 @@ A6000. The serving benchmark on a secure-cloud pod, so the machine named beside 
 numbers is one that can be rented again. These are below the plan's estimate (US$0.27 to 0.50
 for the 24 GB class), so the estimate stands as an upper bound.
 
-**Not yet checked:** the plan's rule from 06 compares GCP and Azure spot prices for the same
-class and takes them if within 20% of the marketplace. That comparison is made, and dated here,
-before the first rental.
+**The cloud comparison** (06's rule: take GCP or Azure spot if within 20% of the
+marketplace), read 2026-11-01 from third-party price trackers, which Azure's and Google's own
+pages should confirm before any rental there:
+
+| Option | Spot US$ an hour | What it gives |
+|---|---:|---|
+| Azure `Standard_NC4as_T4_v3` | about 0.15 ([Vantage](https://instances.vantage.sh/azure/vm/nc4ast4-v3?currency=USD), [Spare Cores](https://sparecores.com/server/azure/Standard_NC4as_T4_v3)) | 16 GB T4, 4 vCPUs, 28 GB memory |
+| GCP L4 | about 0.33 ([computeprices.com](https://computeprices.com/providers/google/gpus/l4)) | 24 GB L4, before the machine it is attached to |
+| RunPod RTX A5000, Community | 0.16 (its API) | 24 GB, at least 8 vCPUs and 48 GB memory asked for |
+
+The Azure T4 is within 20% on price but not on the machine: arm N's sampling is CPU-bound and
+the IBM graphs need more than 28 GB, so the size that fits costs several times as much. GCP's
+L4 is about twice the price. RunPod stays.
 
 ## The watchdog
 
