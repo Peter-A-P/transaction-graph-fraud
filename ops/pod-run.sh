@@ -59,7 +59,15 @@ retry push_code
 retry push_env
 SETUP="DATASETS='${DATASETS:-}' bash ops/pod-setup.sh"
 [ -n "${SERVE:-}" ] && SETUP="$SETUP && bash ops/serve-setup.sh"
-start() { "${SSH[@]}" "cd /root/consort && test -f /root/run.log || nohup bash -c '$SETUP && RUNS_FILE=${RUNS_FILE:-ops/gnn-runs.txt} bash ops/pod-queue.sh; echo ALLDONE' > /root/run.log 2>&1 &"; }
+# The queue runs in its own session with no terminal, so it outlives the ssh call that
+# started it; and the start counts only once the log has a line in it. On 2026-11-02 a pod sat
+# idle for an hour and a half with an empty log, its queue never started, its watchdog with
+# it: `test -f` had taken the empty log for a running queue.
+start() {
+  "${SSH[@]}" "cd /root/consort && test -s /root/run.log || { setsid nohup bash -c '$SETUP && RUNS_FILE=${RUNS_FILE:-ops/gnn-runs.txt} bash ops/pod-queue.sh; echo ALLDONE' > /root/run.log 2>&1 < /dev/null & disown; }" &&
+    for _ in 1 2 3 4 5 6; do sleep 10; "${SSH[@]}" "test -s /root/run.log" && return 0; done
+  echo "the queue left no log line within a minute"; return 1
+}
 retry start
 
 # Copy the log and the packed outcomes back on every poll, so whatever finished is on the

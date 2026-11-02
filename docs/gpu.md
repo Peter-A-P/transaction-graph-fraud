@@ -112,3 +112,17 @@ across days, so nearly every batch rebuilt its day's graph on the CPU. The two-h
 stopped after 40 minutes and the IBM runs taken off the pod; the rest of the list (Elliptic's
 hop curve, GAT on the real sets, TabFM) went on. The fix (a day's batches run together, and
 the sampler without Python sets) is timed on the laptop before IBM goes back on a pod.
+
+**IBM's arm N, 2026-11-02.** With a day's batches run together, the vectorised sampler and a
+fifth of the negatives drawn afresh each epoch (PLAN.md 2.5), the six IBM runs took 15 to 30
+minutes each on a second Secure Cloud RTX 4090 at US$0.89 an hour, against four hours for one
+run before. That pod sat idle for an hour and a half first: the launcher's start had left an
+empty log, took it for a running queue and never started one, and with the queue went the
+watchdog. The queue was started by hand. The launcher now starts it in its own session with
+no terminal, counts the start only once the log has a line, and treats an empty log as no
+queue.
+
+**What did not finish.** The first pod became unreachable while TabFM ran on Elliptic++'s
+graph features with a context of 30,000 rows, and the launcher swept it after ten missed
+polls. That run, the context swap at step 43 and TabFM on Elliptic's graph features (which
+had run out of card memory before the query batches were cut to 1,000 rows) are still to run.
