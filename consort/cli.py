@@ -481,6 +481,21 @@ def explain(
     out.write_text(json.dumps(keep + new, indent=1) + "\n")
 
 
+@app.command("gate-export")
+def gate_export(
+    baseline: Path = typer.Option(..., help="Arm R's outcomes file"),
+    candidate: list[Path] = typer.Option(..., help="Each challenger's outcomes file"),
+    suite: str = typer.Option(..., help="The suite's name, usually the dataset"),
+    delta_points: float = 3.0,
+    out: Path = Path("data/gate"),
+) -> None:
+    """Spec and side files for project 03's gate (recall at the 1% alert budget, paired)."""
+    from consort.gate.export import export
+
+    for p in export(baseline, candidate, out / suite, suite, delta_points):
+        typer.echo(str(p))
+
+
 @app.command("pod-up")
 def pod_up(
     name: str = typer.Option(..., help="Must start with consort- (the watchdog's prefix)"),
