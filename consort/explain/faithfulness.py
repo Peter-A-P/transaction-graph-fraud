@@ -62,6 +62,31 @@ class Faithfulness:
     random_hit_rate: float
 
 
+def graded(
+    explanations: Sequence[Explanation],
+    illicit: npt.NDArray[np.bool_],
+    k: int,
+    seed: int = 0,
+    n_random: int = 100,
+) -> tuple[npt.NDArray[np.int64], npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    """Per graded node (one with a known-illicit direct neighbour): its id, whether its top k
+    hold one (0 or 1), and the chance that k random neighbours do. Bootstrapping these over
+    groups gives faithfulness its interval."""
+    rng = np.random.default_rng(seed)
+    nodes, hit, rand = [], [], []
+    for e in explanations:
+        nb = np.array(e.neighbours, dtype=np.int64)
+        if nb.size == 0 or not illicit[nb].any():
+            continue
+        nodes.append(e.node)
+        hit.append(float(illicit[nb[:k]].any()))
+        draws = [
+            illicit[rng.choice(nb, min(k, nb.size), replace=False)].any() for _ in range(n_random)
+        ]
+        rand.append(float(np.mean(draws)))
+    return np.array(nodes, dtype=np.int64), np.array(hit), np.array(rand)
+
+
 def faithfulness(
     explanations: Sequence[Explanation],
     illicit: npt.NDArray[np.bool_],

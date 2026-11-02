@@ -339,7 +339,11 @@ def report(
         p = {q: "; ".join(f"{t['store']} {t[q]:.1f}" for t in rows) for q in ("p50_ms", "p99_ms")}
         return (p["p50_ms"], p["p99_ms"])
 
+    faith = Path("results/faithfulness.json")
     tables = {
+        "faithfulness": tb.faithfulness_table(
+            json.loads(faith.read_text()) if faith.exists() else []
+        ),
         "main": tb.main_table(summaries),
         "patterns": tb.pattern_table(summaries),
         "hops": tb.hop_table(summaries, fetch),
@@ -447,6 +451,33 @@ def bench(
     new = [json.loads(r.model_dump_json()) for r in results]
     keep = [d for d in old if key(d) not in {key(n) for n in new}]
     out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(keep + new, indent=1) + "\n")
+
+
+@app.command()
+def explain(
+    run: Path = typer.Option(..., help="An arm G run's outcomes file on Elliptic"),
+    model: Path = typer.Option(..., help="That run's ONNX export (train --onnx)"),
+    out: Path = Path("results/faithfulness.json"),
+    n_boot: int = 1000,
+) -> None:
+    """Explanation faithfulness for the run's alert queue: occlusion against random k."""
+    from consort.data.tasks import EllipticTask
+    from consort.eval import outcomes as oc
+    from consort.explain.run import run_faithfulness
+
+    meta = oc.read_meta(run)
+    task = _task(meta.dataset)
+    if not isinstance(task, EllipticTask):
+        raise typer.BadParameter("faithfulness runs on Elliptic (a node task)")
+    cap = int(meta.run.split(".cap")[1].split(".")[0])
+    results = run_faithfulness(task, run, model, meta.hops, cap, n_boot=n_boot)
+    for r in results:
+        typer.echo(f"k={r.k}: explained {r.explained}, random {r.random}, lift {r.lift}")
+    old = json.loads(out.read_text()) if out.exists() else []
+    keep = [d for d in old if d["run"] != meta.run]
+    out.parent.mkdir(parents=True, exist_ok=True)
+    new = [json.loads(r.model_dump_json()) for r in results]
     out.write_text(json.dumps(keep + new, indent=1) + "\n")
 
 

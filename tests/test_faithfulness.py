@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 
 from consort.explain.faithfulness import Explanation, explain, faithfulness
@@ -38,3 +40,22 @@ def test_faithfulness_against_the_random_baseline() -> None:
 def test_nodes_with_nothing_to_find_are_not_graded() -> None:
     f = faithfulness([Explanation(0, 1.0, [1, 2], [0, 0])], np.zeros(3, dtype=bool), k=1)
     assert f.n_graded == 0
+
+
+def test_arm_g_faithfulness_on_toy_elliptic_through_the_onnx_export(tmp_path: Path) -> None:
+    from consort.data import elliptic
+    from consort.data.tasks import elliptic_task
+    from consort.explain.run import run_faithfulness
+    from consort.models.run import run_tabular
+    from tests.toy import write_elliptic
+
+    task = elliptic_task(elliptic.load(write_elliptic(tmp_path), check_counts=False))
+    out = run_tabular(task, "G", 1, 10, seed=0, out_dir=tmp_path / "r", onnx_dir=tmp_path / "m")
+    (model,) = (tmp_path / "m").glob("*.onnx")
+    res = run_faithfulness(task, out, model, 1, 10, ks=(1,), budget=0.05, n_boot=50)
+    assert res and res[0].graded > 0
+    lo, hi = res[0].lift[1:]
+    assert lo <= res[0].lift[0] <= hi
+    # The toy's flagged nodes sit in illicit chains, so random neighbours find one too; the
+    # explanation must do at least as well.
+    assert res[0].explained[0] >= res[0].random[0]

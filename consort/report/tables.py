@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable, Sequence
+from typing import Any
 
 from consort.report.summary import RunSummary, Triple
 
@@ -192,6 +193,23 @@ def leakage_table(runs: Sequence[RunSummary]) -> str:
                 f"| {fmt(rand[0].metrics.get('auprc')) if rand else NOT_RUN} "
                 f"| {fmt(win[0].metrics.get('auprc')) if win else 'not applicable'} |"
             )
+    return "\n".join(lines)
+
+
+def faithfulness_table(results: Sequence[dict[str, Any]]) -> str:
+    lines = [
+        "| Run | k | Flagged | Graded | Top-k holds a known-illicit neighbour "
+        "| k random neighbours do | Lift |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    if not results:
+        lines.append(f"| {NOT_RUN} | | | | | | |")
+    for r in results:
+        e, rnd, lift = (tuple(r[k]) for k in ("explained", "random", "lift"))
+        lines.append(
+            f"| {r['run']} | {r['k']} | {r['flagged']} | {r['graded']} "
+            f"| {fmt(e)} | {fmt(rnd)} | {fmt(lift)} |"
+        )
     return "\n".join(lines)
 
 

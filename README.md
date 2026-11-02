@@ -61,8 +61,19 @@ days, the leak this build found in itself and fixed (PLAN.md 2.2). All test days
 <!-- report:leakage -->
 <!-- /report:leakage -->
 
-The explanation faithfulness and the serving cost follow in the same shape, each with its
-interval and its price date, once arm N and the rented machine have run.
+**Can an investigator read why?** For each run's alert queue (its top 1% of test items), every
+direct neighbour of a flagged transaction is occluded in turn on the served neighbourhood and
+the transaction rescored through the same exported model; the neighbours whose removal drops
+the score most are its explanation. Among flagged transactions with at least one known-illicit
+neighbour, how often the top k hold one, against k neighbours drawn at random. Intervals over
+time steps. Elliptic's own aggregated features are fixed per transaction, so occlusion moves
+only the features this project computes.
+
+<!-- report:faithfulness -->
+<!-- /report:faithfulness -->
+
+The serving cost per million scores follows in the same shape, with its price date, once the
+rented machine has run.
 
 ## What this does not do
 
