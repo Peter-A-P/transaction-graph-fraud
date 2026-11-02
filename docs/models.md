@@ -14,9 +14,25 @@ settings it ran with. A number in the README names the run; the run names the mo
 
 ## Arm N: graph neural network
 
-Not built yet. GraphSAGE with neighbour sampling and GAT in PyTorch Geometric 2.x; the
-directed-multigraph adaptations (reverse message passing, ego identifiers, port numbering) as
-an ablation on the synthetic set.
+GraphSAGE (`SAGEConv`) and GAT (`GATConv`, 4 heads) in PyTorch Geometric 2.x, in
+`consort/models/gnn.py`.
+
+- **Neighbourhood:** the recency cap of `consort/graph/sampler.py`, the same neighbourhood arm
+  G aggregates over and the serving path fetches; not PyG's random samplers (PLAN.md 2.5).
+- **Shape:** a linear input layer, one message-passing layer per hop with a residual and layer
+  norm, hidden width 64, dropout 0.2. At hop 0 it is a multilayer perceptron on the row. On
+  Elliptic and Elliptic++ each node is classified; on IBM a transfer is classified from its two
+  accounts' embeddings and its own row.
+- **Training:** AdamW, learning rate 3e-3, weight decay 1e-5, batches of 2,048, at most 40
+  epochs, early stopping on validation AUPRC with a patience of 6 (the rule arms R and G use),
+  the positive class weighted by the training ratio. Elliptic++ and IBM batches never mix steps
+  or days, each scored on its own graph as of then. On IBM each epoch keeps every illicit
+  transfer and a fresh fifth of the licit ones, the weight scaled to match (PLAN.md 2.5).
+- **Ablation flags (IBM):** reverse message passing (separate weights along and against an
+  edge) and ego identifiers (a marker on the nodes being classified), after Egressy et al.,
+  Multi-GNN (2024). Port numbering is not implemented.
+- **Variant choice:** like the hop count, the architecture in a headline row is the one with
+  the best validation AUPRC; the hop curve is GraphSAGE's.
 
 ## The TabFM column
 
@@ -41,6 +57,8 @@ an ablation on the synthetic set.
 - **Context:** a sample of the training rows of a stated size that keeps every positive and
   spreads the negatives across split groups in proportion; deterministic by seed. The size is
   a parameter in every table it appears in.
+- **Queries** are scored in batches of 1,000: 10,000 at once ran a 24 GB RTX 4090 out of
+  memory on arm G's table for Elliptic (10,000 context rows), 2026-11-02.
 - **Known limits:** no published GPU memory figure; the model card says memory grows with the
   number of context rows. Results are non-deterministic by the package's own declaration, so
   the column reports three seeds.
