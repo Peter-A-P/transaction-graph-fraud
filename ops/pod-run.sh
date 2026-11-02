@@ -23,16 +23,19 @@ sweep() { uv run --no-sync consort pod-down --name "$NAME" || echo "SWEEP FAILED
 trap 'echo "exit: sweeping pods named $NAME"; sweep' EXIT
 info=""
 IFS=, read -ra cards <<< "$GPUS"
-for GPU in "${cards[@]}"; do
-  if info=$(uv run --no-sync consort pod-up --name "$NAME" --gpu "$GPU" 2>data/pod-logs/pod-up.err); then break; fi
-  info=""
-  if grep -q "SUPPLY_CONSTRAINT\|no longer any instances" data/pod-logs/pod-up.err; then
-    echo "no $GPU in supply"
-  else
-    echo "pod-up failed on $GPU:"; tail -5 data/pod-logs/pod-up.err; exit 1
-  fi
+# Community stock comes and goes by the hour: try the list up to TRIES times, WAIT seconds apart.
+for attempt in $(seq 1 "${TRIES:-1}"); do
+  for GPU in "${cards[@]}"; do
+    if info=$(uv run --no-sync consort pod-up --name "$NAME" --gpu "$GPU" 2>data/pod-logs/pod-up.err); then break 2; fi
+    info=""
+    if ! grep -q "SUPPLY_CONSTRAINT\|no longer any instances" data/pod-logs/pod-up.err; then
+      echo "pod-up failed on $GPU:"; tail -5 data/pod-logs/pod-up.err; exit 1
+    fi
+  done
+  echo "attempt $attempt, $(date -u +%FT%TZ): no card in supply"
+  [ "$attempt" -lt "${TRIES:-1}" ] && sleep "${WAIT:-1200}"
 done
-[ -n "$info" ] || { echo "no card in supply"; exit 1; }
+[ -n "$info" ] || { echo "no card in supply after ${TRIES:-1} attempts"; exit 1; }
 read -r id host port cost < <(python -c "import json,sys; d=json.loads(sys.argv[1]); print(d['id'], d['host'], d['port'], d['cost_per_hr'])" "$info")
 echo "pod $id ($GPU, US\$$cost/h) at $host:$port, $(date -u +%FT%TZ)"
 
