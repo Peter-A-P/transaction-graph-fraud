@@ -28,6 +28,23 @@ the 1% alert budget, with a margin of 3 points.
 | Date (UTC) | Suite | Baseline | Candidate | Recall at 1% budget, baseline | Candidate | Difference | Verdict |
 |---|---|---|---|---|---|---|---|
 | 2026-11-02 | ibm-hi-small | R | G, 1 hop, cap 50 | 57.9% (55.5 to 60.3) | 78.6% (76.7 to 80.6) | +20.8 points (+18.6 to +23.2) | pass |
+| 2026-11-02 | ibm-li-small | R | G, 1 hop, cap 50 | 33.2% | 58.4% | +25.2 points (+21.6 to +28.8) | pass |
+| 2026-11-02 | elliptic | R | G, 2 hops, cap 50 | 17.3% | 17.3% | +0.0 points (-3.1 to +3.1) | block |
+| 2026-11-02 | elliptic | R | N, GraphSAGE, 2 hops | 17.3% | 15.6% | -1.7 points (-4.7 to +1.5) | block |
+| 2026-11-02 | ellipticpp | R | G, 3 hops, cap 50 | 20.7% | 21.9% | +1.1 points (-0.1 to +2.4) | pass |
+| 2026-11-02 | ellipticpp | R | N, GraphSAGE, 2 hops | 20.7% | 20.2% | -0.5 points (-1.7 to +0.7) | pass |
+
+Each candidate is the arm's headline run, its hop count (and for arm N its architecture)
+chosen on validation AUPRC. Arm N on IBM waits for its rerun (docs/gpu.md).
+
+Read the verdicts as what they are: non-inferiority at a 3-point margin, not improvement.
+"block" on Elliptic means the gate cannot rule out a 3-point drop, not that one was seen: the
+1% queue there holds about 167 transactions against 717 illicit ones, so no ranking can reach
+more than 23% of them, and both arms sit near that ceiling. The same holds on Elliptic++ (719
+alerts against 3,259 illicit addresses, a ceiling of 22%), where the larger test set narrows
+the interval enough for both challengers to pass. On the real sets the 1% budget asks too
+little to separate the arms; the README's AUPRC column is where they differ. On IBM, where
+the budget reaches most of the laundering, arm G's gain is twenty points or more.
 
 On every decision so far the gate's recall at the budget equals the evaluator's to the third
 decimal (0.579 and 0.786 on HI-Small), two independent implementations agreeing.
