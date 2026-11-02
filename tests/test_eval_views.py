@@ -59,3 +59,36 @@ def test_neighbour_label_rate_reads_only_visible_labels(tmp_path: Path) -> None:
     task.items = flipped
     after = neighbour_label_rate(task, visible)
     pd.testing.assert_frame_equal(before, after)
+
+
+def test_slices_by_item_lookup_when_bootstrap_groups_are_not_split_groups() -> None:
+    # Bootstrap groups are hours; the split's groups are days 0 and 1; day 1 is the "tail".
+    from consort.data.splits import temporal_split
+
+    split = temporal_split(
+        "t", train=[-2], val=[-1], test=[0, 1], test_slices={"without-tail": [0]}
+    )
+    n = 100
+    ids = np.arange(n).astype(str)
+    labels = np.r_[np.zeros(80), np.ones(20)].astype(int)
+    labels[[0, 1]] = 1
+    scores = np.r_[np.zeros(80), np.ones(20)]  # the tail's positives are easy
+    scores[[0, 1]] = 0.5
+    o = oc.Outcomes.build(ids, np.arange(n) // 5, labels, scores)
+    day = {i: (0 if k < 80 else 1) for k, i in enumerate(ids)}
+    out = by_slice(o, split, n_boot=20, split_group=day)
+    assert out["without-tail"]["auprc"].point == pytest.approx(1.0)
+    assert out["without-tail"]["auprc"].n_items == 80
+
+
+def test_ibm_tail_days_are_cut_by_volume(tmp_path: Path) -> None:
+    root = tmp_path / "t"
+    root.mkdir()
+    write_ibm(root, n_background=6000, n_cycles=10)  # about 300 transfers a day
+    with (root / "T_Trans.csv").open("a") as f:  # a near-empty day after the end
+        f.write("2022/09/25 10:00,1,00000000,2,00000001,500.00,US Dollar,500.00,US Dollar,ACH,1\n")
+    task = ibm_task(ibm.load(root, "T"), boot_group="day")
+    used = set(task.items["split_group"].tolist())
+    test, kept = task.split.groups["test"], task.split.test_slices["without-tail"]
+    # Days with no transfers are in the tail by the rule and hold no items either way.
+    assert (set(test) - set(kept)) & used == {max(used)}

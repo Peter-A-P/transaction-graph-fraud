@@ -7,6 +7,7 @@ from collections import Counter
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
+import numpy as np
 import typer
 
 from consort import env
@@ -175,12 +176,17 @@ def eval_cmd(
     outcomes: list[Path],
     against: Path | None = typer.Option(None, help="Baseline outcomes for a paired delta"),
     n_boot: int = 1000,
+    slices: bool = typer.Option(
+        False, help="Also read each named test slice (loads the dataset to find item groups)"
+    ),
 ) -> None:
     """Metrics with grouped bootstrap intervals; with --against, paired deltas."""
     from consort.eval import outcomes as oc
     from consort.eval.metrics import evaluate, paired_delta
+    from consort.eval.shift import by_slice
 
     base = oc.read(against) if against else None
+    tasks: dict[str, Task] = {}
     for path in outcomes:
         o = oc.read(path)
         meta = oc.read_meta(path)
@@ -190,6 +196,21 @@ def eval_cmd(
         if base is not None:
             for k, est in paired_delta(base, o, n_boot=n_boot).items():
                 typer.echo(f"  delta {k}: {est.as_text()}")
+        if slices:
+            if meta.dataset not in tasks:
+                tasks[meta.dataset] = _task(meta.dataset)
+            task = tasks[meta.dataset]
+            group = dict(zip(task.items["item_id"], task.items["split_group"].astype(int), strict=True))
+            for name, ests in by_slice(o, task.split, n_boot, split_group=group).items():
+                for k, est in ests.items():
+                    typer.echo(f"  [{name}] {k}: {est.as_text()}")
+                if base is not None:
+                    groups = task.split.test_slices[name]
+                    in_o = np.isin([group[i] for i in o.item_id.tolist()], groups)
+                    in_b = np.isin([group[i] for i in base.item_id.tolist()], groups)
+                    delta = paired_delta(base.subset(in_b), o.subset(in_o), n_boot=n_boot)
+                    for k, est in delta.items():
+                        typer.echo(f"  [{name}] delta {k}: {est.as_text()}")
 
 
 @app.command()

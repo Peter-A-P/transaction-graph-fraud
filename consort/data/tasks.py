@@ -178,6 +178,7 @@ class IBMTask(Task):
 
 
 BootGroup = Literal["hour", "component", "day"]
+TAIL_SHARE = 0.01
 
 
 def ibm_task(
@@ -195,11 +196,18 @@ def ibm_task(
     days = np.arange(counts.shape[0])
     cut1 = int(np.searchsorted(share, fractions[0]))
     cut2 = max(int(np.searchsorted(share, fractions[1])), cut1 + 1)
+    test_days = days[cut2 + 1 :]
+    # The generator's tail: after normal activity stops, its laundering attempts run on for a
+    # few days, so those days are nearly all laundering (HI-Small's days 10 to 17: 1,128
+    # transfers, 655 laundering, 41% of the test set's). A day is in the tail when it holds
+    # under 1% of the median day's transfers; the gap is wide, so the threshold is not delicate.
+    tail = test_days[counts[test_days] < TAIL_SHARE * np.median(counts)]
     split = temporal_split(
         f"ibm-{data.tier}-temporal",
         train=days[: cut1 + 1].tolist(),
         val=days[cut1 + 1 : cut2 + 1].tolist(),
-        test=days[cut2 + 1 :].tolist(),
+        test=test_days.tolist(),
+        test_slices={"without-tail": sorted(set(test_days.tolist()) - set(tail.tolist()))},
     )
     empty = [p for p in PARTITIONS if not split.groups[p]]
     if empty:

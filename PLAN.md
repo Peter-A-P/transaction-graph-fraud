@@ -93,7 +93,14 @@ transfer up to the end of the partition's window, which hands a test transfer it
 later activity; arm G's first HI-Small run under that view had AUPRC 0.716 against arm R's
 0.212, and a leakage test now shows the window view changing an earlier transfer's features
 when later days are added and the prior-days view not. The window view is kept to publish
-that gap beside the random split's, and arm N's IBM graph follows the same rule. Bootstrap groups on IBM are
+that gap beside the random split's, and arm N's IBM graph follows the same rule.
+*Amended 2026-11-01:* every IBM result is also read on a "without-tail" test slice. After
+normal activity stops, the generator's laundering attempts run on for several days, which
+are then nearly all laundering (HI-Small's days 10 to 17: 1,128 transfers, 655 laundering, 41%
+of the test set's; LI-Small has the same tail). A test day is in the tail when it holds under
+1% of the median day's transfers (the tail days hold 3 to 396, a median day about 207,000 on
+HI-Small and 283,000 on LI-Small). Both readings are published; the without-tail one is the
+one that resembles a bank's day. Bootstrap groups on IBM are
 hours by default rather than connected components: the transfer graph is expected to be one
 giant component, which would leave too few groups to resample. The component grouping is
 implemented and is reported beside the hour grouping once the data shows the component sizes.
