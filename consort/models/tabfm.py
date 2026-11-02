@@ -104,7 +104,9 @@ class TabFMScorer:
         self._clf.fit(X.iloc[idx], np.asarray(y)[idx])
         return self
 
-    def predict(self, X: pd.DataFrame, batch: int = 10_000) -> npt.NDArray[np.float64]:
+    def predict(self, X: pd.DataFrame, batch: int = 1_000) -> npt.NDArray[np.float64]:
+        # Queries go in batches: 10,000 at once ran a 24 GB card out of memory on arm G's
+        # table for Elliptic (2026-11-02); a batch's queries do not see each other.
         if self._clf is None:
             raise RuntimeError("fit before predict")
         classes = list(self._clf.classes_)
