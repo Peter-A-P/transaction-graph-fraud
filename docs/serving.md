@@ -20,10 +20,14 @@ To score one account live: fetch its neighbourhood, compute arm G's features on 
 
 ## The stores
 
-- **DuckDB** (`consort/serve/duckdb_store.py`): one `edges` table sorted by source, with ART
-  indexes on source and destination. The account's own edges are two indexed lookups; the
-  capped expansion is a `row_number() OVER (PARTITION BY src ORDER BY ord DESC)` window over
-  the frontier's edges, in each direction.
+- **DuckDB** (`consort/serve/duckdb_store.py`): one table per end (`out_edges` sorted by
+  source, `in_edges` by destination, each then most recent first) with an ART index on the
+  owner. Each edge carries its sequence number at that end, oldest first, ties by edge id; a
+  new edge takes the next number, so no stored row changes on a write. Degree tables hold
+  each account's count per end. The account's own edges are two indexed lookups; the capped
+  expansion is a range read, the edges whose sequence number exceeds the owner's degree less
+  the cap, in each direction. A `row_number()` window over the frontier's edges gave the same
+  rows at twice the time per call.
 - **Neo4j** (`consort/serve/neo4j_store.py`): `(:Account {id})` nodes with a uniqueness
   constraint, `[:SENT]` relationships carrying the edge id, recency and amounts. The capped
   expansion is a `CALL` subquery per frontier account, ordering its relationships by recency
@@ -43,7 +47,10 @@ and is skipped wherever `NEO4J_URI` is unset (CI).
 `consort/serve/bench.py` times whole calls (fetch, features, score) per store, hop count and
 cap, after a warm-up, and reports p50, p99, mean edges fetched and cost per million scores:
 the machine's hourly price over one sequential worker's throughput at a stated utilisation.
-Every result carries the machine name, host, CPU, core count, price and price date.
+Every result carries the machine name, host, CPU, core count, the CPUs the container may
+actually use (its cgroup quota), the threads a call was given, price and price date. A call
+runs on one thread by default (`--threads`): DuckDB's pool and ONNX Runtime's are both set to
+it, and ONNX Runtime's threads do not spin while idle.
 
 **Nothing timed is reported from the laptop.** A result is reportable only when the benchmark
 was run with an explicit machine and price and `reportable` set; the report refuses any other
@@ -68,6 +75,18 @@ now indexes edges by each end. And DuckDB and Neo4j broke ties in recency differ
 the batch features (IBM's timestamps are to the minute and tie often), so under a binding cap
 they could keep different edges; both now break ties by the larger edge id, and a test with
 tied timestamps fails the old queries. Its results are kept outside the repository.
+
+## The second run, superseded (2026-11-02)
+
+The second reportable run, on a Secure Cloud RTX 4090 pod, still put the in-memory store at
+95 ms per transfer at the median with 94 edges fetched, where the same code on the laptop
+takes 12 ms; DuckDB and Neo4j sat near 300 to 400 ms. Two causes. The pod reported the host's
+96 cores, and ONNX Runtime and DuckDB each sized a thread pool to them, ONNX Runtime's
+spinning while idle, inside a container that may use only a share of those cores: the pool
+competed with the call it served. And DuckDB's in-edge lookups scanned, its one table being
+sorted by source only. Calls now run on one thread in every library, the benchmark records
+the container's usable CPUs, and DuckDB keeps one table per end. Its results are kept
+outside the repository with the first run's.
 
 ## Running it
 

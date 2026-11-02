@@ -386,6 +386,7 @@ def bench(
     usd_per_hour: float = typer.Option(..., help="Its price"),
     price_date: str = typer.Option(..., help="The date the price was read, YYYY-MM-DD"),
     reportable: bool = typer.Option(False, help="Only on the rented machine or the VPS"),
+    threads: int = typer.Option(1, help="Threads one call may use (DuckDB, ONNX Runtime)"),
     out: Path = Path("results/serving.json"),
 ) -> None:
     """Time the live path per transfer (fetch both accounts, arm G's features, the ONNX
@@ -407,6 +408,7 @@ def bench(
         name=machine,
         usd_per_hour=usd_per_hour,
         price_date=date.fromisoformat(price_date),
+        threads=threads,
         reportable=reportable,
     )
     rng = np.random.default_rng(0)
@@ -419,7 +421,9 @@ def bench(
         elif name == "duckdb":
             from consort.serve.duckdb_store import DuckDBSource
 
-            sources[name] = DuckDBSource.from_graph(g, Path("data/serve.duckdb"))
+            db = DuckDBSource.from_graph(g, Path("data/serve.duckdb"))
+            db.con.execute(f"SET threads = {threads}")
+            sources[name] = db
         elif name == "neo4j":
             import os
 
@@ -438,7 +442,7 @@ def bench(
     results = []
     for h in (int(x) for x in hops.split(",")):
         model = models / f"{dataset}.temporal.G.h{h}.cap{hub_cap}.s0.onnx"
-        score = bn.onnx_scorer(model)
+        score = bn.onnx_scorer(model, threads)
         stored = reg.compute(g, node_table, h, hub_cap)
         for (name, src), mode in itertools.product(sources.items(), centre.split(",")):
             r = bn.run_transfers(

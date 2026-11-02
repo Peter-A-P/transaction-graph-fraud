@@ -29,6 +29,20 @@ from consort.graph.registry import FeatureRegistry
 ScoreRow = Callable[[pd.Series], float]
 
 
+def usable_cpus() -> float:
+    """The CPUs this process may use: a container's quota where there is one. A rented pod
+    reports the host's cores (96 on the first serving run) but may be held to a share of them,
+    and a thread pool sized to the host then spends the quota waiting."""
+    try:
+        quota, period = Path("/sys/fs/cgroup/cpu.max").read_text().split()
+        if quota != "max":
+            return int(quota) / int(period)
+    except (OSError, ValueError):
+        pass
+    affinity = getattr(os, "sched_getaffinity", None)
+    return float(len(affinity(0)) if affinity else os.cpu_count() or 1)
+
+
 class Machine(BaseModel):
     name: str
     usd_per_hour: float
@@ -36,6 +50,8 @@ class Machine(BaseModel):
     host: str = platform.node()
     cpu: str = platform.processor()
     cores: int = os.cpu_count() or 0
+    usable_cpus: float = usable_cpus()
+    threads: int = 1  # the threads one call may use, in every library on the path
     reportable: bool = False
 
 
@@ -175,13 +191,19 @@ def run_transfers(
     )
 
 
-def onnx_scorer(path: Path) -> TransferScore:
-    """One inference session, reused for every call, reading the export's column contract."""
+def onnx_scorer(path: Path, threads: int = 1) -> TransferScore:
+    """One inference session, reused for every call, reading the export's column contract. One
+    row is too small to split across threads, and the runtime's default pool (one spinning
+    thread per host core) competes with the fetch for the container's CPU."""
     import onnxruntime as ort
 
     contract = json.loads(path.with_suffix(".features.json").read_text())
     columns, col = contract["columns"], contract["score_column"]
-    session = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
+    opts = ort.SessionOptions()
+    opts.intra_op_num_threads = threads
+    opts.inter_op_num_threads = 1
+    opts.add_session_config_entry("session.intra_op.allow_spinning", "0")
+    session = ort.InferenceSession(str(path), opts, providers=["CPUExecutionProvider"])
     names = [contract["output"]]
 
     def score(row: pd.DataFrame) -> float:
