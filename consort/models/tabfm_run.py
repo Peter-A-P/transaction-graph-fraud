@@ -15,6 +15,7 @@ The scorer is injected (`make`), so the logic is tested without the model instal
 
 from __future__ import annotations
 
+import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Protocol
@@ -114,7 +115,11 @@ def run_tabfm(
     )
     val = scorer.predict(tables["val"][masks["val"]].reset_index(drop=True))
     test_rows = np.flatnonzero(masks["test"]).astype(np.int64)
+    # Scoring is timed alone (no table building, no fit), for TabFM's cost per thousand scores;
+    # the time is read only from a run on the rented machine (docs/models.md).
+    started = time.perf_counter()
     scores = scorer.predict(tables["test"][masks["test"]].reset_index(drop=True))
+    predict_s = time.perf_counter() - started
     return _write(
         task,
         test_rows,
@@ -125,7 +130,8 @@ def run_tabfm(
         hub_cap,
         seed,
         _auprc(y[masks["val"]], val),
-        f"context_size={context_size}; features={features}",
+        f"context_size={context_size}; features={features}; "
+        f"test_rows={test_rows.size}; test_predict_s={predict_s:.1f}",
         out_dir,
     )
 

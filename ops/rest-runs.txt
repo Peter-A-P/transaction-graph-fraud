@@ -14,3 +14,5 @@ train-gnn --dataset ibm-HI-Small --arch sage --hops 2 --hub-cap 50 --neg-share 0
 train-gnn --dataset ibm-LI-Small --arch sage --hops 2 --hub-cap 50 --neg-share 0.2 --seed 1
 train-gnn --dataset ibm-LI-Small --arch sage --hops 2 --hub-cap 50 --neg-share 0.2 --seed 2
 train-tabfm --dataset ellipticpp --features G --hops 1 --hub-cap 50 --context-size 30000 --device cuda
+# Appended 2026-11-02 while the queue ran: TabFM-R on Elliptic again, now that scoring is timed alone, for the cost per thousand scores.
+train-tabfm --dataset elliptic --features R --context-size 10000 --device cuda
