@@ -95,3 +95,11 @@ and 48 GB or at the lower minimums; the cheapest card in stock with a public IP 
 memory for two-hop batches was the 32 GB RTX 5000 Ada at US$0.49 an hour, added to the list
 after the A5000 and 3090.
 
+**What was rented, 2026-11-02 (UTC).** Community stock stayed empty for every card with a
+public IP from about 02:00 to 03:00 UTC, so the smoke run (one short arm N run on Elliptic, the
+whole path from rent to sweep) and then the first queue went to a Secure Cloud L4 at US$0.59
+an hour: at the queue's few hours, a few dollars more than waiting for the Community cloud and
+a night sooner. The smoke run showed torch 2.15 on CUDA 13.2 under the L4's driver, the
+datasets verified against the committed manifests on the pod, and arm N's two epochs on
+Elliptic in 17 seconds against 96 on the laptop.
+
