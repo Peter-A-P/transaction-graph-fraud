@@ -236,10 +236,11 @@ def rejected_table(runs: Sequence[RunSummary], dataset: str = "elliptic") -> str
 
 def fill(text: str, tables: dict[str, str]) -> str:
     for name, body in tables.items():
+        # The markers may be adjacent (no table yet) or hold an earlier table.
         pattern = re.compile(
-            rf"(<!-- report:{name} -->\n).*?(\n<!-- /report:{name} -->)", re.DOTALL
+            rf"(<!-- report:{name} -->\n)(?:.*?\n)?(<!-- /report:{name} -->)", re.DOTALL
         )
         if not pattern.search(text):
             raise ValueError(f"the README has no report:{name} markers")
-        text = pattern.sub(lambda m: f"{m.group(1)}{body}{m.group(2)}", text)  # noqa: B023
+        text = pattern.sub(lambda m: f"{m.group(1)}{body}\n{m.group(2)}", text)  # noqa: B023
     return text

@@ -82,4 +82,8 @@ def test_tables_fill_only_between_markers(runs: Path, tmp_path: Path) -> None:
     assert tb.NOT_RUN in filled  # arm N and the datasets not run here say so
     with pytest.raises(ValueError):
         tb.fill("no markers", {"main": "x"})
+    # Adjacent markers, as a fresh README has them, fill too; and filling twice is stable.
+    once = tb.fill("<!-- report:main -->\n<!-- /report:main -->\n", {"main": "x"})
+    assert once == "<!-- report:main -->\nx\n<!-- /report:main -->\n"
+    assert tb.fill(once, {"main": "x"}) == once
     assert np.isfinite(summaries[0].metrics["auprc"][0])
