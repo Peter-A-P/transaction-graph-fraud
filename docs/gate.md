@@ -39,8 +39,9 @@ chosen on validation AUPRC. Arm N on IBM waits for its rerun (docs/gpu.md).
 
 Read the verdicts as what they are: non-inferiority at a 3-point margin, not improvement.
 "block" on Elliptic means the gate cannot rule out a 3-point drop, not that one was seen: the
-1% queue there holds about 167 transactions against 717 illicit ones, so no ranking can reach
-more than 23% of them, and both arms sit near that ceiling. The same holds on Elliptic++ (719
+1% queue there holds 124 of the 12,367 test transactions against 717 illicit ones, so no
+ranking can reach more than 17.3% of them, and arms R and G both reach exactly that (every
+alert illicit); arm N's queue holds 12 licit transactions. The same holds on Elliptic++ (719
 alerts against 3,259 illicit addresses, a ceiling of 22%), where the larger test set narrows
 the interval enough for both challengers to pass. On the real sets the 1% budget asks too
 little to separate the arms; the README's AUPRC column is where they differ. On IBM, where
