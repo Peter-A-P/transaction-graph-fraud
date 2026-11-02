@@ -44,5 +44,74 @@
    -0.54,
    0.48
   ]
+ },
+ {
+  "dataset": "ibm-HI-Small",
+  "run": "ibm-HI-Small.temporal.G.h1.cap50.s0",
+  "k": 1,
+  "flagged": 300,
+  "graded": 101,
+  "n_groups": 57,
+  "explained": [
+   0.4653,
+   0.3656,
+   0.5803
+  ],
+  "random": [
+   0.3396,
+   0.2902,
+   0.3969
+  ],
+  "lift": [
+   0.1257,
+   0.035,
+   0.221
+  ]
+ },
+ {
+  "dataset": "ibm-HI-Small",
+  "run": "ibm-HI-Small.temporal.G.h1.cap50.s0",
+  "k": 3,
+  "flagged": 300,
+  "graded": 88,
+  "n_groups": 49,
+  "explained": [
+   0.6705,
+   0.5543,
+   0.7848
+  ],
+  "random": [
+   0.6495,
+   0.5837,
+   0.7136
+  ],
+  "lift": [
+   0.0209,
+   -0.0953,
+   0.1262
+  ]
+ },
+ {
+  "dataset": "ibm-HI-Small",
+  "run": "ibm-HI-Small.temporal.G.h1.cap50.s0",
+  "k": 5,
+  "flagged": 300,
+  "graded": 67,
+  "n_groups": 44,
+  "explained": [
+   0.8507,
+   0.7612,
+   0.9403
+  ],
+  "random": [
+   0.7663,
+   0.6968,
+   0.8351
+  ],
+  "lift": [
+   0.0845,
+   0.01,
+   0.1659
+  ]
  }
 ]

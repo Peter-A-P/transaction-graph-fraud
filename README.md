@@ -142,7 +142,16 @@ computes. Most of Elliptic's flagged transactions have one or two neighbours, so
 |---|---|---|---|---|---|---|
 | elliptic.temporal.G.h1.cap50.s0 | 1 | 124 | 14 | 0.571 (0.500 to 1.000) | 0.516 (0.450 to 0.530) | 0.055 (-0.021 to 0.550) |
 | elliptic.temporal.G.h2.cap50.s0 | 1 | 124 | 12 | 0.417 (0.000 to 1.000) | 0.505 (0.500 to 0.540) | -0.088 (-0.540 to 0.480) |
+| ibm-HI-Small.temporal.G.h1.cap50.s0 | 1 | 300 | 101 | 0.465 (0.366 to 0.580) | 0.340 (0.290 to 0.397) | 0.126 (0.035 to 0.221) |
+| ibm-HI-Small.temporal.G.h1.cap50.s0 | 3 | 300 | 88 | 0.670 (0.554 to 0.785) | 0.649 (0.584 to 0.714) | 0.021 (-0.095 to 0.126) |
+| ibm-HI-Small.temporal.G.h1.cap50.s0 | 5 | 300 | 67 | 0.851 (0.761 to 0.940) | 0.766 (0.697 to 0.835) | 0.085 (0.010 to 0.166) |
 <!-- /report:faithfulness -->
+
+On IBM HI-Small the occlusion ranking carries some signal: the single most important neighbour
+is an account the generator used for laundering 47% of the time, against 34% for a neighbour
+drawn at random, a lift of 13 points (4 to 22). It is weaker at three neighbours, where the
+interval spans zero. An investigator gets a better-than-random pointer, not a reliable one.
+On Elliptic too few flagged transactions have more than one neighbour to say anything.
 
 **What a live score costs.** One call scores one IBM transfer from scratch: both accounts'
 neighbourhoods fetched from the store, arm G's features computed on them by the batch run's own
