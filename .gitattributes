@@ -2,3 +2,5 @@
 # in every git archive, whatever the local line-ending setting.
 *.sh text eol=lf
 ops/*.txt text eol=lf
+# The gate ledger is append-only JSON lines; keep its bytes as written.
+gate/*.jsonl text eol=lf
