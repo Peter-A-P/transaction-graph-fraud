@@ -1,0 +1,5363 @@
+[
+ {
+  "run": "elliptic.random.G+nlr.h1.cap50.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-random",
+  "kind": "random",
+  "arm": "G+nlr",
+  "model": "xgboost",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.9905234242104782,
+  "n_items": 9313,
+  "n_groups": 49,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.9895,
+    0.9814,
+    0.995
+   ],
+   "recall_at_1pct_fpr": [
+    0.9714,
+    0.9544,
+    0.986
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0512,
+    0.0392,
+    0.0675
+   ],
+   "recall_at_1pct_budget": [
+    0.1023,
+    0.0785,
+    0.135
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0512,
+    0.0392,
+    0.0675
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1023,
+    0.0785,
+    0.135
+   ]
+  },
+  "slices": {},
+  "baseline": "elliptic.random.G.h1.cap50.s0",
+  "delta": {
+   "auprc": [
+    0.0023,
+    -0.0003,
+    0.0062
+   ],
+   "recall_at_1pct_fpr": [
+    0.0099,
+    0.0013,
+    0.0214
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "slice_delta": {},
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.random.G.h1.cap50.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-random",
+  "kind": "random",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.9869734262876794,
+  "n_items": 9313,
+  "n_groups": 49,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.9872,
+    0.9763,
+    0.9941
+   ],
+   "recall_at_1pct_fpr": [
+    0.9615,
+    0.9367,
+    0.9802
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0512,
+    0.0392,
+    0.0675
+   ],
+   "recall_at_1pct_budget": [
+    0.1023,
+    0.0785,
+    0.135
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0512,
+    0.0392,
+    0.0675
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1023,
+    0.0785,
+    0.135
+   ]
+  },
+  "slices": {},
+  "baseline": "elliptic.random.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.002,
+    -0.0016,
+    0.0058
+   ],
+   "recall_at_1pct_fpr": [
+    0.0044,
+    -0.0115,
+    0.0169
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "slice_delta": {},
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.random.G.h2.cap50.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-random",
+  "kind": "random",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 2,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.9857173765268855,
+  "n_items": 9313,
+  "n_groups": 49,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.9865,
+    0.9749,
+    0.9937
+   ],
+   "recall_at_1pct_fpr": [
+    0.9626,
+    0.9378,
+    0.9789
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0512,
+    0.0392,
+    0.0675
+   ],
+   "recall_at_1pct_budget": [
+    0.1023,
+    0.0785,
+    0.135
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0512,
+    0.0392,
+    0.0675
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1023,
+    0.0785,
+    0.135
+   ]
+  },
+  "slices": {},
+  "baseline": "elliptic.random.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.0014,
+    -0.0027,
+    0.006
+   ],
+   "recall_at_1pct_fpr": [
+    0.0055,
+    -0.0108,
+    0.0176
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "slice_delta": {},
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.random.R.h0.cap0.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-random",
+  "kind": "random",
+  "arm": "R",
+  "model": "xgboost",
+  "hops": 0,
+  "cap": 0,
+  "seed": 0,
+  "val_auprc": 0.9864091756220243,
+  "n_items": 9313,
+  "n_groups": 49,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.9851,
+    0.9724,
+    0.9931
+   ],
+   "recall_at_1pct_fpr": [
+    0.9571,
+    0.9285,
+    0.9806
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0512,
+    0.0392,
+    0.0675
+   ],
+   "recall_at_1pct_budget": [
+    0.1023,
+    0.0785,
+    0.135
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0512,
+    0.0392,
+    0.0675
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1023,
+    0.0785,
+    0.135
+   ]
+  },
+  "slices": {},
+  "baseline": null,
+  "delta": {},
+  "slice_delta": {},
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.temporal.G+nlr.h1.cap50.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "G+nlr",
+  "model": "xgboost",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.9573440314840825,
+  "n_items": 12367,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.6947,
+    0.3808,
+    0.8369
+   ],
+   "recall_at_1pct_fpr": [
+    0.636,
+    0.3291,
+    0.7839
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0862,
+    0.0574,
+    0.151
+   ],
+   "recall_at_1pct_budget": [
+    0.1725,
+    0.1149,
+    0.287
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0862,
+    0.0581,
+    0.1596
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1725,
+    0.1162,
+    0.3192
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.8844,
+     0.8144,
+     0.9596
+    ],
+    "recall_at_1pct_fpr": [
+     0.8321,
+     0.7374,
+     0.9442
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "recall_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "ceiling_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0407,
+     0.0248,
+     0.094
+    ],
+    "recall_at_1pct_fpr": [
+     0.0178,
+     0.0049,
+     0.0435
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0178,
+     0.0049,
+     0.0435
+    ],
+    "recall_at_1pct_budget": [
+     0.0178,
+     0.0049,
+     0.0435
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1978,
+     0.1017,
+     0.4505
+    ],
+    "ceiling_at_1pct_budget": [
+     0.3957,
+     0.2034,
+     0.901
+    ]
+   }
+  },
+  "baseline": "elliptic.temporal.G.h1.cap50.s0",
+  "delta": {
+   "auprc": [
+    -0.0193,
+    -0.0329,
+    -0.0081
+   ],
+   "recall_at_1pct_fpr": [
+    -0.0014,
+    -0.0061,
+    0.0045
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0,
+    -0.0028,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    0.0,
+    -0.0121,
+    0.0
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     -0.007,
+     -0.0113,
+     -0.0009
+    ],
+    "recall_at_1pct_fpr": [
+     0.0,
+     -0.0062,
+     0.007
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     -0.0147,
+     -0.0277,
+     -0.0002
+    ],
+    "recall_at_1pct_fpr": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.temporal.G.h1.cap50.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.9663226805168529,
+  "n_items": 12367,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.714,
+    0.4081,
+    0.8461
+   ],
+   "recall_at_1pct_fpr": [
+    0.6374,
+    0.3304,
+    0.7851
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0862,
+    0.0574,
+    0.1576
+   ],
+   "recall_at_1pct_budget": [
+    0.1725,
+    0.1149,
+    0.297
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0862,
+    0.0581,
+    0.1596
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1725,
+    0.1162,
+    0.3192
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.8914,
+     0.8225,
+     0.9605
+    ],
+    "recall_at_1pct_fpr": [
+     0.8321,
+     0.7391,
+     0.9391
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "recall_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "ceiling_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0554,
+     0.0365,
+     0.1067
+    ],
+    "recall_at_1pct_fpr": [
+     0.0178,
+     0.0049,
+     0.0435
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0178,
+     0.0049,
+     0.0435
+    ],
+    "recall_at_1pct_budget": [
+     0.0178,
+     0.005,
+     0.0435
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1978,
+     0.1017,
+     0.4505
+    ],
+    "ceiling_at_1pct_budget": [
+     0.3957,
+     0.2034,
+     0.901
+    ]
+   }
+  },
+  "baseline": "elliptic.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.0196,
+    0.0077,
+    0.0399
+   ],
+   "recall_at_1pct_fpr": [
+    0.0167,
+    0.0015,
+    0.0295
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    0.0,
+    0.0,
+    0.0057
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     0.0043,
+     0.0026,
+     0.0088
+    ],
+    "recall_at_1pct_fpr": [
+     0.0219,
+     0.0043,
+     0.0373
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0162,
+     0.0057,
+     0.0371
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0059,
+     -0.0185,
+     0.0
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     -0.0059,
+     -0.016,
+     0.0
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.temporal.G.h2.cap50.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 2,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.9692508866246451,
+  "n_items": 12367,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.7175,
+    0.4057,
+    0.8505
+   ],
+   "recall_at_1pct_fpr": [
+    0.643,
+    0.3332,
+    0.7894
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0862,
+    0.0574,
+    0.1558
+   ],
+   "recall_at_1pct_budget": [
+    0.1725,
+    0.1149,
+    0.2934
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0862,
+    0.0581,
+    0.1596
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1725,
+    0.1162,
+    0.3192
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.8965,
+     0.8282,
+     0.9635
+    ],
+    "recall_at_1pct_fpr": [
+     0.8339,
+     0.7409,
+     0.9391
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "recall_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "ceiling_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0544,
+     0.0355,
+     0.1127
+    ],
+    "recall_at_1pct_fpr": [
+     0.0237,
+     0.0087,
+     0.0484
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0178,
+     0.0061,
+     0.0435
+    ],
+    "recall_at_1pct_budget": [
+     0.0237,
+     0.0087,
+     0.0476
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1978,
+     0.1017,
+     0.4505
+    ],
+    "ceiling_at_1pct_budget": [
+     0.3957,
+     0.2034,
+     0.901
+    ]
+   }
+  },
+  "baseline": "elliptic.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.0232,
+    0.0072,
+    0.0467
+   ],
+   "recall_at_1pct_fpr": [
+    0.0223,
+    0.0033,
+    0.0342
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    0.0,
+    -0.0048,
+    0.0014
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     0.0094,
+     0.0056,
+     0.017
+    ],
+    "recall_at_1pct_fpr": [
+     0.0237,
+     0.0043,
+     0.0394
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0152,
+     0.0023,
+     0.0473
+    ],
+    "recall_at_1pct_fpr": [
+     0.0,
+     -0.0156,
+     0.0195
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     0.0,
+     0.0099
+    ],
+    "recall_at_1pct_budget": [
+     0.0,
+     -0.0122,
+     0.0192
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.temporal.G.h3.cap50.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 3,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": null,
+  "n_items": 12367,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.7198,
+    0.4089,
+    0.8512
+   ],
+   "recall_at_1pct_fpr": [
+    0.6388,
+    0.3332,
+    0.7851
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0862,
+    0.0574,
+    0.1569
+   ],
+   "recall_at_1pct_budget": [
+    0.1725,
+    0.1149,
+    0.2935
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0862,
+    0.0581,
+    0.1596
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1725,
+    0.1162,
+    0.3192
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.8972,
+     0.8305,
+     0.9629
+    ],
+    "recall_at_1pct_fpr": [
+     0.8303,
+     0.7391,
+     0.934
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "recall_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "ceiling_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0561,
+     0.0353,
+     0.122
+    ],
+    "recall_at_1pct_fpr": [
+     0.0178,
+     0.0083,
+     0.045
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0178,
+     0.0049,
+     0.0435
+    ],
+    "recall_at_1pct_budget": [
+     0.0178,
+     0.0083,
+     0.0441
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1978,
+     0.1017,
+     0.4505
+    ],
+    "ceiling_at_1pct_budget": [
+     0.3957,
+     0.2034,
+     0.901
+    ]
+   }
+  },
+  "baseline": "elliptic.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.0254,
+    0.0077,
+    0.0512
+   ],
+   "recall_at_1pct_fpr": [
+    0.0181,
+    0.0,
+    0.0293
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    0.0,
+    -0.0047,
+    0.0
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     0.0101,
+     0.0059,
+     0.0187
+    ],
+    "recall_at_1pct_fpr": [
+     0.0201,
+     0.0043,
+     0.0312
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0169,
+     0.0021,
+     0.0515
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0059,
+     -0.0171,
+     0.0191
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     -0.0059,
+     -0.0159,
+     0.0179
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.temporal.N-gat.h2.cap50.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "N-gat",
+  "model": "pyg-gat",
+  "hops": 2,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.876138399887468,
+  "n_items": 12367,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.5714,
+    0.2283,
+    0.7476
+   ],
+   "recall_at_1pct_fpr": [
+    0.4463,
+    0.1805,
+    0.6119
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0835,
+    0.0566,
+    0.1225
+   ],
+   "recall_at_1pct_budget": [
+    0.1655,
+    0.1107,
+    0.2239
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0862,
+    0.0581,
+    0.1596
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1725,
+    0.1162,
+    0.3192
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.775,
+     0.6468,
+     0.8493
+    ],
+    "recall_at_1pct_fpr": [
+     0.573,
+     0.4228,
+     0.7035
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0624
+    ],
+    "recall_at_1pct_budget": [
+     0.1018,
+     0.0897,
+     0.1276
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "ceiling_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0399,
+     0.0273,
+     0.0768
+    ],
+    "recall_at_1pct_fpr": [
+     0.0118,
+     0.0,
+     0.0256
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0118,
+     0.0,
+     0.0234
+    ],
+    "recall_at_1pct_budget": [
+     0.0118,
+     0.0,
+     0.0256
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1978,
+     0.1017,
+     0.4505
+    ],
+    "ceiling_at_1pct_budget": [
+     0.3957,
+     0.2034,
+     0.901
+    ]
+   }
+  },
+  "baseline": "elliptic.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    -0.123,
+    -0.2491,
+    -0.037
+   ],
+   "recall_at_1pct_fpr": [
+    -0.1743,
+    -0.3142,
+    -0.0468
+   ],
+   "recall_at_0.5pct_budget": [
+    -0.0028,
+    -0.0357,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    -0.007,
+    -0.0991,
+    -0.0013
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     -0.1121,
+     -0.2311,
+     -0.0396
+    ],
+    "recall_at_1pct_fpr": [
+     -0.2372,
+     -0.4518,
+     -0.0802
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     -0.0018,
+     -0.0065,
+     0.0
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0007,
+     -0.0166,
+     0.0201
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0118,
+     -0.0349,
+     0.0082
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0059,
+     -0.0323,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     -0.0118,
+     -0.0328,
+     0.0078
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.temporal.N-sage.h0.cap50.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "N-sage",
+  "model": "pyg-sage",
+  "hops": 0,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.8892043167083814,
+  "n_items": 12367,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.5947,
+    0.2993,
+    0.7451
+   ],
+   "recall_at_1pct_fpr": [
+    0.5551,
+    0.2649,
+    0.692
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0751,
+    0.0478,
+    0.1348
+   ],
+   "recall_at_1pct_budget": [
+    0.1613,
+    0.1067,
+    0.2742
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0862,
+    0.0581,
+    0.1596
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1725,
+    0.1162,
+    0.3192
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.8002,
+     0.7359,
+     0.8544
+    ],
+    "recall_at_1pct_fpr": [
+     0.7226,
+     0.6128,
+     0.8274
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0445,
+     0.0254,
+     0.062
+    ],
+    "recall_at_1pct_budget": [
+     0.0964,
+     0.0741,
+     0.124
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "ceiling_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0265,
+     0.0153,
+     0.0505
+    ],
+    "recall_at_1pct_fpr": [
+     0.0118,
+     0.0,
+     0.0266
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0118,
+     0.0,
+     0.0213
+    ],
+    "recall_at_1pct_budget": [
+     0.0118,
+     0.0,
+     0.0263
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1978,
+     0.1017,
+     0.4505
+    ],
+    "ceiling_at_1pct_budget": [
+     0.3957,
+     0.2034,
+     0.901
+    ]
+   }
+  },
+  "baseline": "elliptic.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    -0.0996,
+    -0.1487,
+    -0.0496
+   ],
+   "recall_at_1pct_fpr": [
+    -0.0656,
+    -0.0913,
+    -0.034
+   ],
+   "recall_at_0.5pct_budget": [
+    -0.0112,
+    -0.0303,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    -0.0112,
+    -0.0303,
+    0.0
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     -0.0869,
+     -0.1454,
+     -0.0463
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0876,
+     -0.1184,
+     -0.0656
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0073,
+     -0.0261,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     -0.0073,
+     -0.0261,
+     0.0
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     -0.0127,
+     -0.028,
+     -0.004
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0118,
+     -0.0349,
+     0.0079
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0059,
+     -0.0316,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     -0.0118,
+     -0.0323,
+     0.0069
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.temporal.N-sage.h1.cap50.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "N-sage",
+  "model": "pyg-sage",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.8981270527903432,
+  "n_items": 12367,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.6127,
+    0.2955,
+    0.7666
+   ],
+   "recall_at_1pct_fpr": [
+    0.5523,
+    0.2642,
+    0.6895
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0765,
+    0.049,
+    0.1336
+   ],
+   "recall_at_1pct_budget": [
+    0.1613,
+    0.1067,
+    0.2505
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0862,
+    0.0581,
+    0.1596
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1725,
+    0.1162,
+    0.3192
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.8153,
+     0.7434,
+     0.8657
+    ],
+    "recall_at_1pct_fpr": [
+     0.7044,
+     0.5803,
+     0.7739
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0445,
+     0.0254,
+     0.0592
+    ],
+    "recall_at_1pct_budget": [
+     0.0964,
+     0.0741,
+     0.1192
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "ceiling_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0345,
+     0.0225,
+     0.0662
+    ],
+    "recall_at_1pct_fpr": [
+     0.0118,
+     0.0,
+     0.0234
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0118,
+     0.0,
+     0.0181
+    ],
+    "recall_at_1pct_budget": [
+     0.0118,
+     0.0,
+     0.0234
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1978,
+     0.1017,
+     0.4505
+    ],
+    "ceiling_at_1pct_budget": [
+     0.3957,
+     0.2034,
+     0.901
+    ]
+   }
+  },
+  "baseline": "elliptic.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    -0.0816,
+    -0.1624,
+    -0.0204
+   ],
+   "recall_at_1pct_fpr": [
+    -0.0683,
+    -0.1363,
+    -0.024
+   ],
+   "recall_at_0.5pct_budget": [
+    -0.0098,
+    -0.0308,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    -0.0112,
+    -0.0512,
+    0.0
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     -0.0718,
+     -0.16,
+     -0.0121
+    ],
+    "recall_at_1pct_fpr": [
+     -0.1058,
+     -0.2056,
+     -0.042
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0073,
+     -0.028,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     -0.0073,
+     -0.028,
+     0.0
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     -0.0047,
+     -0.0218,
+     0.0115
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0118,
+     -0.0357,
+     0.0
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0059,
+     -0.0361,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     -0.0118,
+     -0.0349,
+     0.0
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.temporal.N-sage.h2.cap50.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "N-sage",
+  "model": "pyg-sage",
+  "hops": 2,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.9176851763670474,
+  "n_items": 12367,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.5828,
+    0.2247,
+    0.7578
+   ],
+   "recall_at_1pct_fpr": [
+    0.4812,
+    0.2097,
+    0.6309
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0851,
+    0.0546,
+    0.1178
+   ],
+   "recall_at_1pct_budget": [
+    0.1557,
+    0.1084,
+    0.2137
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0862,
+    0.0581,
+    0.1596
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1725,
+    0.1162,
+    0.3192
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.8051,
+     0.7062,
+     0.8686
+    ],
+    "recall_at_1pct_fpr": [
+     0.6423,
+     0.5133,
+     0.7243
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0518,
+     0.0324,
+     0.062
+    ],
+    "recall_at_1pct_budget": [
+     0.1036,
+     0.0858,
+     0.124
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "ceiling_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0378,
+     0.0269,
+     0.0679
+    ],
+    "recall_at_1pct_fpr": [
+     0.0059,
+     0.0,
+     0.0244
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     0.0059,
+     0.0,
+     0.0238
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1978,
+     0.1017,
+     0.4505
+    ],
+    "ceiling_at_1pct_budget": [
+     0.3957,
+     0.2034,
+     0.901
+    ]
+   }
+  },
+  "baseline": "elliptic.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    -0.1115,
+    -0.2557,
+    -0.034
+   ],
+   "recall_at_1pct_fpr": [
+    -0.1395,
+    -0.2637,
+    -0.0539
+   ],
+   "recall_at_0.5pct_budget": [
+    -0.0012,
+    -0.0546,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    -0.0167,
+    -0.113,
+    0.0
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     -0.082,
+     -0.2197,
+     -0.0225
+    ],
+    "recall_at_1pct_fpr": [
+     -0.1679,
+     -0.3655,
+     -0.0727
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     -0.0196,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     0.0,
+     -0.0196,
+     0.0
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     -0.0014,
+     -0.02,
+     0.0157
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0178,
+     -0.0445,
+     0.0096
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0178,
+     -0.043,
+     -0.0049
+    ],
+    "recall_at_1pct_budget": [
+     -0.0178,
+     -0.043,
+     0.0074
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.temporal.N-sage.h3.cap50.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "N-sage",
+  "model": "pyg-sage",
+  "hops": 3,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.9122224424476391,
+  "n_items": 12367,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.5644,
+    0.2338,
+    0.722
+   ],
+   "recall_at_1pct_fpr": [
+    0.4435,
+    0.2015,
+    0.5587
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0807,
+    0.0559,
+    0.1139
+   ],
+   "recall_at_1pct_budget": [
+    0.1585,
+    0.1107,
+    0.2197
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0862,
+    0.0581,
+    0.1596
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1725,
+    0.1162,
+    0.3192
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.7755,
+     0.6934,
+     0.8227
+    ],
+    "recall_at_1pct_fpr": [
+     0.5766,
+     0.5123,
+     0.6169
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0518,
+     0.0457,
+     0.0624
+    ],
+    "recall_at_1pct_budget": [
+     0.1018,
+     0.0915,
+     0.1192
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "ceiling_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0466,
+     0.0294,
+     0.0961
+    ],
+    "recall_at_1pct_fpr": [
+     0.0118,
+     0.0037,
+     0.0465
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0059,
+     0.0,
+     0.0354
+    ],
+    "recall_at_1pct_budget": [
+     0.0118,
+     0.0037,
+     0.0465
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1978,
+     0.1017,
+     0.4505
+    ],
+    "ceiling_at_1pct_budget": [
+     0.3957,
+     0.2034,
+     0.901
+    ]
+   }
+  },
+  "baseline": "elliptic.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    -0.13,
+    -0.2518,
+    -0.052
+   ],
+   "recall_at_1pct_fpr": [
+    -0.1771,
+    -0.2791,
+    -0.0784
+   ],
+   "recall_at_0.5pct_budget": [
+    -0.0056,
+    -0.0508,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    -0.0139,
+    -0.1028,
+    -0.0021
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     -0.1116,
+     -0.2051,
+     -0.0616
+    ],
+    "recall_at_1pct_fpr": [
+     -0.2336,
+     -0.3655,
+     -0.1624
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     -0.0071,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     -0.0018,
+     -0.0111,
+     0.0
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0074,
+     -0.0069,
+     0.028
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0118,
+     -0.0213,
+     0.0192
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0118,
+     -0.0222,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     -0.0118,
+     -0.018,
+     0.0192
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.temporal.R.h0.cap0.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "R",
+  "model": "xgboost",
+  "hops": 0,
+  "cap": 0,
+  "seed": 0,
+  "val_auprc": 0.9620052799675707,
+  "n_items": 12367,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.6944,
+    0.3731,
+    0.8351
+   ],
+   "recall_at_1pct_fpr": [
+    0.6206,
+    0.317,
+    0.7654
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0862,
+    0.0574,
+    0.1569
+   ],
+   "recall_at_1pct_budget": [
+    0.1725,
+    0.1149,
+    0.297
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0862,
+    0.0581,
+    0.1596
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1725,
+    0.1162,
+    0.3192
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.8871,
+     0.812,
+     0.957
+    ],
+    "recall_at_1pct_fpr": [
+     0.8102,
+     0.7113,
+     0.9289
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "recall_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "ceiling_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0392,
+     0.0258,
+     0.0722
+    ],
+    "recall_at_1pct_fpr": [
+     0.0237,
+     0.0049,
+     0.0497
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0178,
+     0.0049,
+     0.0435
+    ],
+    "recall_at_1pct_budget": [
+     0.0237,
+     0.0049,
+     0.0484
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1978,
+     0.1017,
+     0.4505
+    ],
+    "ceiling_at_1pct_budget": [
+     0.3957,
+     0.2034,
+     0.901
+    ]
+   }
+  },
+  "baseline": null,
+  "delta": {},
+  "slice_delta": {},
+  "patterns": {}
+ },
+ {
+  "run": "elliptic.temporal.TabFM-R.h0.cap0.s0",
+  "dataset": "elliptic",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "TabFM-R",
+  "model": "tabfm",
+  "hops": 0,
+  "cap": 0,
+  "seed": 0,
+  "val_auprc": 0.9758377507123663,
+  "n_items": 12367,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.6979,
+    0.3764,
+    0.8337
+   ],
+   "recall_at_1pct_fpr": [
+    0.5816,
+    0.2931,
+    0.7276
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0862,
+    0.0574,
+    0.155
+   ],
+   "recall_at_1pct_budget": [
+    0.1725,
+    0.1149,
+    0.2768
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.0862,
+    0.0581,
+    0.1596
+   ],
+   "ceiling_at_1pct_budget": [
+    0.1725,
+    0.1162,
+    0.3192
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.8769,
+     0.7857,
+     0.9472
+    ],
+    "recall_at_1pct_fpr": [
+     0.7555,
+     0.6383,
+     0.8883
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "recall_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.0518,
+     0.0463,
+     0.0652
+    ],
+    "ceiling_at_1pct_budget": [
+     0.1036,
+     0.0926,
+     0.1304
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.067,
+     0.0385,
+     0.1396
+    ],
+    "recall_at_1pct_fpr": [
+     0.0355,
+     0.0078,
+     0.061
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0178,
+     0.0061,
+     0.0435
+    ],
+    "recall_at_1pct_budget": [
+     0.0355,
+     0.0078,
+     0.0595
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1978,
+     0.1017,
+     0.4505
+    ],
+    "ceiling_at_1pct_budget": [
+     0.3957,
+     0.2034,
+     0.901
+    ]
+   }
+  },
+  "baseline": "elliptic.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.0035,
+    -0.0303,
+    0.0509
+   ],
+   "recall_at_1pct_fpr": [
+    -0.0391,
+    -0.0672,
+    0.0
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0,
+    -0.0006,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    0.0,
+    -0.026,
+    0.0
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     -0.0102,
+     -0.027,
+     0.002
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0547,
+     -0.0877,
+     -0.0113
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0278,
+     0.0029,
+     0.0675
+    ],
+    "recall_at_1pct_fpr": [
+     0.0118,
+     0.0,
+     0.0214
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0,
+     0.0,
+     0.007
+    ],
+    "recall_at_1pct_budget": [
+     0.0118,
+     0.0,
+     0.0196
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "ellipticpp.random.G.h1.cap50.s0",
+  "dataset": "ellipticpp",
+  "split": "ellipticpp-random",
+  "kind": "random",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.980240179241255,
+  "n_items": 53071,
+  "n_groups": 49,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.9813,
+    0.9695,
+    0.9888
+   ],
+   "recall_at_1pct_fpr": [
+    0.9621,
+    0.9422,
+    0.9767
+   ],
+   "recall_at_0.5pct_budget": [
+    0.093,
+    0.0696,
+    0.1282
+   ],
+   "recall_at_1pct_budget": [
+    0.186,
+    0.1393,
+    0.2564
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.093,
+    0.0696,
+    0.1282
+   ],
+   "ceiling_at_1pct_budget": [
+    0.186,
+    0.1393,
+    0.2564
+   ]
+  },
+  "slices": {},
+  "baseline": "ellipticpp.random.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.0161,
+    0.0096,
+    0.026
+   ],
+   "recall_at_1pct_fpr": [
+    0.0308,
+    0.0193,
+    0.0511
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "recall_at_1pct_budget": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "slice_delta": {},
+  "patterns": {}
+ },
+ {
+  "run": "ellipticpp.random.R.h0.cap0.s0",
+  "dataset": "ellipticpp",
+  "split": "ellipticpp-random",
+  "kind": "random",
+  "arm": "R",
+  "model": "xgboost",
+  "hops": 0,
+  "cap": 0,
+  "seed": 0,
+  "val_auprc": 0.9654130704865993,
+  "n_items": 53071,
+  "n_groups": 49,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.9652,
+    0.9443,
+    0.9786
+   ],
+   "recall_at_1pct_fpr": [
+    0.9313,
+    0.8952,
+    0.9533
+   ],
+   "recall_at_0.5pct_budget": [
+    0.093,
+    0.0696,
+    0.1282
+   ],
+   "recall_at_1pct_budget": [
+    0.186,
+    0.1393,
+    0.2564
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.093,
+    0.0696,
+    0.1282
+   ],
+   "ceiling_at_1pct_budget": [
+    0.186,
+    0.1393,
+    0.2564
+   ]
+  },
+  "slices": {},
+  "baseline": null,
+  "delta": {},
+  "slice_delta": {},
+  "patterns": {}
+ },
+ {
+  "run": "ellipticpp.temporal.G.h1.cap50.s0",
+  "dataset": "ellipticpp",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.9142924974215799,
+  "n_items": 71880,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.515,
+    0.3487,
+    0.6868
+   ],
+   "recall_at_1pct_fpr": [
+    0.3363,
+    0.2365,
+    0.5916
+   ],
+   "recall_at_0.5pct_budget": [
+    0.11,
+    0.0734,
+    0.1759
+   ],
+   "recall_at_1pct_budget": [
+    0.2153,
+    0.1415,
+    0.3242
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.1103,
+    0.0735,
+    0.18
+   ],
+   "ceiling_at_1pct_budget": [
+    0.2206,
+    0.147,
+    0.36
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.6514,
+     0.6025,
+     0.714
+    ],
+    "recall_at_1pct_fpr": [
+     0.5456,
+     0.4886,
+     0.6503
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1163,
+     0.0982,
+     0.1553
+    ],
+    "recall_at_1pct_budget": [
+     0.2292,
+     0.1963,
+     0.3106
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2345,
+     0.1969,
+     0.3106
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.4501,
+     0.1947,
+     0.7144
+    ],
+    "recall_at_1pct_fpr": [
+     0.3988,
+     0.1071,
+     0.6966
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1065,
+     0.0551,
+     0.1881
+    ],
+    "recall_at_1pct_budget": [
+     0.1628,
+     0.0884,
+     0.2697
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1065,
+     0.0628,
+     0.2282
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2131,
+     0.1255,
+     0.4565
+    ]
+   }
+  },
+  "baseline": "ellipticpp.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.1265,
+    0.0254,
+    0.2835
+   ],
+   "recall_at_1pct_fpr": [
+    0.0445,
+    -0.0018,
+    0.3134
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0017,
+    -0.0003,
+    0.0138
+   ],
+   "recall_at_1pct_budget": [
+    0.0079,
+    -0.0021,
+    0.0322
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     0.0627,
+     -0.017,
+     0.0963
+    ],
+    "recall_at_1pct_fpr": [
+     0.0272,
+     -0.0152,
+     0.0743
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0043,
+     0.0007,
+     0.0048
+    ],
+    "recall_at_1pct_budget": [
+     0.0061,
+     0.0019,
+     0.0327
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.167,
+     0.0247,
+     0.3945
+    ],
+    "recall_at_1pct_fpr": [
+     0.1779,
+     -0.0101,
+     0.4758
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0014,
+     -0.0015,
+     0.04
+    ],
+    "recall_at_1pct_budget": [
+     -0.0027,
+     -0.0049,
+     0.0717
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "ellipticpp.temporal.G.h2.cap50.s0",
+  "dataset": "ellipticpp",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 2,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.9124103029144544,
+  "n_items": 71880,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.5947,
+    0.3989,
+    0.7945
+   ],
+   "recall_at_1pct_fpr": [
+    0.4808,
+    0.2863,
+    0.693
+   ],
+   "recall_at_0.5pct_budget": [
+    0.1103,
+    0.0735,
+    0.1777
+   ],
+   "recall_at_1pct_budget": [
+    0.2166,
+    0.1462,
+    0.3347
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.1103,
+    0.0735,
+    0.18
+   ],
+   "ceiling_at_1pct_budget": [
+    0.2206,
+    0.147,
+    0.36
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.6764,
+     0.626,
+     0.7348
+    ],
+    "recall_at_1pct_fpr": [
+     0.5579,
+     0.5079,
+     0.6392
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "recall_at_1pct_budget": [
+     0.2336,
+     0.1969,
+     0.3039
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2345,
+     0.1969,
+     0.3106
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.5535,
+     0.2537,
+     0.8398
+    ],
+    "recall_at_1pct_fpr": [
+     0.4318,
+     0.1475,
+     0.7646
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1065,
+     0.0567,
+     0.1972
+    ],
+    "recall_at_1pct_budget": [
+     0.2079,
+     0.1118,
+     0.3477
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1065,
+     0.0628,
+     0.2282
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2131,
+     0.1255,
+     0.4565
+    ]
+   }
+  },
+  "baseline": "ellipticpp.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.2061,
+    0.0644,
+    0.3913
+   ],
+   "recall_at_1pct_fpr": [
+    0.189,
+    0.0339,
+    0.3814
+   ],
+   "recall_at_0.5pct_budget": [
+    0.002,
+    0.0,
+    0.0137
+   ],
+   "recall_at_1pct_budget": [
+    0.0091,
+    0.0003,
+    0.0615
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     0.0876,
+     -0.0231,
+     0.1197
+    ],
+    "recall_at_1pct_fpr": [
+     0.0395,
+     0.0057,
+     0.0645
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0052,
+     0.0018,
+     0.0078
+    ],
+    "recall_at_1pct_budget": [
+     0.0105,
+     0.0,
+     0.0327
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.2703,
+     0.0681,
+     0.5129
+    ],
+    "recall_at_1pct_fpr": [
+     0.2109,
+     0.0233,
+     0.5293
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0014,
+     -0.0,
+     0.068
+    ],
+    "recall_at_1pct_budget": [
+     0.0424,
+     0.0,
+     0.1876
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "ellipticpp.temporal.G.h3.cap50.s0",
+  "dataset": "ellipticpp",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 3,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.9202922432986445,
+  "n_items": 71880,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.5951,
+    0.3959,
+    0.7914
+   ],
+   "recall_at_1pct_fpr": [
+    0.4768,
+    0.2752,
+    0.6946
+   ],
+   "recall_at_0.5pct_budget": [
+    0.1103,
+    0.0735,
+    0.1777
+   ],
+   "recall_at_1pct_budget": [
+    0.2187,
+    0.147,
+    0.3356
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.1103,
+    0.0735,
+    0.18
+   ],
+   "ceiling_at_1pct_budget": [
+    0.2206,
+    0.147,
+    0.36
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.6969,
+     0.6396,
+     0.7585
+    ],
+    "recall_at_1pct_fpr": [
+     0.5851,
+     0.5202,
+     0.6579
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "recall_at_1pct_budget": [
+     0.2327,
+     0.1969,
+     0.3039
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2345,
+     0.1969,
+     0.3106
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.542,
+     0.247,
+     0.8338
+    ],
+    "recall_at_1pct_fpr": [
+     0.4153,
+     0.1436,
+     0.7499
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1065,
+     0.0559,
+     0.1946
+    ],
+    "recall_at_1pct_budget": [
+     0.205,
+     0.1094,
+     0.343
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1065,
+     0.0628,
+     0.2282
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2131,
+     0.1255,
+     0.4565
+    ]
+   }
+  },
+  "baseline": "ellipticpp.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.2066,
+    0.0694,
+    0.3875
+   ],
+   "recall_at_1pct_fpr": [
+    0.185,
+    0.0307,
+    0.3799
+   ],
+   "recall_at_0.5pct_budget": [
+    0.002,
+    0.0,
+    0.0147
+   ],
+   "recall_at_1pct_budget": [
+    0.0113,
+    0.0008,
+    0.0576
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     0.1081,
+     0.0232,
+     0.1331
+    ],
+    "recall_at_1pct_fpr": [
+     0.0667,
+     0.0095,
+     0.082
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0052,
+     0.0018,
+     0.0078
+    ],
+    "recall_at_1pct_budget": [
+     0.0096,
+     0.0,
+     0.0327
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.2588,
+     0.0553,
+     0.5118
+    ],
+    "recall_at_1pct_fpr": [
+     0.1944,
+     0.011,
+     0.514
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0014,
+     -0.0012,
+     0.0659
+    ],
+    "recall_at_1pct_budget": [
+     0.0396,
+     0.0,
+     0.1808
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "ellipticpp.temporal.N-gat.h2.cap50.s0",
+  "dataset": "ellipticpp",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "N-gat",
+  "model": "pyg-gat",
+  "hops": 2,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.8366656130481455,
+  "n_items": 71880,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.4064,
+    0.2642,
+    0.5583
+   ],
+   "recall_at_1pct_fpr": [
+    0.3124,
+    0.1686,
+    0.4856
+   ],
+   "recall_at_0.5pct_budget": [
+    0.11,
+    0.0731,
+    0.1762
+   ],
+   "recall_at_1pct_budget": [
+    0.2117,
+    0.1377,
+    0.3277
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.1103,
+    0.0735,
+    0.18
+   ],
+   "ceiling_at_1pct_budget": [
+    0.2206,
+    0.147,
+    0.36
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.6308,
+     0.5813,
+     0.7128
+    ],
+    "recall_at_1pct_fpr": [
+     0.5482,
+     0.49,
+     0.6622
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1164,
+     0.0984,
+     0.152
+    ],
+    "recall_at_1pct_budget": [
+     0.2327,
+     0.1963,
+     0.3039
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2345,
+     0.1969,
+     0.3106
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.2853,
+     0.0696,
+     0.4619
+    ],
+    "recall_at_1pct_fpr": [
+     0.1765,
+     0.0108,
+     0.3397
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1042,
+     0.0079,
+     0.183
+    ],
+    "recall_at_1pct_budget": [
+     0.1562,
+     0.0108,
+     0.2706
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1065,
+     0.0628,
+     0.2282
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2131,
+     0.1255,
+     0.4565
+    ]
+   }
+  },
+  "baseline": "ellipticpp.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.0178,
+    -0.0924,
+    0.0992
+   ],
+   "recall_at_1pct_fpr": [
+    0.0206,
+    -0.0905,
+    0.0907
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0017,
+    -0.0032,
+    0.0147
+   ],
+   "recall_at_1pct_budget": [
+    0.0042,
+    -0.0374,
+    0.0397
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     0.0421,
+     -0.0325,
+     0.0873
+    ],
+    "recall_at_1pct_fpr": [
+     0.0298,
+     -0.0057,
+     0.087
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0043,
+     0.0,
+     0.0072
+    ],
+    "recall_at_1pct_budget": [
+     0.0096,
+     0.0,
+     0.032
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.0021,
+     -0.1589,
+     0.1105
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0444,
+     -0.1458,
+     0.1086
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0009,
+     -0.0988,
+     0.0524
+    ],
+    "recall_at_1pct_budget": [
+     -0.0093,
+     -0.1285,
+     0.0783
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "ellipticpp.temporal.N-sage.h0.cap50.s0",
+  "dataset": "ellipticpp",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "N-sage",
+  "model": "pyg-sage",
+  "hops": 0,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.881695979776308,
+  "n_items": 71880,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.3188,
+    0.173,
+    0.5022
+   ],
+   "recall_at_1pct_fpr": [
+    0.2688,
+    0.1239,
+    0.4575
+   ],
+   "recall_at_0.5pct_budget": [
+    0.1084,
+    0.0632,
+    0.1637
+   ],
+   "recall_at_1pct_budget": [
+    0.1859,
+    0.1031,
+    0.2881
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.1103,
+    0.0735,
+    0.18
+   ],
+   "ceiling_at_1pct_budget": [
+    0.2206,
+    0.147,
+    0.36
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.6152,
+     0.558,
+     0.7262
+    ],
+    "recall_at_1pct_fpr": [
+     0.5675,
+     0.5125,
+     0.7124
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1164,
+     0.0967,
+     0.1486
+    ],
+    "recall_at_1pct_budget": [
+     0.2275,
+     0.1951,
+     0.3006
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2345,
+     0.1969,
+     0.3106
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.1826,
+     0.0326,
+     0.3583
+    ],
+    "recall_at_1pct_fpr": [
+     0.109,
+     0.0013,
+     0.2613
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1005,
+     0.0,
+     0.1742
+    ],
+    "recall_at_1pct_budget": [
+     0.1038,
+     0.0021,
+     0.2367
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1065,
+     0.0628,
+     0.2282
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2131,
+     0.1255,
+     0.4565
+    ]
+   }
+  },
+  "baseline": "ellipticpp.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    -0.0697,
+    -0.1721,
+    0.0116
+   ],
+   "recall_at_1pct_fpr": [
+    -0.023,
+    -0.1222,
+    0.035
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0002,
+    -0.0544,
+    0.0044
+   ],
+   "recall_at_1pct_budget": [
+    -0.0215,
+    -0.0817,
+    0.0185
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     0.0265,
+     -0.0344,
+     0.0616
+    ],
+    "recall_at_1pct_fpr": [
+     0.0491,
+     -0.0256,
+     0.1371
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0043,
+     -0.0033,
+     0.0052
+    ],
+    "recall_at_1pct_budget": [
+     0.0044,
+     -0.0033,
+     0.0307
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     -0.1006,
+     -0.2165,
+     -0.0002
+    ],
+    "recall_at_1pct_fpr": [
+     -0.1118,
+     -0.1793,
+     -0.0141
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0046,
+     -0.109,
+     0.0
+    ],
+    "recall_at_1pct_budget": [
+     -0.0616,
+     -0.1447,
+     -0.0003
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "ellipticpp.temporal.N-sage.h1.cap50.s0",
+  "dataset": "ellipticpp",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "N-sage",
+  "model": "pyg-sage",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.8857545248219362,
+  "n_items": 71880,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.3817,
+    0.2444,
+    0.5657
+   ],
+   "recall_at_1pct_fpr": [
+    0.2832,
+    0.1347,
+    0.482
+   ],
+   "recall_at_0.5pct_budget": [
+    0.1094,
+    0.072,
+    0.1757
+   ],
+   "recall_at_1pct_budget": [
+    0.2111,
+    0.1188,
+    0.3327
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.1103,
+    0.0735,
+    0.18
+   ],
+   "ceiling_at_1pct_budget": [
+    0.2206,
+    0.147,
+    0.36
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.673,
+     0.6167,
+     0.7679
+    ],
+    "recall_at_1pct_fpr": [
+     0.5842,
+     0.5171,
+     0.7291
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1172,
+     0.0979,
+     0.1553
+    ],
+    "recall_at_1pct_budget": [
+     0.2327,
+     0.1957,
+     0.3073
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2345,
+     0.1969,
+     0.3106
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.2239,
+     0.0628,
+     0.3963
+    ],
+    "recall_at_1pct_fpr": [
+     0.1213,
+     0.0092,
+     0.2709
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0986,
+     0.0044,
+     0.1743
+    ],
+    "recall_at_1pct_budget": [
+     0.1015,
+     0.0093,
+     0.2402
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1065,
+     0.0628,
+     0.2282
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2131,
+     0.1255,
+     0.4565
+    ]
+   }
+  },
+  "baseline": "ellipticpp.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    -0.0068,
+    -0.0933,
+    0.064
+   ],
+   "recall_at_1pct_fpr": [
+    -0.0086,
+    -0.1098,
+    0.054
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0011,
+    -0.0025,
+    0.0136
+   ],
+   "recall_at_1pct_budget": [
+    0.0037,
+    -0.0533,
+    0.0326
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     0.0842,
+     0.0338,
+     0.1063
+    ],
+    "recall_at_1pct_fpr": [
+     0.0658,
+     0.0197,
+     0.1538
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0052,
+     0.0018,
+     0.0078
+    ],
+    "recall_at_1pct_budget": [
+     0.0096,
+     0.0033,
+     0.0327
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     -0.0593,
+     -0.1674,
+     0.0243
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0996,
+     -0.1752,
+     0.0122
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0065,
+     -0.1031,
+     -0.0003
+    ],
+    "recall_at_1pct_budget": [
+     -0.064,
+     -0.1401,
+     -0.0006
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "ellipticpp.temporal.N-sage.h2.cap50.s0",
+  "dataset": "ellipticpp",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "N-sage",
+  "model": "pyg-sage",
+  "hops": 2,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.9087774206647016,
+  "n_items": 71880,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.4179,
+    0.3012,
+    0.5559
+   ],
+   "recall_at_1pct_fpr": [
+    0.3102,
+    0.185,
+    0.4835
+   ],
+   "recall_at_0.5pct_budget": [
+    0.1075,
+    0.0704,
+    0.174
+   ],
+   "recall_at_1pct_budget": [
+    0.2021,
+    0.1281,
+    0.3182
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.1103,
+    0.0735,
+    0.18
+   ],
+   "ceiling_at_1pct_budget": [
+    0.2206,
+    0.147,
+    0.36
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.6634,
+     0.5929,
+     0.7845
+    ],
+    "recall_at_1pct_fpr": [
+     0.5956,
+     0.5334,
+     0.7425
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "recall_at_1pct_budget": [
+     0.2336,
+     0.1896,
+     0.3106
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2345,
+     0.1969,
+     0.3106
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.2902,
+     0.1243,
+     0.4325
+    ],
+    "recall_at_1pct_fpr": [
+     0.1576,
+     0.0596,
+     0.2832
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0877,
+     0.0349,
+     0.148
+    ],
+    "recall_at_1pct_budget": [
+     0.1222,
+     0.0548,
+     0.2274
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1065,
+     0.0628,
+     0.2282
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2131,
+     0.1255,
+     0.4565
+    ]
+   }
+  },
+  "baseline": "ellipticpp.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.0294,
+    -0.0123,
+    0.0746
+   ],
+   "recall_at_1pct_fpr": [
+    0.0184,
+    -0.057,
+    0.0641
+   ],
+   "recall_at_0.5pct_budget": [
+    -0.0007,
+    -0.0134,
+    0.0084
+   ],
+   "recall_at_1pct_budget": [
+    -0.0053,
+    -0.0365,
+    0.0278
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     0.0746,
+     0.0247,
+     0.1009
+    ],
+    "recall_at_1pct_fpr": [
+     0.0772,
+     0.0197,
+     0.1672
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0052,
+     0.0018,
+     0.0078
+    ],
+    "recall_at_1pct_budget": [
+     0.0105,
+     0.0067,
+     0.0277
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.007,
+     -0.0424,
+     0.0927
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0632,
+     -0.1166,
+     0.0159
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0175,
+     -0.0665,
+     -0.0015
+    ],
+    "recall_at_1pct_budget": [
+     -0.0432,
+     -0.0822,
+     -0.0003
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "ellipticpp.temporal.R.h0.cap0.s0",
+  "dataset": "ellipticpp",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "R",
+  "model": "xgboost",
+  "hops": 0,
+  "cap": 0,
+  "seed": 0,
+  "val_auprc": 0.9072719741051768,
+  "n_items": 71880,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.3886,
+    0.276,
+    0.5224
+   ],
+   "recall_at_1pct_fpr": [
+    0.2918,
+    0.1908,
+    0.445
+   ],
+   "recall_at_0.5pct_budget": [
+    0.1083,
+    0.073,
+    0.1732
+   ],
+   "recall_at_1pct_budget": [
+    0.2074,
+    0.1388,
+    0.3065
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.1103,
+    0.0735,
+    0.18
+   ],
+   "ceiling_at_1pct_budget": [
+    0.2206,
+    0.147,
+    0.36
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.5888,
+     0.5171,
+     0.6986
+    ],
+    "recall_at_1pct_fpr": [
+     0.5184,
+     0.4974,
+     0.576
+    ],
+    "recall_at_0.5pct_budget": [
+     0.112,
+     0.0942,
+     0.152
+    ],
+    "recall_at_1pct_budget": [
+     0.2231,
+     0.1703,
+     0.3039
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2345,
+     0.1969,
+     0.3106
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.2832,
+     0.143,
+     0.4101
+    ],
+    "recall_at_1pct_fpr": [
+     0.2209,
+     0.0808,
+     0.3209
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1051,
+     0.0475,
+     0.1891
+    ],
+    "recall_at_1pct_budget": [
+     0.1655,
+     0.0645,
+     0.2713
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1065,
+     0.0628,
+     0.2282
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2131,
+     0.1255,
+     0.4565
+    ]
+   }
+  },
+  "baseline": null,
+  "delta": {},
+  "slice_delta": {},
+  "patterns": {}
+ },
+ {
+  "run": "ellipticpp.temporal.TabFM-R.h0.cap0.s0",
+  "dataset": "ellipticpp",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "TabFM-R",
+  "model": "tabfm",
+  "hops": 0,
+  "cap": 0,
+  "seed": 0,
+  "val_auprc": 0.8901176877939649,
+  "n_items": 71880,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.2798,
+    0.1728,
+    0.3989
+   ],
+   "recall_at_1pct_fpr": [
+    0.2289,
+    0.1367,
+    0.3505
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0693,
+    0.0408,
+    0.1093
+   ],
+   "recall_at_1pct_budget": [
+    0.1319,
+    0.0881,
+    0.2005
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.1103,
+    0.0735,
+    0.18
+   ],
+   "ceiling_at_1pct_budget": [
+    0.2206,
+    0.147,
+    0.36
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.4768,
+     0.385,
+     0.5868
+    ],
+    "recall_at_1pct_fpr": [
+     0.393,
+     0.2986,
+     0.5184
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1009,
+     0.0754,
+     0.1486
+    ],
+    "recall_at_1pct_budget": [
+     0.1827,
+     0.1295,
+     0.3039
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2345,
+     0.1969,
+     0.3106
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.183,
+     0.0723,
+     0.308
+    ],
+    "recall_at_1pct_fpr": [
+     0.1496,
+     0.0605,
+     0.2628
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0376,
+     0.0188,
+     0.0564
+    ],
+    "recall_at_1pct_budget": [
+     0.0944,
+     0.0524,
+     0.1457
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1065,
+     0.0628,
+     0.2282
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2131,
+     0.1255,
+     0.4565
+    ]
+   }
+  },
+  "baseline": "ellipticpp.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    -0.1087,
+    -0.1747,
+    -0.0531
+   ],
+   "recall_at_1pct_fpr": [
+    -0.0629,
+    -0.133,
+    -0.0275
+   ],
+   "recall_at_0.5pct_budget": [
+    -0.0389,
+    -0.0822,
+    -0.0154
+   ],
+   "recall_at_1pct_budget": [
+    -0.0755,
+    -0.1209,
+    -0.0335
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     -0.112,
+     -0.132,
+     -0.1046
+    ],
+    "recall_at_1pct_fpr": [
+     -0.1254,
+     -0.1988,
+     -0.0569
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0112,
+     -0.0215,
+     -0.0023
+    ],
+    "recall_at_1pct_budget": [
+     -0.0404,
+     -0.0517,
+     0.0
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     -0.1002,
+     -0.1735,
+     -0.0194
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0713,
+     -0.1292,
+     0.0085
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0675,
+     -0.1377,
+     -0.0146
+    ],
+    "recall_at_1pct_budget": [
+     -0.0711,
+     -0.1505,
+     -0.0027
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
+  "run": "ibm-HI-Small.random.G.h1.cap50.s0",
+  "dataset": "ibm-HI-Small",
+  "split": "ibm-HI-Small-random",
+  "kind": "random",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.47302471892373726,
+  "n_items": 1015669,
+  "n_groups": 328,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.488,
+    0.4481,
+    0.5263
+   ],
+   "recall_at_1pct_fpr": [
+    0.7578,
+    0.7265,
+    0.7899
+   ],
+   "recall_at_0.5pct_budget": [
+    0.6783,
+    0.6422,
+    0.7085
+   ],
+   "recall_at_1pct_budget": [
+    0.754,
+    0.7202,
+    0.7832
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {},
+  "baseline": "ibm-HI-Small.random.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.4016,
+    0.368,
+    0.4318
+   ],
+   "recall_at_1pct_fpr": [
+    0.2412,
+    0.2116,
+    0.2772
+   ],
+   "recall_at_0.5pct_budget": [
+    0.2819,
+    0.2438,
+    0.3041
+   ],
+   "recall_at_1pct_budget": [
+    0.2431,
+    0.2117,
+    0.2767
+   ]
+  },
+  "slice_delta": {},
+  "patterns": {}
+ },
+ {
+  "run": "ibm-HI-Small.random.R.h0.cap0.s0",
+  "dataset": "ibm-HI-Small",
+  "split": "ibm-HI-Small-random",
+  "kind": "random",
+  "arm": "R",
+  "model": "xgboost",
+  "hops": 0,
+  "cap": 0,
+  "seed": 0,
+  "val_auprc": 0.08687606900050228,
+  "n_items": 1015669,
+  "n_groups": 328,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.0864,
+    0.0727,
+    0.1054
+   ],
+   "recall_at_1pct_fpr": [
+    0.5166,
+    0.4805,
+    0.5538
+   ],
+   "recall_at_0.5pct_budget": [
+    0.3964,
+    0.3672,
+    0.4346
+   ],
+   "recall_at_1pct_budget": [
+    0.5109,
+    0.4711,
+    0.5462
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {},
+  "baseline": null,
+  "delta": {},
+  "slice_delta": {},
+  "patterns": {}
+ },
+ {
+  "run": "ibm-HI-Small.temporal.G-window.h1.cap50.s0",
+  "dataset": "ibm-HI-Small",
+  "split": "ibm-HI-Small-temporal",
+  "kind": "temporal",
+  "arm": "G-window",
+  "model": "xgboost",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.5505833416210069,
+  "n_items": 863900,
+  "n_groups": 193,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.7162,
+    0.6719,
+    0.7638
+   ],
+   "recall_at_1pct_fpr": [
+    0.8628,
+    0.8362,
+    0.8909
+   ],
+   "recall_at_0.5pct_budget": [
+    0.802,
+    0.7762,
+    0.8331
+   ],
+   "recall_at_1pct_budget": [
+    0.8535,
+    0.8287,
+    0.8803
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {
+   "without-tail": {
+    "auprc": [
+     0.5397,
+     0.4909,
+     0.5848
+    ],
+    "recall_at_1pct_fpr": [
+     0.7751,
+     0.7387,
+     0.8066
+    ],
+    "recall_at_0.5pct_budget": [
+     0.704,
+     0.6674,
+     0.7335
+    ],
+    "recall_at_1pct_budget": [
+     0.7698,
+     0.7343,
+     0.7998
+    ],
+    "ceiling_at_0.5pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "ceiling_at_1pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "baseline": "ibm-HI-Small.temporal.G.h1.cap50.s0",
+  "delta": {
+   "auprc": [
+    0.1533,
+    0.137,
+    0.1676
+   ],
+   "recall_at_1pct_fpr": [
+    0.0565,
+    0.0377,
+    0.0736
+   ],
+   "recall_at_0.5pct_budget": [
+    0.1223,
+    0.0995,
+    0.1444
+   ],
+   "recall_at_1pct_budget": [
+    0.067,
+    0.0463,
+    0.0864
+   ]
+  },
+  "slice_delta": {
+   "without-tail": {
+    "auprc": [
+     0.1626,
+     0.1389,
+     0.1838
+    ],
+    "recall_at_1pct_fpr": [
+     0.0554,
+     0.0324,
+     0.0809
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1151,
+     0.0886,
+     0.1394
+    ],
+    "recall_at_1pct_budget": [
+     0.0616,
+     0.0384,
+     0.0886
+    ]
+   }
+  },
+  "patterns": {
+   "BIPARTITE": [
+    0.8939,
+    0.8116,
+    0.9571
+   ],
+   "CYCLE": [
+    0.9798,
+    0.9496,
+    1.0
+   ],
+   "FAN-IN": [
+    0.9919,
+    0.9717,
+    1.0
+   ],
+   "FAN-OUT": [
+    0.9771,
+    0.9481,
+    1.0
+   ],
+   "GATHER-SCATTER": [
+    0.9921,
+    0.9828,
+    1.0
+   ],
+   "NONE": [
+    0.4313,
+    0.3894,
+    0.4746
+   ],
+   "RANDOM": [
+    0.9643,
+    0.92,
+    1.0
+   ],
+   "SCATTER-GATHER": [
+    0.9958,
+    0.9824,
+    1.0
+   ],
+   "STACK": [
+    0.9573,
+    0.9191,
+    0.9905
+   ]
+  }
+ },
+ {
+  "run": "ibm-HI-Small.temporal.G.h1.cap50.s0",
+  "dataset": "ibm-HI-Small",
+  "split": "ibm-HI-Small-temporal",
+  "kind": "temporal",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.4455089064490646,
+  "n_items": 863900,
+  "n_groups": 193,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.5628,
+    0.5193,
+    0.6119
+   ],
+   "recall_at_1pct_fpr": [
+    0.8063,
+    0.7792,
+    0.8352
+   ],
+   "recall_at_0.5pct_budget": [
+    0.6797,
+    0.6521,
+    0.7145
+   ],
+   "recall_at_1pct_budget": [
+    0.7865,
+    0.7628,
+    0.8168
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {
+   "without-tail": {
+    "auprc": [
+     0.377,
+     0.3352,
+     0.4168
+    ],
+    "recall_at_1pct_fpr": [
+     0.7197,
+     0.6804,
+     0.7518
+    ],
+    "recall_at_0.5pct_budget": [
+     0.5889,
+     0.5514,
+     0.6241
+    ],
+    "recall_at_1pct_budget": [
+     0.7082,
+     0.6725,
+     0.7388
+    ],
+    "ceiling_at_0.5pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "ceiling_at_1pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "baseline": "ibm-HI-Small.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.3507,
+    0.3095,
+    0.3812
+   ],
+   "recall_at_1pct_fpr": [
+    0.2073,
+    0.1721,
+    0.2367
+   ],
+   "recall_at_0.5pct_budget": [
+    0.1937,
+    0.1669,
+    0.2204
+   ],
+   "recall_at_1pct_budget": [
+    0.2079,
+    0.1757,
+    0.2324
+   ]
+  },
+  "slice_delta": {
+   "without-tail": {
+    "auprc": [
+     0.2888,
+     0.2569,
+     0.317
+    ],
+    "recall_at_1pct_fpr": [
+     0.2322,
+     0.2058,
+     0.2663
+    ],
+    "recall_at_0.5pct_budget": [
+     0.2155,
+     0.1847,
+     0.2485
+    ],
+    "recall_at_1pct_budget": [
+     0.2343,
+     0.204,
+     0.2615
+    ]
+   }
+  },
+  "patterns": {
+   "BIPARTITE": [
+    0.803,
+    0.7162,
+    0.8909
+   ],
+   "CYCLE": [
+    0.8384,
+    0.7523,
+    0.8948
+   ],
+   "FAN-IN": [
+    0.9593,
+    0.9098,
+    0.992
+   ],
+   "FAN-OUT": [
+    0.8702,
+    0.8053,
+    0.9219
+   ],
+   "GATHER-SCATTER": [
+    0.9475,
+    0.9237,
+    0.969
+   ],
+   "NONE": [
+    0.4016,
+    0.3615,
+    0.4417
+   ],
+   "RANDOM": [
+    0.8452,
+    0.7671,
+    0.9186
+   ],
+   "SCATTER-GATHER": [
+    0.8996,
+    0.8609,
+    0.9442
+   ],
+   "STACK": [
+    0.8803,
+    0.8235,
+    0.9434
+   ]
+  }
+ },
+ {
+  "run": "ibm-HI-Small.temporal.G.h2.cap50.s0",
+  "dataset": "ibm-HI-Small",
+  "split": "ibm-HI-Small-temporal",
+  "kind": "temporal",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 2,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.44546035410425416,
+  "n_items": 863900,
+  "n_groups": 193,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.5707,
+    0.5275,
+    0.6259
+   ],
+   "recall_at_1pct_fpr": [
+    0.807,
+    0.7805,
+    0.8399
+   ],
+   "recall_at_0.5pct_budget": [
+    0.6971,
+    0.6684,
+    0.7295
+   ],
+   "recall_at_1pct_budget": [
+    0.7933,
+    0.7669,
+    0.8237
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {
+   "without-tail": {
+    "auprc": [
+     0.3797,
+     0.3361,
+     0.4216
+    ],
+    "recall_at_1pct_fpr": [
+     0.7155,
+     0.6796,
+     0.7508
+    ],
+    "recall_at_0.5pct_budget": [
+     0.5962,
+     0.5614,
+     0.6327
+    ],
+    "recall_at_1pct_budget": [
+     0.7082,
+     0.6716,
+     0.7409
+    ],
+    "ceiling_at_0.5pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "ceiling_at_1pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "baseline": "ibm-HI-Small.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.3586,
+    0.3202,
+    0.3902
+   ],
+   "recall_at_1pct_fpr": [
+    0.2079,
+    0.1753,
+    0.2384
+   ],
+   "recall_at_0.5pct_budget": [
+    0.211,
+    0.1834,
+    0.2395
+   ],
+   "recall_at_1pct_budget": [
+    0.2148,
+    0.1803,
+    0.2408
+   ]
+  },
+  "slice_delta": {
+   "without-tail": {
+    "auprc": [
+     0.2915,
+     0.2534,
+     0.3242
+    ],
+    "recall_at_1pct_fpr": [
+     0.228,
+     0.2052,
+     0.2635
+    ],
+    "recall_at_0.5pct_budget": [
+     0.2228,
+     0.1916,
+     0.264
+    ],
+    "recall_at_1pct_budget": [
+     0.2343,
+     0.2058,
+     0.2611
+    ]
+   }
+  },
+  "patterns": {
+   "BIPARTITE": [
+    0.8182,
+    0.7194,
+    0.9032
+   ],
+   "CYCLE": [
+    0.8182,
+    0.7404,
+    0.8776
+   ],
+   "FAN-IN": [
+    0.9512,
+    0.8991,
+    0.9833
+   ],
+   "FAN-OUT": [
+    0.916,
+    0.8589,
+    0.9649
+   ],
+   "GATHER-SCATTER": [
+    0.9554,
+    0.9306,
+    0.976
+   ],
+   "NONE": [
+    0.4205,
+    0.3808,
+    0.4646
+   ],
+   "RANDOM": [
+    0.7976,
+    0.7053,
+    0.8796
+   ],
+   "SCATTER-GATHER": [
+    0.9163,
+    0.8782,
+    0.9483
+   ],
+   "STACK": [
+    0.8547,
+    0.7934,
+    0.9174
+   ]
+  }
+ },
+ {
+  "run": "ibm-HI-Small.temporal.N-sage.h1.cap50.s0",
+  "dataset": "ibm-HI-Small",
+  "split": "ibm-HI-Small-temporal",
+  "kind": "temporal",
+  "arm": "N-sage",
+  "model": "pyg-sage",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.08834608024900856,
+  "n_items": 863900,
+  "n_groups": 193,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.1135,
+    0.0921,
+    0.1431
+   ],
+   "recall_at_1pct_fpr": [
+    0.496,
+    0.4595,
+    0.5332
+   ],
+   "recall_at_0.5pct_budget": [
+    0.3352,
+    0.3004,
+    0.3655
+   ],
+   "recall_at_1pct_budget": [
+    0.4699,
+    0.4387,
+    0.504
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {
+   "without-tail": {
+    "auprc": [
+     0.06,
+     0.0476,
+     0.0748
+    ],
+    "recall_at_1pct_fpr": [
+     0.4487,
+     0.4042,
+     0.488
+    ],
+    "recall_at_0.5pct_budget": [
+     0.2981,
+     0.2649,
+     0.3337
+    ],
+    "recall_at_1pct_budget": [
+     0.432,
+     0.3927,
+     0.4708
+    ],
+    "ceiling_at_0.5pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "ceiling_at_1pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "baseline": "ibm-HI-Small.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    -0.0987,
+    -0.1519,
+    -0.0683
+   ],
+   "recall_at_1pct_fpr": [
+    -0.103,
+    -0.1403,
+    -0.068
+   ],
+   "recall_at_0.5pct_budget": [
+    -0.1508,
+    -0.1914,
+    -0.1183
+   ],
+   "recall_at_1pct_budget": [
+    -0.1086,
+    -0.1475,
+    -0.0764
+   ]
+  },
+  "slice_delta": {
+   "without-tail": {
+    "auprc": [
+     -0.0282,
+     -0.0466,
+     -0.0096
+    ],
+    "recall_at_1pct_fpr": [
+     -0.0387,
+     -0.0775,
+     0.0077
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0753,
+     -0.1167,
+     -0.0316
+    ],
+    "recall_at_1pct_budget": [
+     -0.0418,
+     -0.0822,
+     0.0022
+    ]
+   }
+  },
+  "patterns": {
+   "BIPARTITE": [
+    0.5152,
+    0.4042,
+    0.6269
+   ],
+   "CYCLE": [
+    0.5253,
+    0.4304,
+    0.6147
+   ],
+   "FAN-IN": [
+    0.4878,
+    0.3881,
+    0.579
+   ],
+   "FAN-OUT": [
+    0.4809,
+    0.3846,
+    0.5825
+   ],
+   "GATHER-SCATTER": [
+    0.5302,
+    0.4728,
+    0.5857
+   ],
+   "NONE": [
+    0.2992,
+    0.2581,
+    0.3421
+   ],
+   "RANDOM": [
+    0.5714,
+    0.4625,
+    0.6914
+   ],
+   "SCATTER-GATHER": [
+    0.5146,
+    0.4538,
+    0.5762
+   ],
+   "STACK": [
+    0.547,
+    0.4464,
+    0.6635
+   ]
+  }
+ },
+ {
+  "run": "ibm-HI-Small.temporal.R.h0.cap0.s0",
+  "dataset": "ibm-HI-Small",
+  "split": "ibm-HI-Small-temporal",
+  "kind": "temporal",
+  "arm": "R",
+  "model": "xgboost",
+  "hops": 0,
+  "cap": 0,
+  "seed": 0,
+  "val_auprc": 0.06478571474565102,
+  "n_items": 863900,
+  "n_groups": 193,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.2121,
+    0.172,
+    0.278
+   ],
+   "recall_at_1pct_fpr": [
+    0.599,
+    0.5595,
+    0.6466
+   ],
+   "recall_at_0.5pct_budget": [
+    0.486,
+    0.45,
+    0.5327
+   ],
+   "recall_at_1pct_budget": [
+    0.5785,
+    0.5453,
+    0.6283
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {
+   "without-tail": {
+    "auprc": [
+     0.0882,
+     0.0678,
+     0.1122
+    ],
+    "recall_at_1pct_fpr": [
+     0.4874,
+     0.4419,
+     0.5235
+    ],
+    "recall_at_0.5pct_budget": [
+     0.3734,
+     0.3382,
+     0.4084
+    ],
+    "recall_at_1pct_budget": [
+     0.4738,
+     0.4347,
+     0.5136
+    ],
+    "ceiling_at_0.5pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "ceiling_at_1pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "baseline": null,
+  "delta": {},
+  "slice_delta": {},
+  "patterns": {
+   "BIPARTITE": [
+    0.6515,
+    0.5439,
+    0.7576
+   ],
+   "CYCLE": [
+    0.697,
+    0.6039,
+    0.8108
+   ],
+   "FAN-IN": [
+    0.7398,
+    0.6667,
+    0.8316
+   ],
+   "FAN-OUT": [
+    0.8092,
+    0.7248,
+    0.8846
+   ],
+   "GATHER-SCATTER": [
+    0.7087,
+    0.6557,
+    0.776
+   ],
+   "NONE": [
+    0.124,
+    0.0927,
+    0.1636
+   ],
+   "RANDOM": [
+    0.5833,
+    0.4831,
+    0.6705
+   ],
+   "SCATTER-GATHER": [
+    0.728,
+    0.6835,
+    0.7802
+   ],
+   "STACK": [
+    0.7179,
+    0.6207,
+    0.7975
+   ]
+  }
+ },
+ {
+  "run": "ibm-LI-Small.temporal.G.h1.cap50.s0",
+  "dataset": "ibm-LI-Small",
+  "split": "ibm-LI-Small-temporal",
+  "kind": "temporal",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.12014218264398459,
+  "n_items": 1174673,
+  "n_groups": 124,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.1563,
+    0.1236,
+    0.1955
+   ],
+   "recall_at_1pct_fpr": [
+    0.5848,
+    0.5423,
+    0.6274
+   ],
+   "recall_at_0.5pct_budget": [
+    0.4763,
+    0.4423,
+    0.5195
+   ],
+   "recall_at_1pct_budget": [
+    0.5835,
+    0.5385,
+    0.6217
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {
+   "without-tail": {
+    "auprc": [
+     0.0941,
+     0.0679,
+     0.1263
+    ],
+    "recall_at_1pct_fpr": [
+     0.5269,
+     0.4838,
+     0.5745
+    ],
+    "recall_at_0.5pct_budget": [
+     0.4207,
+     0.3835,
+     0.4636
+    ],
+    "recall_at_1pct_budget": [
+     0.5254,
+     0.4804,
+     0.5697
+    ],
+    "ceiling_at_0.5pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "ceiling_at_1pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "baseline": "ibm-LI-Small.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.1233,
+    0.0951,
+    0.1547
+   ],
+   "recall_at_1pct_fpr": [
+    0.2506,
+    0.1884,
+    0.285
+   ],
+   "recall_at_0.5pct_budget": [
+    0.2406,
+    0.2047,
+    0.2833
+   ],
+   "recall_at_1pct_budget": [
+    0.2519,
+    0.1889,
+    0.2833
+   ]
+  },
+  "slice_delta": {
+   "without-tail": {
+    "auprc": [
+     0.0755,
+     0.0525,
+     0.1051
+    ],
+    "recall_at_1pct_fpr": [
+     0.259,
+     0.2093,
+     0.2977
+    ],
+    "recall_at_0.5pct_budget": [
+     0.25,
+     0.2133,
+     0.2908
+    ],
+    "recall_at_1pct_budget": [
+     0.2596,
+     0.2099,
+     0.2958
+    ]
+   }
+  },
+  "patterns": {
+   "BIPARTITE": [
+    0.7619,
+    0.6326,
+    0.8864
+   ],
+   "CYCLE": [
+    0.8571,
+    0.7199,
+    0.9512
+   ],
+   "FAN-IN": [
+    0.8571,
+    0.6362,
+    1.0
+   ],
+   "FAN-OUT": [
+    0.7391,
+    0.5869,
+    0.8725
+   ],
+   "GATHER-SCATTER": [
+    0.8429,
+    0.7297,
+    0.9394
+   ],
+   "NONE": [
+    0.4339,
+    0.3747,
+    0.4856
+   ],
+   "RANDOM": [
+    0.9048,
+    0.7222,
+    1.0
+   ],
+   "SCATTER-GATHER": [
+    0.7627,
+    0.6452,
+    0.8636
+   ],
+   "STACK": [
+    0.875,
+    0.7141,
+    1.0
+   ]
+  }
+ },
+ {
+  "run": "ibm-LI-Small.temporal.G.h2.cap50.s0",
+  "dataset": "ibm-LI-Small",
+  "split": "ibm-LI-Small-temporal",
+  "kind": "temporal",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 2,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.11928890827186393,
+  "n_items": 1174673,
+  "n_groups": 124,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.1733,
+    0.1416,
+    0.2114
+   ],
+   "recall_at_1pct_fpr": [
+    0.6197,
+    0.5814,
+    0.6642
+   ],
+   "recall_at_0.5pct_budget": [
+    0.51,
+    0.4695,
+    0.548
+   ],
+   "recall_at_1pct_budget": [
+    0.6147,
+    0.5768,
+    0.6583
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {
+   "without-tail": {
+    "auprc": [
+     0.1103,
+     0.0832,
+     0.1417
+    ],
+    "recall_at_1pct_fpr": [
+     0.5674,
+     0.5274,
+     0.6175
+    ],
+    "recall_at_0.5pct_budget": [
+     0.4566,
+     0.416,
+     0.4934
+    ],
+    "recall_at_1pct_budget": [
+     0.5629,
+     0.522,
+     0.6108
+    ],
+    "ceiling_at_0.5pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "ceiling_at_1pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "baseline": "ibm-LI-Small.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.1403,
+    0.1113,
+    0.1701
+   ],
+   "recall_at_1pct_fpr": [
+    0.2855,
+    0.23,
+    0.3229
+   ],
+   "recall_at_0.5pct_budget": [
+    0.2743,
+    0.227,
+    0.3118
+   ],
+   "recall_at_1pct_budget": [
+    0.283,
+    0.2298,
+    0.3221
+   ]
+  },
+  "slice_delta": {
+   "without-tail": {
+    "auprc": [
+     0.0917,
+     0.0673,
+     0.1186
+    ],
+    "recall_at_1pct_fpr": [
+     0.2994,
+     0.2548,
+     0.3383
+    ],
+    "recall_at_0.5pct_budget": [
+     0.2859,
+     0.2402,
+     0.3212
+    ],
+    "recall_at_1pct_budget": [
+     0.297,
+     0.2533,
+     0.3376
+    ]
+   }
+  },
+  "patterns": {
+   "BIPARTITE": [
+    0.9048,
+    0.7727,
+    1.0
+   ],
+   "CYCLE": [
+    0.8333,
+    0.6857,
+    0.9455
+   ],
+   "FAN-IN": [
+    0.7857,
+    0.5385,
+    1.0
+   ],
+   "FAN-OUT": [
+    0.8043,
+    0.6862,
+    0.9211
+   ],
+   "GATHER-SCATTER": [
+    0.8571,
+    0.759,
+    0.9559
+   ],
+   "NONE": [
+    0.4649,
+    0.414,
+    0.524
+   ],
+   "RANDOM": [
+    0.8571,
+    0.6521,
+    1.0
+   ],
+   "SCATTER-GATHER": [
+    0.8136,
+    0.7164,
+    0.8936
+   ],
+   "STACK": [
+    0.875,
+    0.7083,
+    1.0
+   ]
+  }
+ },
+ {
+  "run": "ibm-LI-Small.temporal.R.h0.cap0.s0",
+  "dataset": "ibm-LI-Small",
+  "split": "ibm-LI-Small-temporal",
+  "kind": "temporal",
+  "arm": "R",
+  "model": "xgboost",
+  "hops": 0,
+  "cap": 0,
+  "seed": 0,
+  "val_auprc": 0.01303460070986317,
+  "n_items": 1174673,
+  "n_groups": 124,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.033,
+    0.0254,
+    0.0456
+   ],
+   "recall_at_1pct_fpr": [
+    0.3342,
+    0.3004,
+    0.3931
+   ],
+   "recall_at_0.5pct_budget": [
+    0.2357,
+    0.2031,
+    0.2773
+   ],
+   "recall_at_1pct_budget": [
+    0.3317,
+    0.2975,
+    0.3865
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {
+   "without-tail": {
+    "auprc": [
+     0.0186,
+     0.0128,
+     0.0274
+    ],
+    "recall_at_1pct_fpr": [
+     0.268,
+     0.2371,
+     0.3116
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1707,
+     0.1433,
+     0.2021
+    ],
+    "recall_at_1pct_budget": [
+     0.2659,
+     0.234,
+     0.3089
+    ],
+    "ceiling_at_0.5pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "ceiling_at_1pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "baseline": null,
+  "delta": {},
+  "slice_delta": {},
+  "patterns": {
+   "BIPARTITE": [
+    0.5476,
+    0.38,
+    0.7106
+   ],
+   "CYCLE": [
+    0.5238,
+    0.3877,
+    0.743
+   ],
+   "FAN-IN": [
+    0.8571,
+    0.5789,
+    1.0
+   ],
+   "FAN-OUT": [
+    0.5435,
+    0.3985,
+    0.7452
+   ],
+   "GATHER-SCATTER": [
+    0.5714,
+    0.4231,
+    0.7423
+   ],
+   "NONE": [
+    0.1942,
+    0.1502,
+    0.2282
+   ],
+   "RANDOM": [
+    0.5238,
+    0.3125,
+    0.7917
+   ],
+   "SCATTER-GATHER": [
+    0.4576,
+    0.3529,
+    0.6667
+   ],
+   "STACK": [
+    0.5,
+    0.2777,
+    0.7143
+   ]
+  }
+ }
+]

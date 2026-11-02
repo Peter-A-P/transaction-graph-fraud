@@ -135,7 +135,8 @@ def hop_table(runs: Sequence[RunSummary], fetch: Callable[[str, int], tuple[str,
         for h in range(4):
             cells = []
             for arm in ("G", "N"):
-                arm_at = "R" if (arm == "G" and h == 0) else arm
+                # The curve is GraphSAGE's: the architecture every hop count was run with.
+                arm_at = "R" if (arm == "G" and h == 0) else ("N-sage" if arm == "N" else arm)
                 pool = [
                     r
                     for r in runs
