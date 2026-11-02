@@ -103,3 +103,12 @@ a night sooner. The smoke run showed torch 2.15 on CUDA 13.2 under the L4's driv
 datasets verified against the committed manifests on the pod, and arm N's two epochs on
 Elliptic in 17 seconds against 96 on the laptop.
 
+
+**The first full queue, 2026-11-02.** No L4 was in stock after an hour of retries, so the
+queue ran on a Secure Cloud RTX 4090 at US$0.89 an hour from 04:27 UTC. Elliptic's arm N runs
+took about 20 seconds each and Elliptic++'s about 11 minutes. GraphSAGE at one hop on IBM
+HI-Small took 4 hours 5 minutes with the card at 0% utilisation: training shuffled batches
+across days, so nearly every batch rebuilt its day's graph on the CPU. The two-hop run was
+stopped after 40 minutes and the IBM runs taken off the pod; the rest of the list (Elliptic's
+hop curve, GAT on the real sets, TabFM) went on. The fix (a day's batches run together, and
+the sampler without Python sets) is timed on the laptop before IBM goes back on a pod.
