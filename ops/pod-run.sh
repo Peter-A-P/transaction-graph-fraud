@@ -3,7 +3,9 @@
 # outcomes back into data/runs, and delete the pod. The pod's own watchdog deletes it if this
 # script or the laptop goes away; this script deletes it on every exit path it controls.
 #
-#   NAME=consort-gnn-1 GPU="NVIDIA RTX A5000" bash ops/pod-run.sh
+#   NAME=consort-gnn-1 bash ops/pod-run.sh
+#
+# GPUS lists the cards to try, cheapest first (docs/gpu.md); the first one in supply is rented.
 #
 # The code goes over ssh as a git archive of HEAD (the repository is private until it ships;
 # no GitHub token goes on a rented machine), and the pod's .env carries only the RunPod key,
@@ -11,11 +13,18 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 NAME="${NAME:-consort-gnn-1}"
-GPU="${GPU:-NVIDIA RTX A5000}"
+GPUS="${GPUS:-NVIDIA RTX A5000,NVIDIA GeForce RTX 3090,NVIDIA RTX A6000,NVIDIA A40}"
 KEY="${KEY:-$HOME/.ssh/runpod_smallprint}"
 mkdir -p data/pod-logs
 
-info=$(uv run --no-sync consort pod-up --name "$NAME" --gpu "$GPU")
+info=""
+IFS=, read -ra cards <<< "$GPUS"
+for GPU in "${cards[@]}"; do
+  if info=$(uv run --no-sync consort pod-up --name "$NAME" --gpu "$GPU" 2>/dev/null); then break; fi
+  echo "no $GPU in supply"
+  info=""
+done
+[ -n "$info" ] || { echo "no card in supply; nothing rented"; exit 1; }
 read -r id host port cost < <(python -c "import json,sys; d=json.loads(sys.argv[1]); print(d['id'], d['host'], d['port'], d['cost_per_hr'])" "$info")
 echo "pod $id ($GPU, US\$$cost/h) at $host:$port, $(date -u +%FT%TZ)"
 down() { uv run --no-sync consort pod-down "$id" || true; }
