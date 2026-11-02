@@ -274,6 +274,15 @@ different items. The design, the splits, the leakage test, the serving benchmark
 arithmetic are in [PLAN.md](PLAN.md); the figures are in
 [docs/architecture.md](docs/architecture.md).
 
+## The demo page
+
+[site/index.html](site/index.html) is one static page: the results above as charts, and one
+laundering ring from IBM's synthetic set, as each arm scored it, with arm G's case file for every
+transfer it flagged. The ring is chosen by a rule that reads no score: the scatter-gather
+attempt with the most transfers on the test days. Its accounts are named by their place in the
+ring. Only synthetic accounts are drawn; Elliptic appears only as aggregates. `uv run consort
+site` rebuilds it from `results/` and the IBM HI-Small runs.
+
 ## Running it
 
 Python 3.13 and [uv](https://docs.astral.sh/uv/). The datasets are fetched with your own
