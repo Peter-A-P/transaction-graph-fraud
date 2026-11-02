@@ -326,7 +326,7 @@ reader interested in the topic takes away, with the figure.
 | Risk | Handling |
 |---|---|
 | Elliptic's licence (CC BY-NC-ND) | No redistribution, no derived dataset published, no Elliptic account drawn on the demo; loaders fetch from Kaggle with the reader's token; results and code published, which the licence does not restrict. Quoted in `docs/data.md` on day one |
-| Elliptic++ has no licence | Email on day one; used only on a written answer; otherwise its row says "not run, no licence" |
+| Elliptic++ has no licence | Email on day one; used only on a written answer; otherwise its row says "not run, no licence". *Answered 2026-11-01:* both authors agree to the plan as asked (research use, aggregate results and code published, data never redistributed); the terms and the answer are in `docs/data.md` |
 | DGraph-Fin's host is down | Loader stub only; nothing in the definition of done depends on it |
 | The synthetic patterns are the generator's | Said in the first table of the README and in `docs/patterns.md`; recall by pattern is reported as what the generator plants; the real-data numbers carry the headline |
 | Elliptic's unknown labels | Unknown nodes pass messages and never enter a metric; stated in section 2.2 and tested |

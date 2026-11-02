@@ -119,11 +119,22 @@ a file differs.
 
 - **Source:** Elmougy and Liu, KDD 2023; `git-disl/EllipticPlusPlus`.
 - **Licence:** none stated; no licence file and no terms (read 2026-10-31), a citation request
-  only. **Not fetched** until the authors answer an email confirming research use and the
-  publication of results. Until then its row in every table reads "not run, no licence".
-- **Email sent** 2026-11-01 to Youssef Elmougy (the contact address in the repository's README)
-  and Ling Liu, asking to use the data for this research and to publish aggregate results and
-  code, with no redistribution of the data. No answer yet.
+  only. So permission was asked for in writing before any fetch.
+- **Permission asked** 2026-11-01, by email to Youssef Elmougy (the contact address in the
+  repository's README, and his current address) and Ling Liu: to use the dataset for this
+  research, and to publish aggregate results (metrics with confidence intervals, tables and
+  charts) and the code in a public GitHub repository, on the understanding that the data is
+  never redistributed (the code downloads it from the authors' source), that no address-level
+  data, labels or drawings of the graph appear in the repository or on the project page, and
+  that the paper is cited as the authors ask.
+- **Answer** 2026-11-01, from Ling Liu, copied to both of Youssef Elmougy's addresses:
+
+  > Both of us are happy with your plan. Keep us posted on your results!
+
+- **What that permits here:** exactly the terms asked for above, and no more. The data is
+  fetched by the loader from the authors' published source, never committed, never drawn; only
+  aggregates are reported; the paper is cited in the README. The authors are sent the results
+  when they are in.
 
 ## DGraph-Fin (stub)
 
