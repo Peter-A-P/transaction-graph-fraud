@@ -22,7 +22,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from consort.graph.build import Graph, _keep_recent, from_edges
+from consort.graph.build import Graph, from_edges
 from consort.graph.registry import FeatureRegistry
 
 IntArray = npt.NDArray[np.int64]
@@ -68,15 +68,22 @@ class EdgeSource(Protocol):
 
 
 class MemorySource:
-    """The batch side: the same queries answered from a Graph in memory."""
+    """The in-process store: the edges indexed by each end, most recent first, as an adjacency
+    list a feature service would hold in memory. A lookup costs the node's degree, not the
+    graph's size (the first serving run, 2026-11-02, scanned every edge per call)."""
 
     def __init__(self, graph: Graph) -> None:
         self.g = graph
-        self._out_keep: dict[int, npt.NDArray[np.bool_]] = {}
-        self._in_keep: dict[int, npt.NDArray[np.bool_]] = {}
+        idx = np.arange(graph.n_edges, dtype=np.int64)
+        # Per end: edge ids grouped by node, most recent first, ties by larger edge index, the
+        # order Graph.sampled keeps them in.
+        self._by: dict[str, tuple[IntArray, IntArray]] = {}
+        for end, owner in (("out", graph.src), ("in", graph.dst)):
+            perm = np.lexsort((-idx, -graph.order, owner)).astype(np.int64)
+            ptr = np.r_[0, np.cumsum(np.bincount(owner, minlength=graph.n_nodes))].astype(np.int64)
+            self._by[end] = (ptr, perm)
 
-    def _edges(self, mask: npt.NDArray[np.bool_]) -> Edges:
-        idx = np.flatnonzero(mask)
+    def _edges(self, idx: IntArray) -> Edges:
         g = self.g
         return Edges(
             idx.astype(np.int64),
@@ -86,17 +93,23 @@ class MemorySource:
             {k: v[idx] for k, v in g.edge_attrs.items()},
         )
 
+    def _take(self, nodes: IntArray, cap: int | None) -> IntArray:
+        parts = []
+        for ptr, perm in self._by.values():
+            starts = ptr[nodes]
+            lens = ptr[nodes + 1] - starts
+            if cap is not None:
+                lens = np.minimum(lens, max(cap, 0))
+            total = int(lens.sum())
+            offsets = np.arange(total) - np.repeat(np.cumsum(lens) - lens, lens)
+            parts.append(perm[np.repeat(starts, lens) + offsets])
+        return np.unique(np.concatenate(parts))
+
     def incident(self, node: int) -> Edges:
-        return self._edges((self.g.src == node) | (self.g.dst == node))
+        return self._edges(self._take(np.array([node], dtype=np.int64), None))
 
     def capped(self, nodes: IntArray, cap: int) -> Edges:
-        if cap not in self._out_keep:
-            self._out_keep[cap] = _keep_recent(self.g.src, self.g.order, cap)
-            self._in_keep[cap] = _keep_recent(self.g.dst, self.g.order, cap)
-        mask = (self._out_keep[cap] & np.isin(self.g.src, nodes)) | (
-            self._in_keep[cap] & np.isin(self.g.dst, nodes)
-        )
-        return self._edges(mask)
+        return self._edges(self._take(np.asarray(nodes, dtype=np.int64), cap))
 
 
 def fetch(source: EdgeSource, centre: int, hops: int, cap: int) -> Edges:

@@ -81,3 +81,23 @@ def test_parity_catches_a_fetch_one_hop_short(toy: ibm.IBM) -> None:
     busiest = np.argsort(-np.bincount(g.src, minlength=g.n_nodes))[:10].tolist()
     bad = parity.check(ShortSource(g), reg, nodes, batch, busiest, 2, 5)
     assert {m.column for m in bad} & {"scatter_gather_width", "nbr_mean_log_deg_in_h2"}
+
+
+def test_stores_keep_the_same_edges_when_recency_ties() -> None:
+    # IBM's timestamps tie often (minute resolution): every store must break ties by the
+    # larger edge id, as Graph.sampled does, or the cap keeps different edges.
+    from consort.graph.build import _keep_recent, from_edges
+
+    rng = np.random.default_rng(3)
+    n, m = 60, 3000
+    g = from_edges(n, rng.integers(0, n, m), rng.integers(0, n, m), order=rng.integers(0, 4, m))
+    mem, db = MemorySource(g), DuckDBSource.from_graph(g)
+    out_keep, in_keep = _keep_recent(g.src, g.order, 3), _keep_recent(g.dst, g.order, 3)
+    for _ in range(20):
+        nodes = rng.choice(n, 5, replace=False)
+        ref = np.flatnonzero((out_keep & np.isin(g.src, nodes)) | (in_keep & np.isin(g.dst, nodes)))
+        assert np.array_equal(mem.capped(nodes, 3).edge_id, ref)
+        assert np.array_equal(db.capped(nodes, 3).edge_id, ref)
+    for v in range(0, n, 7):
+        ref = np.flatnonzero((g.src == v) | (g.dst == v))
+        assert np.array_equal(mem.incident(v).edge_id, ref)

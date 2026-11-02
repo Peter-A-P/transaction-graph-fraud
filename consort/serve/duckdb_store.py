@@ -25,7 +25,7 @@ class DuckDBSource:
         cols = ", ".join(("edge_id", "src", "dst", "ord", *attrs))
         self._incident = f"SELECT {cols} FROM edges WHERE src = $n UNION ALL SELECT {cols} FROM edges WHERE dst = $n AND src <> $n"
         ranked = (
-            "SELECT {cols}, row_number() OVER (PARTITION BY {end} ORDER BY ord DESC) AS rn "
+            "SELECT {cols}, row_number() OVER (PARTITION BY {end} ORDER BY ord DESC, edge_id DESC) AS rn "
             "FROM edges WHERE {end} IN (SELECT unnest($nodes))"
         )
         self._capped = (

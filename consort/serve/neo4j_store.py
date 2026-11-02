@@ -27,9 +27,9 @@ CAPPED = """
 UNWIND $nodes AS n
 MATCH (a:Account {id: n})
 CALL (a) {
-  MATCH (a)-[t:SENT]->() WITH t ORDER BY t.ord DESC LIMIT $cap RETURN t
+  MATCH (a)-[t:SENT]->() WITH t ORDER BY t.ord DESC, t.edge_id DESC LIMIT $cap RETURN t
   UNION
-  MATCH (a)<-[t:SENT]-() WITH t ORDER BY t.ord DESC LIMIT $cap RETURN t
+  MATCH (a)<-[t:SENT]-() WITH t ORDER BY t.ord DESC, t.edge_id DESC LIMIT $cap RETURN t
 }
 RETURN DISTINCT t.edge_id AS edge_id, startNode(t).id AS src, endNode(t).id AS dst, t.ord AS ord, t AS rel
 """
