@@ -238,6 +238,20 @@ a baseline, and the case files are data. And it does not claim that a graph neur
 the answer: the point of the three arms is to find out when the graph pays, and the plan names
 in advance the result that would say it does not.
 
+Where the result is weakest:
+
+- **Arm N rests on one seed per table**, and a second seed moves it by about 0.12 AUPRC on the
+  real sets. It is below arm G at every seed run, and below the row model on Elliptic at every
+  seed; against the row model on Elliptic++ it is not settled.
+- **The largest gains are on synthetic data.** Arm G's 0.29 on IBM HI-Small measures a
+  generator's laundering, which plants shapes on purpose. On the real wallets of Elliptic++
+  the gain is 0.21, but its interval runs from 0.07 to 0.39.
+- **Elliptic's test is small after step 43.** The seven steps after the shutdown hold 169
+  illicit transactions, two of them in step 46. Every interval in the shift table is wide,
+  and the context swap's lead over retraining is not proven.
+- **Explanations are only somewhat better than random.** The occlusion ranking's lift is 13
+  points at one neighbour on IBM, and not measurable at three.
+
 ## How it works
 
 Three arms score the same accounts in the same time-ordered, inductive split: gradient
