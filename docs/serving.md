@@ -48,3 +48,18 @@ Every result carries the machine name, host, CPU, core count, price and price da
 **Nothing timed is reported from the laptop.** A result is reportable only when the benchmark
 was run with an explicit machine and price and `reportable` set; the report refuses any other
 (`NotReportable`). No reportable timing exists yet.
+
+## Running it
+
+    NAME=consort-serve-1 CLOUD=SECURE SERVE=1 RUNS_FILE=ops/serve-runs.txt bash ops/pod-run.sh
+
+On a Secure Cloud pod, so the machine named beside the timings can be rented again: Neo4j 5.26
+Community installed natively (`ops/serve-setup.sh`; a pod is itself a container), arm G's
+boosters at one and two hops exported to ONNX, then `consort bench`. On IBM the scored item is
+a transfer, so one call fetches both its accounts' neighbourhoods from the store, computes arm
+G's features for each with the same registry as the batch run, and scores the transfer's row
+through the ONNX export, on 1,000 transfers drawn at random (seed 0) after 20 warm-up calls.
+The pod's name, card, cloud, hourly price and the date it was read are written with every
+result in `results/serving.json`; `consort report` reads only results marked reportable, which
+only a run on the rented machine is.
+

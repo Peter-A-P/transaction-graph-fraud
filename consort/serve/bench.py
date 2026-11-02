@@ -11,11 +11,13 @@ an explicit machine name and price, and the report refuses any other.
 
 from __future__ import annotations
 
+import json
 import os
 import platform
 import time
 from collections.abc import Callable, Sequence
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -39,6 +41,8 @@ class Machine(BaseModel):
 
 class BenchResult(BaseModel):
     store: str
+    dataset: str = ""
+    unit: str = "account"  # what one call scores: an account, or a transfer (both its accounts)
     hops: int
     hub_cap: int
     calls: int
@@ -100,6 +104,84 @@ def run(
         usd_per_million=cost_per_million(mean, machine.usd_per_hour, utilisation),
         machine=machine,
     )
+
+
+TransferScore = Callable[[pd.DataFrame], float]
+
+
+def run_transfers(
+    store: str,
+    dataset: str,
+    source: EdgeSource,
+    registry: FeatureRegistry,
+    node_columns: pd.DataFrame,
+    stored: pd.DataFrame,
+    score: TransferScore,
+    transfers: pd.DataFrame,
+    row_columns: Sequence[str],
+    hops: int,
+    hub_cap: int,
+    machine: Machine,
+    utilisation: float = 0.5,
+    warmup: int = 20,
+) -> BenchResult:
+    """IBM's scored item is a transfer, so one live score fetches both its accounts'
+    neighbourhoods, computes arm G's features for each (src_ and dst_, as in the batch table)
+    and scores the transfer's row with them. `transfers` holds src, dst and the row columns."""
+
+    def call(i: int) -> int:
+        t = transfers.iloc[i]
+        parts = [t[list(row_columns)]]
+        size = 0
+        for end in ("src", "dst"):
+            v = int(t[end])
+            edges = fetch(source, v, hops, hub_cap)
+            size += int(edges.edge_id.shape[0])
+            feats = local_features(edges, v, registry, node_columns, hops, hub_cap, stored=stored)
+            parts.append(feats.add_prefix(f"{end}_"))
+        score(pd.concat(parts).to_frame().T)
+        return size
+
+    for i in range(min(warmup, len(transfers))):
+        call(i)
+    times, sizes = [], []
+    for i in range(len(transfers)):
+        t0 = time.perf_counter()
+        sizes.append(call(i))
+        times.append((time.perf_counter() - t0) * 1000.0)
+    ms = np.array(times)
+    mean = float(ms.mean())
+    return BenchResult(
+        store=store,
+        dataset=dataset,
+        unit="transfer",
+        hops=hops,
+        hub_cap=hub_cap,
+        calls=len(transfers),
+        p50_ms=float(np.quantile(ms, 0.5)),
+        p99_ms=float(np.quantile(ms, 0.99)),
+        mean_ms=mean,
+        mean_edges_fetched=float(np.mean(sizes)),
+        utilisation=utilisation,
+        usd_per_million=cost_per_million(mean, machine.usd_per_hour, utilisation),
+        machine=machine,
+    )
+
+
+def onnx_scorer(path: Path) -> TransferScore:
+    """One inference session, reused for every call, reading the export's column contract."""
+    import onnxruntime as ort
+
+    contract = json.loads(path.with_suffix(".features.json").read_text())
+    columns, col = contract["columns"], contract["score_column"]
+    session = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
+    names = [contract["output"]]
+
+    def score(row: pd.DataFrame) -> float:
+        x = row[columns].to_numpy(np.float32)
+        return float(session.run(names, {contract["input"]: x})[0][0, col])
+
+    return score
 
 
 class NotReportable(Exception):

@@ -1,0 +1,6 @@
+# The serving benchmark, on a Secure Cloud pod so the machine named beside the timings can be
+# rented again. Arm G's boosters at one and two hops exported to ONNX (to data/serve-runs, so
+# the laptop's runs are not overwritten), then the live path timed per transfer on every store.
+train G --dataset ibm-HI-Small --hops 1 --hub-cap 50 --onnx --out data/serve-runs
+train G --dataset ibm-HI-Small --hops 2 --hub-cap 50 --onnx --out data/serve-runs
+bench --dataset ibm-HI-Small --hops 1,2 --hub-cap 50 --calls 1000 --machine "$MACHINE" --usd-per-hour "$PRICE" --price-date "$PRICE_DATE" --reportable

@@ -44,3 +44,35 @@ def test_bench_runs_and_laptop_timings_are_refused(tmp_path: Path) -> None:
     with pytest.raises(bench.NotReportable):
         bench.check_reportable(res)
     assert np.isfinite(res.mean_edges_fetched)
+
+
+def test_transfer_bench_scores_through_the_onnx_export(tmp_path: Path) -> None:
+    from consort.data.tasks import ibm_task
+    from consort.models.run import run_tabular
+
+    data = ibm.load(write_ibm(tmp_path, n_background=1500, n_cycles=10), "T")
+    task = ibm_task(data, boot_group="day")
+    run_tabular(task, "G", 1, 5, seed=0, out_dir=tmp_path / "runs", onnx_dir=tmp_path / "m")
+    (model,) = (tmp_path / "m").glob("*.onnx")
+    g = data.graph
+    reg = default_registry(IBM_NODE_COLUMNS, ("amount", "t"))
+    nodes = ibm_node_table(g)
+    stored = reg.compute(g, nodes, 1, 5)
+    t = data.transfers
+    machine = bench.Machine(name="laptop", usd_per_hour=0.0, price_date=date(2026, 11, 1))
+    res = bench.run_transfers(
+        "memory",
+        "ibm-T",
+        MemorySource(g),
+        reg,
+        nodes,
+        stored,
+        bench.onnx_scorer(model),
+        t.iloc[:25].reset_index(drop=True),
+        data.row_columns,
+        1,
+        5,
+        machine,
+        warmup=3,
+    )
+    assert res.unit == "transfer" and res.calls == 25 and res.p50_ms > 0

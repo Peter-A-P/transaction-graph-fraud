@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from collections import Counter
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 import typer
@@ -328,8 +328,16 @@ def report(
         sm.write_all(done, out)
     summaries = sm.read_all(out)
 
+    serving = Path("results/serving.json")
+    timed = json.loads(serving.read_text()) if serving.exists() else []
+    timed = [t for t in timed if t["machine"]["reportable"]]  # never a laptop timing
+
     def fetch(dataset: str, hops: int) -> tuple[str, str]:
-        return ("not measured yet", "not measured yet")
+        rows = [t for t in timed if t["dataset"] == dataset and t["hops"] == hops]
+        if not rows:
+            return ("not measured yet", "not measured yet")
+        p = {q: "; ".join(f"{t['store']} {t[q]:.1f}" for t in rows) for q in ("p50_ms", "p99_ms")}
+        return (p["p50_ms"], p["p99_ms"])
 
     tables = {
         "main": tb.main_table(summaries),
@@ -346,6 +354,100 @@ def report(
         )
         rejected.write_text(text, encoding="utf8")
     typer.echo(f"{len(summaries)} runs; tables written to {readme}")
+
+
+@app.command()
+def bench(
+    dataset: str = "ibm-HI-Small",
+    stores: str = "memory,duckdb,neo4j",
+    hops: str = "1,2",
+    hub_cap: int = 50,
+    calls: int = 1000,
+    models: Path = Path("checkpoints"),
+    machine: str = typer.Option(..., help="The machine's name, as the README will print it"),
+    usd_per_hour: float = typer.Option(..., help="Its price"),
+    price_date: str = typer.Option(..., help="The date the price was read, YYYY-MM-DD"),
+    reportable: bool = typer.Option(False, help="Only on the rented machine or the VPS"),
+    out: Path = Path("results/serving.json"),
+) -> None:
+    """Time the live path per transfer (fetch both accounts, arm G's features, the ONNX
+    score) per store and hop count; append to results/serving.json."""
+    from datetime import date
+
+    from consort.data.tasks import IBM_NODE_COLUMNS, IBMTask, ibm_node_table
+    from consort.graph.features import default_registry
+    from consort.graph.neighbourhood import EdgeSource, MemorySource
+    from consort.serve import bench as bn
+
+    env.load()
+    task = _task(dataset)
+    assert isinstance(task, IBMTask) and task.data is not None
+    g = task.data.graph
+    node_table = ibm_node_table(g)
+    reg = default_registry(IBM_NODE_COLUMNS, ("amount", "t"))
+    m = bn.Machine(
+        name=machine,
+        usd_per_hour=usd_per_hour,
+        price_date=date.fromisoformat(price_date),
+        reportable=reportable,
+    )
+    rng = np.random.default_rng(0)
+    pick = rng.choice(len(task.data.transfers), size=calls, replace=False)
+    transfers = task.data.transfers.iloc[pick].reset_index(drop=True)
+    sources: dict[str, EdgeSource] = {}
+    for name in stores.split(","):
+        if name == "memory":
+            sources[name] = MemorySource(g)
+        elif name == "duckdb":
+            from consort.serve.duckdb_store import DuckDBSource
+
+            sources[name] = DuckDBSource.from_graph(g, Path("data/serve.duckdb"))
+        elif name == "neo4j":
+            import os
+
+            from neo4j import GraphDatabase
+
+            from consort.serve.neo4j_store import Neo4jSource
+
+            driver = GraphDatabase.driver(
+                os.environ["NEO4J_URI"],
+                auth=(os.environ.get("NEO4J_USER", "neo4j"), os.environ["NEO4J_PASSWORD"]),
+            )
+            typer.echo("loading the graph into Neo4j")
+            sources[name] = Neo4jSource.load(driver, g)
+        else:
+            raise typer.BadParameter(f"unknown store {name}")
+    results = []
+    for h in (int(x) for x in hops.split(",")):
+        model = models / f"{dataset}.temporal.G.h{h}.cap{hub_cap}.s0.onnx"
+        score = bn.onnx_scorer(model)
+        stored = reg.compute(g, node_table, h, hub_cap)
+        for name, src in sources.items():
+            r = bn.run_transfers(
+                name,
+                dataset,
+                src,
+                reg,
+                node_table,
+                stored,
+                score,
+                transfers,
+                task.row_columns,
+                h,
+                hub_cap,
+                m,
+            )
+            typer.echo(f"{name} h{h}: p50 {r.p50_ms:.1f} ms, p99 {r.p99_ms:.1f} ms")
+            results.append(r)
+    old = json.loads(out.read_text()) if out.exists() else []
+
+    def key(d: dict[str, Any]) -> tuple[Any, ...]:
+        return (d["dataset"], d["store"], d["hops"], d["hub_cap"], d["machine"]["name"])
+
+    new = [json.loads(r.model_dump_json()) for r in results]
+    keep = [d for d in old if key(d) not in {key(n) for n in new}]
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(keep + new, indent=1) + "\n")
 
 
 @app.command("pod-up")
