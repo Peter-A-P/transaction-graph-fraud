@@ -21,7 +21,7 @@ echo "watchdog pid $!"
 
 nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader
 command -v uv >/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh
-uv sync --frozen --extra gnn --extra export
+uv sync --frozen --extra gnn --extra export --extra tabfm
 uv run python - <<'PY'
 import torch
 assert torch.cuda.is_available(), "CUDA not available under the pinned torch"

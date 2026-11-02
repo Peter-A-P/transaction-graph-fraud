@@ -1,15 +1,24 @@
-# Arm N, first pod: GraphSAGE on every dataset at hops 1 and 2 with arm G's cap of 50, then
+# The first pod. Arm N: GraphSAGE on every dataset at hops 1 and 2 with arm G's cap of 50, then
 # hops 0 and 3 on the real sets for the hop curve, then GAT at 2 hops. Seed 0.
---dataset elliptic --arch sage --hops 1 --hub-cap 50
---dataset elliptic --arch sage --hops 2 --hub-cap 50
---dataset ellipticpp --arch sage --hops 1 --hub-cap 50
---dataset ellipticpp --arch sage --hops 2 --hub-cap 50
---dataset ibm-HI-Small --arch sage --hops 1 --hub-cap 50
---dataset ibm-HI-Small --arch sage --hops 2 --hub-cap 50
---dataset ibm-LI-Small --arch sage --hops 2 --hub-cap 50
---dataset elliptic --arch sage --hops 0 --hub-cap 50
---dataset elliptic --arch sage --hops 3 --hub-cap 50
---dataset ellipticpp --arch sage --hops 0 --hub-cap 50
---dataset elliptic --arch gat --hops 2 --hub-cap 50
---dataset ellipticpp --arch gat --hops 2 --hub-cap 50
---dataset ibm-HI-Small --arch gat --hops 2 --hub-cap 50
+train-gnn --dataset elliptic --arch sage --hops 1 --hub-cap 50
+train-gnn --dataset elliptic --arch sage --hops 2 --hub-cap 50
+train-gnn --dataset ellipticpp --arch sage --hops 1 --hub-cap 50
+train-gnn --dataset ellipticpp --arch sage --hops 2 --hub-cap 50
+train-gnn --dataset ibm-HI-Small --arch sage --hops 1 --hub-cap 50
+train-gnn --dataset ibm-HI-Small --arch sage --hops 2 --hub-cap 50
+train-gnn --dataset ibm-LI-Small --arch sage --hops 2 --hub-cap 50
+train-gnn --dataset elliptic --arch sage --hops 0 --hub-cap 50
+train-gnn --dataset elliptic --arch sage --hops 3 --hub-cap 50
+train-gnn --dataset ellipticpp --arch sage --hops 0 --hub-cap 50
+train-gnn --dataset elliptic --arch gat --hops 2 --hub-cap 50
+train-gnn --dataset ellipticpp --arch gat --hops 2 --hub-cap 50
+train-gnn --dataset ibm-HI-Small --arch gat --hops 2 --hub-cap 50
+# The TabFM column on arm R's and arm G's tables (G at one hop). Every training positive is kept
+# in the context, so its size follows the positives: 10,000 rows on Elliptic (3,462 positive),
+# 30,000 on Elliptic++ (9,377). Then the context swap on Elliptic over the four steps before
+# each test step.
+train-tabfm --dataset elliptic --features R --context-size 10000 --device cuda
+train-tabfm --dataset elliptic --features G --hops 1 --hub-cap 50 --context-size 10000 --device cuda
+train-tabfm --dataset ellipticpp --features R --context-size 30000 --device cuda
+train-tabfm --dataset ellipticpp --features G --hops 1 --hub-cap 50 --context-size 30000 --device cuda
+train-tabfm --dataset elliptic --features R --context-size 10000 --swap-window 4 --device cuda

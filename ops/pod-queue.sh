@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Arm N's runs on the pod, one after another, each line of ops/gnn-runs.txt a train-gnn
-# argument list, logged ok or FAIL with its time; a failed run does not stop the rest. At the end
+# The pod's runs, one after another, each line of ops/gnn-runs.txt a consort command line
+# (train-gnn, train-tabfm), logged ok or FAIL with its time; a failed run does not stop the rest. At the end
 # the outcomes are packed for the laptop to copy back; the watchdog removes the idle pod.
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -9,7 +9,7 @@ while read -r args; do
   [ -z "$args" ] && continue
   case "$args" in \#*) continue ;; esac
   s=$(date +%s)
-  if uv run consort train-gnn $args > /root/last-run.log 2>&1; then
+  if uv run consort $args > /root/last-run.log 2>&1; then
     echo "ok $(( $(date +%s) - s ))s: $args"
   else
     echo "FAIL $(( $(date +%s) - s ))s: $args"; tail -5 /root/last-run.log

@@ -199,6 +199,41 @@ def train_gnn(
     typer.echo(str(run(_task(dataset, boot_group), cfg, out)))
 
 
+@app.command("train-tabfm")
+def train_tabfm(
+    dataset: str = typer.Option(...),
+    features: str = typer.Option("R", help="R or G: whose table TabFM is handed"),
+    hops: int = 0,
+    hub_cap: int = 0,
+    context_size: int = 10_000,
+    seed: int = 0,
+    swap_window: int = typer.Option(
+        0, help="With a window of n steps: the context swap instead (Elliptic, Elliptic++)"
+    ),
+    device: str = typer.Option("", help="cuda or cpu; empty lets TabFM choose"),
+    out: Path = RUNS,
+) -> None:
+    """The TabFM column (needs the tabfm extra), or with --swap-window the context swap."""
+    from consort.models.tabfm import TabFMScorer
+    from consort.models.tabfm_run import run_context_swap, run_tabfm
+
+    if features not in ("R", "G"):
+        raise typer.BadParameter("features must be R or G")
+
+    def make(size: int, seed: int) -> TabFMScorer:
+        return TabFMScorer(context_size=size, seed=seed, device=device or None)
+
+    task = _task(dataset)
+    cap = hub_cap if hops else 0
+    if swap_window:
+        for p in run_context_swap(
+            task, features, hops, cap, context_size, swap_window, seed, out, make
+        ):
+            typer.echo(str(p))
+    else:
+        typer.echo(str(run_tabfm(task, features, hops, cap, context_size, seed, out, make)))
+
+
 @app.command("eval")
 def eval_cmd(
     outcomes: list[Path],
