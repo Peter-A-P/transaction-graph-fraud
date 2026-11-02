@@ -412,7 +412,7 @@ Whichever produces the clearest evidence becomes `docs/rejected.md`.
 |---|---|
 | Elliptic2: 49 million clusters, 122 thousand labelled subgraphs, the subgraph task | The loader shape and the evaluator take a subgraph label; a new loader and a subgraph head |
 | Temporal graph networks | The edge table carries timestamps; the PyG Data objects are built per step |
-| Heterogeneous graphs (accounts, devices, merchants), as in 09's generator | `graph/build.py` takes typed edge tables; one node type is the special case |
+| Heterogeneous graphs (accounts, devices, merchants), as in 09's generator | Typed edges and per-type features would come first: as built (2026-11-02), `graph/build.py` and the registry hold one node type and directed edges, which every dataset here needed, so typed edge tables were not written (docs/handover.md) |
 | A language-model case narrative through 04 | The case file is already JSON; a narrative is a rendering of it |
 | Live scoring inside 09's stream | The ONNX scorer and the feature view are the handover; wiring is 09's |
 | DGraph-Fin and Elliptic++ as full rows | Loader stubs with their terms recorded |

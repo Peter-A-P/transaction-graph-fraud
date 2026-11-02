@@ -272,7 +272,8 @@ uv run pytest
 The licences, as quoted before the first fetch, are in [docs/data.md](docs/data.md); model
 versions and settings in [docs/models.md](docs/models.md); the laundering patterns in
 [docs/patterns.md](docs/patterns.md); the serving path and its parity test in
-[docs/serving.md](docs/serving.md).
+[docs/serving.md](docs/serving.md); what is handed to the real-time platform, and what is not, in
+[docs/handover.md](docs/handover.md).
 
 ## Part of a portfolio
 
