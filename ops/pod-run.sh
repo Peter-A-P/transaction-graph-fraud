@@ -42,29 +42,41 @@ read -r id host port cost < <(python -c "import json,sys; d=json.loads(sys.argv[
 echo "pod $id ($GPU, US\$$cost/h) at $host:$port, $(date -u +%FT%TZ)"
 
 SSH=(ssh -i "$KEY" -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30 -o ConnectTimeout=30 -p "$port" "root@$host")
+# A fresh pod's sshd sometimes resets the first connections (2026-11-02): each step is retried.
+retry() { for i in 1 2 3 4 5 6; do "$@" && return 0; echo "retry $i: $1"; sleep 20; done; return 1; }
 for i in $(seq 1 20); do "${SSH[@]}" true 2>/dev/null && break; sleep 15; done
-git archive --format=tar HEAD | "${SSH[@]}" "mkdir -p /root/consort && tar -x -C /root/consort"
-{
-  grep -E '^(RUNPOD_API_KEY|KAGGLE_API_TOKEN)=' .env
-  echo "RUNPOD_POD_ID=$id"
-  echo "MACHINE='RunPod $CLOUD $GPU'"
-  echo "PRICE=$cost"
-  echo "PRICE_DATE=$(date -u +%F)"
-} | "${SSH[@]}" "cat > /root/consort/.env && chmod 600 /root/consort/.env"
+push_code() { git archive --format=tar HEAD | "${SSH[@]}" "mkdir -p /root/consort && tar -x -C /root/consort"; }
+push_env() {
+  {
+    grep -E '^(RUNPOD_API_KEY|KAGGLE_API_TOKEN)=' .env
+    echo "RUNPOD_POD_ID=$id"
+    echo "MACHINE='RunPod $CLOUD $GPU'"
+    echo "PRICE=$cost"
+    echo "PRICE_DATE=$(date -u +%F)"
+  } | "${SSH[@]}" "cat > /root/consort/.env && chmod 600 /root/consort/.env"
+}
+retry push_code
+retry push_env
 SETUP="DATASETS='${DATASETS:-}' bash ops/pod-setup.sh"
 [ -n "${SERVE:-}" ] && SETUP="$SETUP && bash ops/serve-setup.sh"
-"${SSH[@]}" "cd /root/consort && nohup bash -c '$SETUP && RUNS_FILE=${RUNS_FILE:-ops/gnn-runs.txt} bash ops/pod-queue.sh; echo ALLDONE' > /root/run.log 2>&1 &"
+start() { "${SSH[@]}" "cd /root/consort && test -f /root/run.log || nohup bash -c '$SETUP && RUNS_FILE=${RUNS_FILE:-ops/gnn-runs.txt} bash ops/pod-queue.sh; echo ALLDONE' > /root/run.log 2>&1 &"; }
+retry start
 
+# Copy the log and the packed outcomes back on every poll, so whatever finished is on the
+# laptop even if the pod is lost (its watchdog ends it after 10 hours).
+pull() {
+  scp -q -i "$KEY" -P "$port" "root@$host:/root/run.log" "data/pod-logs/$NAME.log" 2>/dev/null
+  if "${SSH[@]}" "test -f /root/results.tar" 2>/dev/null; then
+    scp -q -i "$KEY" -P "$port" "root@$host:/root/results.tar" "data/pod-logs/$NAME.tar" 2>/dev/null &&
+      tar -xf "data/pod-logs/$NAME.tar"  # data/runs, and for SERVE data/serve-runs and results
+  fi
+}
 misses=0
 until "${SSH[@]}" "grep -q ALLDONE /root/run.log" 2>/dev/null; do
-  if "${SSH[@]}" true 2>/dev/null; then misses=0; else misses=$((misses + 1)); fi
+  if "${SSH[@]}" true 2>/dev/null; then misses=0; pull || true; else misses=$((misses + 1)); fi
   if [ "$misses" -ge 10 ]; then echo "pod unreachable for 10 polls; giving up"; exit 1; fi
   sleep 120
 done
-scp -i "$KEY" -P "$port" "root@$host:/root/run.log" "data/pod-logs/$NAME.log"
+retry pull
 grep -E "^(ok|FAIL)" "data/pod-logs/$NAME.log" || true
-if "${SSH[@]}" "test -f /root/results.tar"; then
-  scp -i "$KEY" -P "$port" "root@$host:/root/results.tar" "data/pod-logs/$NAME.tar"
-  tar -xf "data/pod-logs/$NAME.tar"  # data/runs, and for SERVE data/serve-runs and results
-fi
 echo "done $(date -u +%FT%TZ)"
