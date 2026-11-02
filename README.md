@@ -252,6 +252,17 @@ Where the result is weakest:
 - **Explanations are only somewhat better than random.** The occlusion ranking's lift is 13
   points at one neighbour on IBM, and not measurable at three.
 
+## What was tried and rejected
+
+**Scoring an account by how many of its neighbours are already known to be illicit.** It is
+guilt by association in one column, and published graph fraud results often lean on it. Here
+it costs arm G 0.019 AUPRC on Elliptic's time-ordered split (0.008 to 0.033): a test
+transaction's neighbours sit in its own time step, whose labels are not yet known, so the
+column is empty exactly where it is needed. On a random split it adds 0.002, its interval
+touching zero, because a random split already gives the model the test step's own
+transactions to learn from. The uplift it shows in the literature comes from the split, not
+the column ([docs/rejected.md](docs/rejected.md)).
+
 ## How it works
 
 Three arms score the same accounts in the same time-ordered, inductive split: gradient
