@@ -32,6 +32,9 @@ class RunMeta(BaseModel):
     hops: int
     seed: int
     partition: str = "test"
+    # AUPRC on the validation partition, from the fitted model: what a hop count or a variant
+    # is chosen by, so no choice is made on test. None for runs written before it was recorded.
+    val_auprc: float | None = None
     notes: str = ""
 
 

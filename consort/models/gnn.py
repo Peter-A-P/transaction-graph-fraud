@@ -384,6 +384,7 @@ def _write(
         model=f"pyg-{cfg.arch}",
         hops=cfg.hops,
         seed=cfg.seed,
+        val_auprc=float(info["best_val_auprc"]),
         notes="; ".join(f"{k}={v}" for k, v in {**asdict(cfg), **info}.items()),
     )
     return oc.write(outcomes, meta, out_dir)

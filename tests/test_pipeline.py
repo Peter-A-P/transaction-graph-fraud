@@ -35,4 +35,6 @@ def test_random_split_run_is_labelled_as_such(tmp_path: Path) -> None:
     data = ibm.load(write_ibm(tmp_path, n_background=2000, n_cycles=20), "T")
     task = ibm_task(data, boot_group="day")
     path = run_tabular(task, "R", 0, 0, seed=0, out_dir=tmp_path, split_kind="random")
-    assert oc.read_meta(path).split == "ibm-T-random"
+    meta = oc.read_meta(path)
+    assert meta.split == "ibm-T-random"
+    assert meta.val_auprc is not None and 0.0 <= meta.val_auprc <= 1.0

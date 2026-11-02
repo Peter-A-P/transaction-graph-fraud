@@ -18,6 +18,7 @@ from consort.data.leakage import check_random_training_rows, check_training_rows
 from consort.data.splits import PARTITIONS, Partition, random_split
 from consort.data.tasks import Task
 from consort.eval import outcomes as oc
+from consort.eval.metrics import Ranked, average_precision
 from consort.models import boost, graphfeat, row
 
 FeatureFn = Callable[[Task, Partition, int, int], pd.DataFrame]
@@ -75,6 +76,12 @@ def run_tabular(
         y[masks["val"]],
         seed=seed,
     )
+    val_ranked = Ranked.of(
+        y[masks["val"]],
+        fitted.predict(tables["val"][masks["val"]]),
+        np.zeros(int(masks["val"].sum()), dtype=np.int64),
+    )
+    val_auprc = average_precision(val_ranked, np.ones(int(masks["val"].sum())))
     test = masks["test"]
     scores = fitted.predict(tables["test"][test])
     outcomes = oc.Outcomes.build(
@@ -94,6 +101,7 @@ def run_tabular(
         model="xgboost",
         hops=hops,
         seed=seed,
+        val_auprc=val_auprc,
         notes=f"hub_cap={hub_cap}; best_iteration={fitted.best_iteration}; "
         f"features={len(fitted.columns)}",
     )
