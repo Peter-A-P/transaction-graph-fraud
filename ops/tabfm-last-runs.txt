@@ -4,3 +4,5 @@
 # at 30,000 it hung two pods.
 train-tabfm --dataset elliptic --features R --context-size 10000 --device cuda
 train-tabfm --dataset ellipticpp --features G --hops 1 --hub-cap 50 --context-size 10000 --device cuda
+# Appended 2026-11-03: Elliptic++ TabFM-G at 30,000 once more, into its own folder so the 10,000 run is kept; free memory logged meanwhile, to see what hangs the pod.
+train-tabfm --dataset ellipticpp --features G --hops 1 --hub-cap 50 --context-size 30000 --device cuda --out data/runs/ctx30000
