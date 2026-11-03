@@ -125,4 +125,13 @@ queue.
 **What did not finish.** The first pod became unreachable while TabFM ran on Elliptic++'s
 graph features with a context of 30,000 rows, and the launcher swept it after ten missed
 polls. That run, the context swap at step 43 and TabFM on Elliptic's graph features (which
-had run out of card memory before the query batches were cut to 1,000 rows) are still to run.
+had run out of card memory before the query batches were cut to 1,000 rows) went to a third
+pod.
+
+**The third pod, 2026-11-02.** A Secure Cloud RTX 4090 at US$0.89 an hour, up from 16:57 to
+about 03:00 UTC. It finished TabFM on Elliptic's graph features (73 minutes), the context swap
+(13 minutes) and arm N's seeds 1 and 2 on all four sets (half a minute on Elliptic, 30 to 70
+minutes each on IBM). TabFM on Elliptic++'s graph features with 30,000 context rows took
+this pod down too, after more than two hours with the card at 99%, so the hang repeats and is
+not bad luck. That run, and the timed TabFM run queued behind it for a cost per thousand
+scores, did not run. Neither is retried without a smaller context and a new spend decision.
