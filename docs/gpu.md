@@ -135,3 +135,12 @@ minutes each on IBM). TabFM on Elliptic++'s graph features with 30,000 context r
 this pod down too, after more than two hours with the card at 99%, so the hang repeats and is
 not bad luck. That run, and the timed TabFM run queued behind it for a cost per thousand
 scores, did not run. Neither is retried without a smaller context and a new spend decision.
+
+**The fourth pod, 2026-11-03.** A Secure Cloud NVIDIA L4 at US$0.59 an hour (no 4090 was
+free), up from 10:55 to about 17:15 UTC. The timed TabFM-R on Elliptic took 83 minutes, 59 of
+them scoring (docs/models.md has the cost per score). TabFM on Elliptic++'s graph features at
+10,000 context rows took 4 hours 42 minutes, 3 hours 37 of them scoring 71,880 rows, with the
+card at 100%, 6.8 GB of its memory in use and over 450 GB of host memory free throughout; it
+finished. So the README's Elliptic++ TabFM-G row is at 10,000 context rows where TabFM-R's is
+at 30,000. The 30,000-row retry was queued after it and stopped by hand before it got far: at
+the L4's pace it could not finish inside the pod's 10-hour watchdog.

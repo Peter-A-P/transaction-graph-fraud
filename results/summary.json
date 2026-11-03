@@ -4758,6 +4758,189 @@
   "patterns": {}
  },
  {
+  "run": "ellipticpp.temporal.TabFM-G.h1.cap50.s0",
+  "dataset": "ellipticpp",
+  "split": "elliptic-temporal",
+  "kind": "temporal",
+  "arm": "TabFM-G",
+  "model": "tabfm",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.5486434260548393,
+  "n_items": 71880,
+  "n_groups": 11,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.2329,
+    0.1472,
+    0.3764
+   ],
+   "recall_at_1pct_fpr": [
+    0.143,
+    0.0699,
+    0.2802
+   ],
+   "recall_at_0.5pct_budget": [
+    0.0682,
+    0.0399,
+    0.1083
+   ],
+   "recall_at_1pct_budget": [
+    0.1012,
+    0.059,
+    0.1845
+   ],
+   "ceiling_at_0.5pct_budget": [
+    0.1103,
+    0.0735,
+    0.18
+   ],
+   "ceiling_at_1pct_budget": [
+    0.2206,
+    0.147,
+    0.36
+   ]
+  },
+  "slices": {
+   "before-43": {
+    "auprc": [
+     0.5475,
+     0.4281,
+     0.656
+    ],
+    "recall_at_1pct_fpr": [
+     0.3868,
+     0.229,
+     0.5902
+    ],
+    "recall_at_0.5pct_budget": [
+     0.1111,
+     0.0845,
+     0.1505
+    ],
+    "recall_at_1pct_budget": [
+     0.2029,
+     0.1388,
+     0.2705
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1172,
+     0.0984,
+     0.1553
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2345,
+     0.1969,
+     0.3106
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     0.1257,
+     0.0664,
+     0.1938
+    ],
+    "recall_at_1pct_fpr": [
+     0.0571,
+     0.0198,
+     0.1284
+    ],
+    "recall_at_0.5pct_budget": [
+     0.0414,
+     0.0103,
+     0.0736
+    ],
+    "recall_at_1pct_budget": [
+     0.0488,
+     0.0188,
+     0.1124
+    ],
+    "ceiling_at_0.5pct_budget": [
+     0.1065,
+     0.0628,
+     0.2282
+    ],
+    "ceiling_at_1pct_budget": [
+     0.2131,
+     0.1255,
+     0.4565
+    ]
+   }
+  },
+  "baseline": "ellipticpp.temporal.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    -0.1556,
+    -0.2406,
+    -0.0521
+   ],
+   "recall_at_1pct_fpr": [
+    -0.1488,
+    -0.2621,
+    -0.0448
+   ],
+   "recall_at_0.5pct_budget": [
+    -0.04,
+    -0.081,
+    -0.012
+   ],
+   "recall_at_1pct_budget": [
+    -0.1062,
+    -0.1558,
+    -0.0344
+   ]
+  },
+  "slice_delta": {
+   "before-43": {
+    "auprc": [
+     -0.0412,
+     -0.1024,
+     -0.0116
+    ],
+    "recall_at_1pct_fpr": [
+     -0.1316,
+     -0.2704,
+     0.0142
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0009,
+     -0.0137,
+     -0.0
+    ],
+    "recall_at_1pct_budget": [
+     -0.0202,
+     -0.0488,
+     -0.0095
+    ]
+   },
+   "from-43": {
+    "auprc": [
+     -0.1575,
+     -0.2448,
+     -0.05
+    ],
+    "recall_at_1pct_fpr": [
+     -0.1638,
+     -0.2256,
+     -0.0333
+    ],
+    "recall_at_0.5pct_budget": [
+     -0.0637,
+     -0.1244,
+     -0.0199
+    ],
+    "recall_at_1pct_budget": [
+     -0.1166,
+     -0.1773,
+     -0.0203
+    ]
+   }
+  },
+  "patterns": {}
+ },
+ {
   "run": "ellipticpp.temporal.TabFM-R.h0.cap0.s0",
   "dataset": "ellipticpp",
   "split": "elliptic-temporal",
