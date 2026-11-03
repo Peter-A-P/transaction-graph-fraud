@@ -67,13 +67,16 @@ What the table says:
 **How far another seed moves it.** The tables read seed 0. Arm N's headline runs were repeated
 at seeds 1 and 2. Arm N moves by about 0.12 AUPRC from one seed to another on both real
 sets, as much as some of the differences above; at its best seed it is still below the row
-model on Elliptic and below arm G on Elliptic++. IBM's seeds are still running.
+model on Elliptic and below arm G on Elliptic++. On IBM's synthetic sets it barely moves (under
+0.01), and every seed stays far below arm G.
 
 <!-- report:seeds -->
 | Dataset | Run | Hops | AUPRC by seed | Spread (largest minus smallest) |
 |---|---|---|---|---|
 | Elliptic (real, transactions) | N-sage | 2 | seed 0: 0.583; seed 1: 0.536; seed 2: 0.657 | 0.121 |
 | Elliptic++ (real, wallets) | N-sage | 2 | seed 0: 0.418; seed 1: 0.301; seed 2: 0.406 | 0.117 |
+| IBM AML HI-Small (synthetic) | N-sage+rmp+ego | 2 | seed 0: 0.083; seed 1: 0.081; seed 2: 0.076 | 0.007 |
+| IBM AML LI-Small (synthetic) | N-sage | 2 | seed 0: 0.025; seed 1: 0.027; seed 2: 0.025 | 0.002 |
 <!-- /report:seeds -->
 
 **Which shapes only the graph can see.** Recall at a 1% alert budget by laundering pattern on
@@ -171,8 +174,8 @@ days, the leak this build found in itself and fixed (PLAN.md 2.2). All test days
 | Elliptic++ (real, wallets) | G, graph features | 0.595 (0.396 to 0.791) | 0.981 (0.970 to 0.989) | not applicable |
 | IBM AML HI-Small (synthetic) | R, row only | 0.212 (0.172 to 0.278) | 0.086 (0.073 to 0.105) | not applicable |
 | IBM AML HI-Small (synthetic) | G, graph features | 0.563 (0.519 to 0.612) | 0.488 (0.448 to 0.526) | 0.716 (0.672 to 0.764) |
-| IBM AML LI-Small (synthetic) | R, row only | 0.033 (0.025 to 0.046) | not run yet | not applicable |
-| IBM AML LI-Small (synthetic) | G, graph features | 0.156 (0.124 to 0.196) | not run yet | not applicable |
+| IBM AML LI-Small (synthetic) | R, row only | 0.033 (0.025 to 0.046) | 0.021 (0.017 to 0.029) | not applicable |
+| IBM AML LI-Small (synthetic) | G, graph features | 0.156 (0.124 to 0.196) | 0.159 (0.131 to 0.191) | not applicable |
 <!-- /report:leakage -->
 
 **Can an investigator read why?** For each run's alert queue (its top 1% of test items; on

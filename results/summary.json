@@ -5941,6 +5941,268 @@
   }
  },
  {
+  "run": "ibm-HI-Small.temporal.N-sage+rmp+ego.h2.cap50.s1",
+  "dataset": "ibm-HI-Small",
+  "split": "ibm-HI-Small-temporal",
+  "kind": "temporal",
+  "arm": "N-sage+rmp+ego",
+  "model": "pyg-sage",
+  "hops": 2,
+  "cap": 50,
+  "seed": 1,
+  "val_auprc": 0.2401893361799725,
+  "n_items": 863900,
+  "n_groups": 193,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.1804,
+    0.1448,
+    0.2309
+   ],
+   "recall_at_1pct_fpr": [
+    0.6934,
+    0.6637,
+    0.7272
+   ],
+   "recall_at_0.5pct_budget": [
+    0.4727,
+    0.4409,
+    0.5064
+   ],
+   "recall_at_1pct_budget": [
+    0.6691,
+    0.6391,
+    0.6983
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {
+   "without-tail": {
+    "auprc": [
+     0.0813,
+     0.0643,
+     0.1039
+    ],
+    "recall_at_1pct_fpr": [
+     0.5973,
+     0.56,
+     0.6369
+    ],
+    "recall_at_0.5pct_budget": [
+     0.4017,
+     0.3652,
+     0.4386
+    ],
+    "recall_at_1pct_budget": [
+     0.5847,
+     0.547,
+     0.6212
+    ],
+    "ceiling_at_0.5pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "ceiling_at_1pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "baseline": null,
+  "delta": {},
+  "slice_delta": {},
+  "patterns": {
+   "BIPARTITE": [
+    0.7424,
+    0.6237,
+    0.8537
+   ],
+   "CYCLE": [
+    0.7576,
+    0.6635,
+    0.8312
+   ],
+   "FAN-IN": [
+    0.7724,
+    0.7015,
+    0.8462
+   ],
+   "FAN-OUT": [
+    0.8092,
+    0.75,
+    0.8769
+   ],
+   "GATHER-SCATTER": [
+    0.8189,
+    0.7738,
+    0.8608
+   ],
+   "NONE": [
+    0.3154,
+    0.2692,
+    0.3712
+   ],
+   "RANDOM": [
+    0.6786,
+    0.5609,
+    0.7802
+   ],
+   "SCATTER-GATHER": [
+    0.7699,
+    0.7083,
+    0.8231
+   ],
+   "STACK": [
+    0.7094,
+    0.6204,
+    0.7834
+   ]
+  }
+ },
+ {
+  "run": "ibm-HI-Small.temporal.N-sage+rmp+ego.h2.cap50.s2",
+  "dataset": "ibm-HI-Small",
+  "split": "ibm-HI-Small-temporal",
+  "kind": "temporal",
+  "arm": "N-sage+rmp+ego",
+  "model": "pyg-sage",
+  "hops": 2,
+  "cap": 50,
+  "seed": 2,
+  "val_auprc": 0.16061128895397642,
+  "n_items": 863900,
+  "n_groups": 193,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.1698,
+    0.1391,
+    0.2111
+   ],
+   "recall_at_1pct_fpr": [
+    0.7132,
+    0.6791,
+    0.7507
+   ],
+   "recall_at_0.5pct_budget": [
+    0.4522,
+    0.4137,
+    0.4976
+   ],
+   "recall_at_1pct_budget": [
+    0.6747,
+    0.638,
+    0.7121
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {
+   "without-tail": {
+    "auprc": [
+     0.0758,
+     0.0622,
+     0.0925
+    ],
+    "recall_at_1pct_fpr": [
+     0.6203,
+     0.5799,
+     0.6547
+    ],
+    "recall_at_0.5pct_budget": [
+     0.3881,
+     0.3407,
+     0.4262
+    ],
+    "recall_at_1pct_budget": [
+     0.6003,
+     0.561,
+     0.6345
+    ],
+    "ceiling_at_0.5pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "ceiling_at_1pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "baseline": null,
+  "delta": {},
+  "slice_delta": {},
+  "patterns": {
+   "BIPARTITE": [
+    0.697,
+    0.5633,
+    0.8088
+   ],
+   "CYCLE": [
+    0.7071,
+    0.6176,
+    0.8105
+   ],
+   "FAN-IN": [
+    0.8455,
+    0.7484,
+    0.9084
+   ],
+   "FAN-OUT": [
+    0.7481,
+    0.6765,
+    0.8248
+   ],
+   "GATHER-SCATTER": [
+    0.7822,
+    0.7221,
+    0.8296
+   ],
+   "NONE": [
+    0.3423,
+    0.2991,
+    0.3871
+   ],
+   "RANDOM": [
+    0.7262,
+    0.5937,
+    0.8182
+   ],
+   "SCATTER-GATHER": [
+    0.8201,
+    0.7565,
+    0.874
+   ],
+   "STACK": [
+    0.7436,
+    0.6505,
+    0.829
+   ]
+  }
+ },
+ {
   "run": "ibm-HI-Small.temporal.N-sage.h1.cap50.s0",
   "dataset": "ibm-HI-Small",
   "split": "ibm-HI-Small-temporal",
@@ -6420,6 +6682,131 @@
     0.7975
    ]
   }
+ },
+ {
+  "run": "ibm-LI-Small.random.G.h1.cap50.s0",
+  "dataset": "ibm-LI-Small",
+  "split": "ibm-LI-Small-random",
+  "kind": "random",
+  "arm": "G",
+  "model": "xgboost",
+  "hops": 1,
+  "cap": 50,
+  "seed": 0,
+  "val_auprc": 0.17717846567802914,
+  "n_items": 1384810,
+  "n_groups": 273,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.1593,
+    0.1305,
+    0.1912
+   ],
+   "recall_at_1pct_fpr": [
+    0.574,
+    0.5287,
+    0.61
+   ],
+   "recall_at_0.5pct_budget": [
+    0.4889,
+    0.4505,
+    0.5268
+   ],
+   "recall_at_1pct_budget": [
+    0.5649,
+    0.5258,
+    0.6071
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {},
+  "baseline": "ibm-LI-Small.random.R.h0.cap0.s0",
+  "delta": {
+   "auprc": [
+    0.1378,
+    0.1101,
+    0.165
+   ],
+   "recall_at_1pct_fpr": [
+    0.2412,
+    0.204,
+    0.2833
+   ],
+   "recall_at_0.5pct_budget": [
+    0.2464,
+    0.2149,
+    0.2845
+   ],
+   "recall_at_1pct_budget": [
+    0.2359,
+    0.2034,
+    0.2823
+   ]
+  },
+  "slice_delta": {},
+  "patterns": {}
+ },
+ {
+  "run": "ibm-LI-Small.random.R.h0.cap0.s0",
+  "dataset": "ibm-LI-Small",
+  "split": "ibm-LI-Small-random",
+  "kind": "random",
+  "arm": "R",
+  "model": "xgboost",
+  "hops": 0,
+  "cap": 0,
+  "seed": 0,
+  "val_auprc": 0.02131405906392208,
+  "n_items": 1384810,
+  "n_groups": 273,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.0215,
+    0.0166,
+    0.0295
+   ],
+   "recall_at_1pct_fpr": [
+    0.3329,
+    0.29,
+    0.3659
+   ],
+   "recall_at_0.5pct_budget": [
+    0.2425,
+    0.2063,
+    0.273
+   ],
+   "recall_at_1pct_budget": [
+    0.329,
+    0.2888,
+    0.3614
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {},
+  "baseline": null,
+  "delta": {},
+  "slice_delta": {},
+  "patterns": {}
  },
  {
   "run": "ibm-LI-Small.temporal.G.h1.cap50.s0",
@@ -7117,6 +7504,268 @@
    "STACK": [
     0.625,
     0.423,
+    0.8077
+   ]
+  }
+ },
+ {
+  "run": "ibm-LI-Small.temporal.N-sage.h2.cap50.s1",
+  "dataset": "ibm-LI-Small",
+  "split": "ibm-LI-Small-temporal",
+  "kind": "temporal",
+  "arm": "N-sage",
+  "model": "pyg-sage",
+  "hops": 2,
+  "cap": 50,
+  "seed": 1,
+  "val_auprc": 0.03365291264974156,
+  "n_items": 1174673,
+  "n_groups": 124,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.0366,
+    0.0309,
+    0.0448
+   ],
+   "recall_at_1pct_fpr": [
+    0.5212,
+    0.4802,
+    0.5574
+   ],
+   "recall_at_0.5pct_budget": [
+    0.3466,
+    0.3035,
+    0.3892
+   ],
+   "recall_at_1pct_budget": [
+    0.51,
+    0.4732,
+    0.5499
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {
+   "without-tail": {
+    "auprc": [
+     0.0268,
+     0.0226,
+     0.033
+    ],
+    "recall_at_1pct_fpr": [
+     0.491,
+     0.4456,
+     0.5322
+    ],
+    "recall_at_0.5pct_budget": [
+     0.3234,
+     0.2764,
+     0.364
+    ],
+    "recall_at_1pct_budget": [
+     0.482,
+     0.4406,
+     0.526
+    ],
+    "ceiling_at_0.5pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "ceiling_at_1pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "baseline": null,
+  "delta": {},
+  "slice_delta": {},
+  "patterns": {
+   "BIPARTITE": [
+    0.6905,
+    0.5556,
+    0.8438
+   ],
+   "CYCLE": [
+    0.5476,
+    0.3999,
+    0.7037
+   ],
+   "FAN-IN": [
+    0.5714,
+    0.3077,
+    0.8333
+   ],
+   "FAN-OUT": [
+    0.7826,
+    0.65,
+    0.8696
+   ],
+   "GATHER-SCATTER": [
+    0.7429,
+    0.6056,
+    0.8772
+   ],
+   "NONE": [
+    0.4153,
+    0.3742,
+    0.4592
+   ],
+   "RANDOM": [
+    0.619,
+    0.4348,
+    0.8
+   ],
+   "SCATTER-GATHER": [
+    0.5593,
+    0.4425,
+    0.6883
+   ],
+   "STACK": [
+    0.5833,
+    0.3635,
+    0.8
+   ]
+  }
+ },
+ {
+  "run": "ibm-LI-Small.temporal.N-sage.h2.cap50.s2",
+  "dataset": "ibm-LI-Small",
+  "split": "ibm-LI-Small-temporal",
+  "kind": "temporal",
+  "arm": "N-sage",
+  "model": "pyg-sage",
+  "hops": 2,
+  "cap": 50,
+  "seed": 2,
+  "val_auprc": 0.031462150019981525,
+  "n_items": 1174673,
+  "n_groups": 124,
+  "n_boot": 1000,
+  "metrics": {
+   "auprc": [
+    0.031,
+    0.0263,
+    0.0381
+   ],
+   "recall_at_1pct_fpr": [
+    0.4713,
+    0.4326,
+    0.5121
+   ],
+   "recall_at_0.5pct_budget": [
+    0.3105,
+    0.2732,
+    0.3512
+   ],
+   "recall_at_1pct_budget": [
+    0.4626,
+    0.4269,
+    0.5024
+   ],
+   "ceiling_at_0.5pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "ceiling_at_1pct_budget": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "slices": {
+   "without-tail": {
+    "auprc": [
+     0.0249,
+     0.021,
+     0.031
+    ],
+    "recall_at_1pct_fpr": [
+     0.4551,
+     0.4154,
+     0.4952
+    ],
+    "recall_at_0.5pct_budget": [
+     0.3054,
+     0.2696,
+     0.3474
+    ],
+    "recall_at_1pct_budget": [
+     0.4491,
+     0.4115,
+     0.4892
+    ],
+    "ceiling_at_0.5pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "ceiling_at_1pct_budget": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "baseline": null,
+  "delta": {},
+  "slice_delta": {},
+  "patterns": {
+   "BIPARTITE": [
+    0.5952,
+    0.4615,
+    0.7551
+   ],
+   "CYCLE": [
+    0.381,
+    0.2093,
+    0.5143
+   ],
+   "FAN-IN": [
+    0.4286,
+    0.1874,
+    0.7
+   ],
+   "FAN-OUT": [
+    0.6522,
+    0.5227,
+    0.7818
+   ],
+   "GATHER-SCATTER": [
+    0.5143,
+    0.377,
+    0.6616
+   ],
+   "NONE": [
+    0.4153,
+    0.3787,
+    0.4638
+   ],
+   "RANDOM": [
+    0.619,
+    0.4242,
+    0.7857
+   ],
+   "SCATTER-GATHER": [
+    0.4915,
+    0.3606,
+    0.6429
+   ],
+   "STACK": [
+    0.625,
+    0.4347,
     0.8077
    ]
   }
