@@ -30,7 +30,7 @@ for attempt in $(seq 1 "${TRIES:-1}"); do
   for GPU in "${cards[@]}"; do
     if info=$(uv run --no-sync consort pod-up --name "$NAME" --gpu "$GPU" --cloud "$CLOUD" 2>data/pod-logs/pod-up.err); then break 2; fi
     info=""
-    if ! grep -q "SUPPLY_CONSTRAINT\|no longer any instances" data/pod-logs/pod-up.err; then
+    if ! grep -q "SUPPLY_CONSTRAINT\|no longer any instances\|does not have the resources" data/pod-logs/pod-up.err; then
       echo "pod-up failed on $GPU:"; tail -5 data/pod-logs/pod-up.err; exit 1
     fi
   done
