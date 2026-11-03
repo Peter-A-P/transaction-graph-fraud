@@ -1,0 +1,6 @@
+# The fourth pod (2026-11-03): the two runs the third left undone. First the timed TabFM-R on
+# Elliptic, for the cost per thousand scores, so it lands even if the next run hangs. Then
+# TabFM on Elliptic++'s graph features at 10,000 context rows, the size that ran on Elliptic;
+# at 30,000 it hung two pods.
+train-tabfm --dataset elliptic --features R --context-size 10000 --device cuda
+train-tabfm --dataset ellipticpp --features G --hops 1 --hub-cap 50 --context-size 10000 --device cuda
