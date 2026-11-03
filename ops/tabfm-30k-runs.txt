@@ -1,0 +1,4 @@
+# The fifth pod (2026-11-03): Elliptic++ TabFM-G at 30,000 context rows on a 4090, alone. It
+# hung two 4090 pods before; at 10,000 rows on an L4 it finished with memory to spare. Its own
+# folder, so the 10,000-row run in data/runs is kept until this one is read.
+train-tabfm --dataset ellipticpp --features G --hops 1 --hub-cap 50 --context-size 30000 --device cuda --out data/runs/ctx30000
