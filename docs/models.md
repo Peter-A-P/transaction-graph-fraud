@@ -59,6 +59,13 @@ GraphSAGE (`SAGEConv`) and GAT (`GATConv`, 4 heads) in PyTorch Geometric 2.x, in
   a parameter in every table it appears in.
 - **Queries** are scored in batches of 1,000: 10,000 at once ran a 24 GB RTX 4090 out of
   memory on arm G's table for Elliptic (10,000 context rows), 2026-11-02.
+- **What a score costs:** arm TabFM-R on Elliptic (10,000 context rows, 32 members) scored its
+  12,367 test rows in 3,547 seconds on a RunPod Secure Cloud NVIDIA L4 at US$0.59 an hour
+  (2026-11-03): 287 ms a row in batches of 1,000, with the table already built and nothing
+  fetched. That is US$94 per million scores with the machine busy half the hour, the serving
+  table's convention, against US$2 to 37 for arm G's whole call with a neighbourhood fetch on a
+  4090. One timed run, so no interval; the 4090 would be faster, and the licence rules out
+  deploying it at any price.
 - **Known limits:** no published GPU memory figure; the model card says memory grows with the
   number of context rows. Results are non-deterministic by the package's own declaration, so
   the column reports three seeds.

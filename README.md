@@ -36,7 +36,7 @@ are nearly all laundering (PLAN.md 2.2); the leakage table below reads all test 
 | Elliptic (real, transactions) | G, graph features, 3 hops | 0.720 (0.409 to 0.851) | 0.025 (0.008 to 0.051) | 0.639 (0.333 to 0.785) | 0.086 (0.057 to 0.157); ceiling 0.086 | 0.172 (0.115 to 0.293); ceiling 0.172 |
 | Elliptic (real, transactions) | N, graph neural network (sage), 2 hops | 0.583 (0.225 to 0.758) | -0.112 (-0.256 to -0.034) | 0.481 (0.210 to 0.631) | 0.085 (0.055 to 0.118); ceiling 0.086 | 0.156 (0.108 to 0.214); ceiling 0.172 |
 | Elliptic (real, transactions) | TabFM-G, 1 hop | 0.776 (0.491 to 0.891) | 0.082 (0.009 to 0.193) | 0.637 (0.345 to 0.787) | 0.086 (0.057 to 0.154); ceiling 0.086 | 0.172 (0.115 to 0.277); ceiling 0.172 |
-| Elliptic (real, transactions) | TabFM-R, 0 hops | 0.698 (0.376 to 0.834) | 0.004 (-0.030 to 0.051) | 0.582 (0.293 to 0.728) | 0.086 (0.057 to 0.155); ceiling 0.086 | 0.172 (0.115 to 0.277); ceiling 0.172 |
+| Elliptic (real, transactions) | TabFM-R, 0 hops | 0.698 (0.376 to 0.833) | 0.003 (-0.030 to 0.051) | 0.582 (0.293 to 0.728) | 0.086 (0.057 to 0.155); ceiling 0.086 | 0.172 (0.115 to 0.276); ceiling 0.172 |
 | Elliptic++ (real, wallets) | R, row only | 0.389 (0.276 to 0.522) |  | 0.292 (0.191 to 0.445) | 0.108 (0.073 to 0.173); ceiling 0.110 | 0.207 (0.139 to 0.306); ceiling 0.221 |
 | Elliptic++ (real, wallets) | G, graph features, 3 hops | 0.595 (0.396 to 0.791) | 0.207 (0.069 to 0.388) | 0.477 (0.275 to 0.695) | 0.110 (0.073 to 0.178); ceiling 0.110 | 0.219 (0.147 to 0.336); ceiling 0.221 |
 | Elliptic++ (real, wallets) | N, graph neural network (sage), 2 hops | 0.418 (0.301 to 0.556) | 0.029 (-0.012 to 0.075) | 0.310 (0.185 to 0.483) | 0.107 (0.070 to 0.174); ceiling 0.110 | 0.202 (0.128 to 0.318); ceiling 0.221 |
@@ -229,6 +229,11 @@ per million scores assumes the machine busy half the hour.
 | IBM AML HI-Small (synthetic) | memory | fetched whole | 2 | 9.5 | 181.8 | 9,971 | 9.42 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
 | IBM AML HI-Small (synthetic) | neo4j | fetched whole | 2 | 53.8 | 9911.4 | 9,971 | 302.00 | RunPod SECURE NVIDIA GeForce RTX 4090, US$0.89/h (2026-11-02) |
 <!-- /report:serving -->
+
+TabFM is not in that table: its licence rules out serving it. For scale, it scored Elliptic's
+test rows at 287 ms each on a RunPod NVIDIA L4 at US$0.59 an hour (2026-11-03), with no fetch,
+about US$94 per million on the same half-busy convention. That is one timed run, so it has no
+interval ([docs/models.md](docs/models.md)).
 
 ## What this does not do
 
