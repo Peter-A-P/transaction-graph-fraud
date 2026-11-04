@@ -110,27 +110,28 @@ Arm N sits between the two on most patterns and below the row model on fan-out a
 
 **How far guilt travels.** AUPRC by hop count (hop 0 of arm G is arm R), beside the cost of
 fetching that neighbourhood live. Fetch latency comes only from the rented machine or the VPS,
-never from the laptop.
+never from the laptop. Only IBM's synthetic transfers are served; the real sets are not, so
+their fetch columns say so.
 
 <!-- report:hops -->
 | Dataset | Hops | G, AUPRC | N, AUPRC | Fetch p50 (ms) | Fetch p99 (ms) |
 |---|---|---|---|---|---|
-| Elliptic (real, transactions) | 0 | 0.694 (0.373 to 0.835) | 0.595 (0.299 to 0.745) | not measured yet | not measured yet |
-| Elliptic (real, transactions) | 1 | 0.714 (0.408 to 0.846) | 0.613 (0.295 to 0.767) | not measured yet | not measured yet |
-| Elliptic (real, transactions) | 2 | 0.718 (0.406 to 0.851) | 0.583 (0.225 to 0.758) | not measured yet | not measured yet |
-| Elliptic (real, transactions) | 3 | 0.720 (0.409 to 0.851) | 0.564 (0.234 to 0.722) | not measured yet | not measured yet |
-| Elliptic++ (real, wallets) | 0 | 0.389 (0.276 to 0.522) | 0.319 (0.173 to 0.502) | not measured yet | not measured yet |
-| Elliptic++ (real, wallets) | 1 | 0.515 (0.349 to 0.687) | 0.382 (0.244 to 0.566) | not measured yet | not measured yet |
-| Elliptic++ (real, wallets) | 2 | 0.595 (0.399 to 0.794) | 0.418 (0.301 to 0.556) | not measured yet | not measured yet |
-| Elliptic++ (real, wallets) | 3 | 0.595 (0.396 to 0.791) | not run yet | not measured yet | not measured yet |
-| IBM AML HI-Small (synthetic) | 0 | 0.088 (0.068 to 0.112) | not run yet | not measured yet | not measured yet |
+| Elliptic (real, transactions) | 0 | 0.694 (0.373 to 0.835) | 0.595 (0.299 to 0.745) | not served | not served |
+| Elliptic (real, transactions) | 1 | 0.714 (0.408 to 0.846) | 0.613 (0.295 to 0.767) | not served | not served |
+| Elliptic (real, transactions) | 2 | 0.718 (0.406 to 0.851) | 0.583 (0.225 to 0.758) | not served | not served |
+| Elliptic (real, transactions) | 3 | 0.720 (0.409 to 0.851) | 0.564 (0.234 to 0.722) | not served | not served |
+| Elliptic++ (real, wallets) | 0 | 0.389 (0.276 to 0.522) | 0.319 (0.173 to 0.502) | not served | not served |
+| Elliptic++ (real, wallets) | 1 | 0.515 (0.349 to 0.687) | 0.382 (0.244 to 0.566) | not served | not served |
+| Elliptic++ (real, wallets) | 2 | 0.595 (0.399 to 0.794) | 0.418 (0.301 to 0.556) | not served | not served |
+| Elliptic++ (real, wallets) | 3 | 0.595 (0.396 to 0.791) | not run yet | not served | not served |
+| IBM AML HI-Small (synthetic) | 0 | 0.088 (0.068 to 0.112) | not run yet | no fetch | no fetch |
 | IBM AML HI-Small (synthetic) | 1 | 0.377 (0.335 to 0.417) | 0.068 (0.056 to 0.083) | memory 4.4; duckdb 10.2; neo4j 16.5 | memory 5.0; duckdb 11.2; neo4j 134.3 |
 | IBM AML HI-Small (synthetic) | 2 | 0.380 (0.336 to 0.422) | 0.072 (0.059 to 0.089) | memory 10.1; duckdb 45.9; neo4j 48.0 | memory 12.1; duckdb 125.9; neo4j 348.4 |
-| IBM AML HI-Small (synthetic) | 3 | not run yet | not run yet | not measured yet | not measured yet |
-| IBM AML LI-Small (synthetic) | 0 | 0.019 (0.013 to 0.027) | not run yet | not measured yet | not measured yet |
-| IBM AML LI-Small (synthetic) | 1 | 0.094 (0.068 to 0.126) | 0.029 (0.024 to 0.036) | not measured yet | not measured yet |
-| IBM AML LI-Small (synthetic) | 2 | 0.110 (0.083 to 0.142) | 0.025 (0.020 to 0.031) | not measured yet | not measured yet |
-| IBM AML LI-Small (synthetic) | 3 | not run yet | not run yet | not measured yet | not measured yet |
+| IBM AML HI-Small (synthetic) | 3 | not run yet | not run yet | not measured | not measured |
+| IBM AML LI-Small (synthetic) | 0 | 0.019 (0.013 to 0.027) | not run yet | no fetch | no fetch |
+| IBM AML LI-Small (synthetic) | 1 | 0.094 (0.068 to 0.126) | 0.029 (0.024 to 0.036) | not measured | not measured |
+| IBM AML LI-Small (synthetic) | 2 | 0.110 (0.083 to 0.142) | 0.025 (0.020 to 0.031) | not measured | not measured |
+| IBM AML LI-Small (synthetic) | 3 | not run yet | not run yet | not measured | not measured |
 <!-- /report:hops -->
 
 On Elliptic one hop is all the graph features need, and arm N is best at one hop and worse
@@ -296,6 +297,28 @@ transfer it flagged. The ring is chosen by a rule that reads no score: the scatt
 attempt with the most transfers on the test days. Its accounts are named by their place in the
 ring. Only synthetic accounts are drawn; Elliptic appears only as aggregates. `uv run consort
 site` rebuilds it from `results/` and the IBM HI-Small runs.
+
+## Data and citations
+
+Three public datasets, each fetched by the reader and never redistributed here; their terms are
+quoted in [docs/data.md](docs/data.md).
+
+- **Elliptic** (CC BY-NC-ND 4.0): Mark Weber, Giacomo Domeniconi, Jie Chen, Daniel Karl I.
+  Weidele, Claudio Bellei, Tom Robinson and Charles E. Leiserson. "Anti-Money Laundering in
+  Bitcoin: Experimenting with Graph Convolutional Networks for Financial Forensics". KDD
+  Workshop on Anomaly Detection in Finance, 2019. https://arxiv.org/abs/1908.02591
+- **Elliptic++** (used with both authors' written permission, for research and aggregate
+  results only): Youssef Elmougy and Ling Liu. 2023. "Demystifying Fraudulent Transactions and
+  Illicit Nodes in the Bitcoin Network for Financial Forensics". In Proceedings of the 29th ACM
+  SIGKDD Conference on Knowledge Discovery and Data Mining (KDD '23).
+  https://doi.org/10.1145/3580305.3599803
+- **IBM Transactions for Anti Money Laundering** (CDLA Sharing 1.0): Erik Altman, Jovan
+  Blanusa, Luc von Niederhausern, Beni Egressy, Andreea Anghel and Kubilay Atasu. "Realistic
+  Synthetic Financial Transactions for Anti-Money Laundering Models". NeurIPS Datasets and
+  Benchmarks, 2023. https://arxiv.org/abs/2306.16424
+
+The code is under the MIT licence ([LICENSE](LICENSE)); the licence does not reach the
+datasets or the TabFM weights, which keep their own terms.
 
 ## Running it
 
