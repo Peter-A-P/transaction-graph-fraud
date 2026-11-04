@@ -292,8 +292,7 @@ arithmetic are in [PLAN.md](PLAN.md); the figures are in
 ## The demo page
 
 [site/index.html](site/index.html), live at
-https://victorious-moss-0866b5f0f.5.azurestaticapps.net (graph.peterparker.ca once its DNS record
-is in), is one static page: the results above as charts, and one
+https://graph.peterparker.ca, is one static page: the results above as charts, and one
 laundering ring from IBM's synthetic set, as each arm scored it, with arm G's case file for every
 transfer it flagged. The ring is chosen by a rule that reads no score: the scatter-gather
 attempt with the most transfers on the test days. Its accounts are named by their place in the

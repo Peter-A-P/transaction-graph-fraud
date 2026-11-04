@@ -22,7 +22,9 @@ browser console.
 `AZURE_STATIC_WEB_APPS_API_TOKEN`, the repository variable `SITE` is `on`, and
 `.github/workflows/site.yml` uploads `site/` on every push to `main` that changes it. Before
 upload, the page was served locally with the policy's headers and rendered in headless Edge:
-every chart drew and the console reported no violation. Cost: the Free plan, CA$0.
+every chart drew and the console reported no violation. The CNAME went in at Cloudflare and
+`graph.peterparker.ca` validated and served over HTTPS with Azure's certificate the same day.
+Cost: the Free plan, CA$0.
 
 ## 1. The app (done)
 
@@ -50,7 +52,7 @@ gh variable set SITE --body on --repo Peter-A-P/transaction-graph-fraud
 Until `SITE` is `on`, every run of the website workflow skips rather than failing. To publish
 without a change: `gh workflow run site.yml --repo Peter-A-P/transaction-graph-fraud`.
 
-## 3. The DNS record, at Cloudflare (by hand)
+## 3. The DNS record, at Cloudflare (by hand, done)
 
 In the Cloudflare dashboard, `peterparker.ca`, **DNS**, **Records**, **Add record**:
 
