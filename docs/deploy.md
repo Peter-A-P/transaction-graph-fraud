@@ -17,14 +17,17 @@ commit `site/` with the tables. In CI, `tests/test_page.py` fails if the committ
 has fallen behind the results, and `tests/test_host.py` if a diagram has fallen behind the
 documentation's or the script looks for an element the page does not have.
 
-**The film** (`site/video/ring.mp4`, 13.5 seconds, 1080 by 1080, silent, with
-`ring-poster.jpg`) is the ring on the page told in four steps: one transfer the row model lets
+**The film** (`site/video/ring-sound.mp4`, 13.5 seconds, 1080 by 1080, with a silent cut
+`ring.mp4` for autoplaying feeds and `ring-poster.jpg`) is the ring on the page told in four steps: one transfer the row model lets
 through, the ring around it, both models scoring it, and the headline figures. It is drawn by
 `video/ring.html` from `site/data.json`, so its numbers and its ring are the page's, and
 rendered by `video/render.py`, which screenshots each frame in the machine's own Edge and
-encodes them with imageio-ffmpeg's bundled ffmpeg:
+encodes them with imageio-ffmpeg's bundled ffmpeg. The sound is synthesised by
+`video/sound.py` on the same schedule: a soft pad, a muted thud when the row model lets the
+transfer through, a tick for each transfer the row model flags and a rising note for each one
+graph features flag, and a chord under the result, normalised to -16 LUFS:
 
-    uv run --no-project --with playwright --with imageio-ffmpeg python video/render.py
+    uv run --no-project --with playwright --with imageio-ffmpeg --with numpy python video/render.py
 
 Rerun it after `consort site` whenever the results change; the film is committed, not built in
 CI.

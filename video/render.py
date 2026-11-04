@@ -1,12 +1,13 @@
 """Render the site's short film: video/ring.html drawn at 30 frames a second for 13.5 seconds,
 each frame screenshot by a headless browser and the frames encoded to H.264 MP4.
 
-    uv run --no-project --with playwright --with imageio-ffmpeg python video/render.py
+    uv run --no-project --with playwright --with imageio-ffmpeg --with numpy python video/render.py
 
 The page reads site/data.json (written by `consort site`), so run that first when the results
 change. It uses the machine's own Edge or Chrome (Playwright's `channel`), so no browser is
 downloaded, and imageio-ffmpeg's bundled ffmpeg, so none needs installing. Writes
-site/video/ring.mp4 and a poster frame beside it.
+site/video/ring.mp4 (silent), site/video/ring-sound.mp4 (with video/sound.py's track) and a
+poster frame beside them.
 """
 
 from __future__ import annotations
@@ -72,9 +73,42 @@ def main() -> None:
             ],
             check=True,
         )
+        # The sound version: the same frames, with the track timed to them.
+        sys.path.insert(0, str(Path(__file__).parent))
+        import sound
+
+        left, right = sound.track(data["ring"], SECONDS)
+        sound.write_wav(frames / "track.wav", left, right)
+        subprocess.run(
+            [
+                ffmpeg,
+                "-v",
+                "error",
+                "-y",
+                "-i",
+                str(out / "ring.mp4"),
+                "-i",
+                str(frames / "track.wav"),
+                "-c:v",
+                "copy",
+                "-af",
+                "loudnorm=I=-16:TP=-1.5:LRA=11",
+                "-ar",
+                "48000",
+                "-c:a",
+                "aac",
+                "-b:a",
+                "192k",
+                "-shortest",
+                "-movflags",
+                "+faststart",
+                str(out / "ring-sound.mp4"),
+            ],
+            check=True,
+        )
     finally:
         shutil.rmtree(frames, ignore_errors=True)
-    print(f"wrote {out / 'ring.mp4'} and {out / 'ring-poster.jpg'}")
+    print(f"wrote {out / 'ring.mp4'}, {out / 'ring-sound.mp4'} and {out / 'ring-poster.jpg'}")
 
 
 if __name__ == "__main__":
