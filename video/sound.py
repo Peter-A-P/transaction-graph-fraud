@@ -6,7 +6,8 @@ thing that happens on screen, timed by the same schedule video/ring.html draws t
 - the ring draws in: a quiet note as each account appears;
 - the row model's pass: a dull tick for each transfer it flags;
 - graph features' pass: a rising scale, one bright note for each transfer they flag;
-- the result: a swell into a brighter chord, a note for each figure card and a final chord.
+- the result: a rising swell that lands as the headline figure appears, with a low impact and
+  a bell chord, a marimba note for each figure card, and a long bell under the address.
 
 48 kHz stereo, peak at -1 dBFS, a mean near -17 dB, like project 09's film. numpy only.
 """
@@ -68,6 +69,47 @@ def sweep(f0: float, f1: float, dur: float) -> Arr:
     return out
 
 
+def bell(freq: float, dur: float = 3.0, index: float = 2.2, ratio: float = 1.41) -> Arr:
+    """An FM bell: a carrier modulated at an inharmonic ratio, the brightness fading first."""
+    t = _t(int(dur * SR))
+    mod = index * np.exp(-2.5 * t) * np.sin(2 * np.pi * freq * ratio * t)
+    env = np.minimum(t / 0.003, 1.0) * np.exp(-1.6 * t)
+    out: Arr = np.sin(2 * np.pi * freq * t + mod) * env
+    return out
+
+
+def marimba(freq: float, dur: float = 0.8) -> Arr:
+    """A wooden note: the fundamental, a fourth partial and a little of the tenth, dying fast."""
+    t = _t(int(dur * SR))
+    tone = np.sin(2 * np.pi * freq * t) + 0.3 * np.sin(8 * np.pi * freq * t) * np.exp(-25 * t)
+    tone += 0.06 * np.sin(20 * np.pi * freq * t) * np.exp(-40 * t)
+    out: Arr = tone * np.minimum(t / 0.002, 1.0) * np.exp(-7 * t)
+    return out
+
+
+def impact(dur: float = 1.8) -> Arr:
+    """A low hit: a sine falling from 62 to 41 Hz under a short soft burst."""
+    t = _t(int(dur * SR))
+    f = 41 + 21 * np.exp(-6 * t)
+    body = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-2.2 * t)
+    rng = np.random.default_rng(3)
+    burst = np.convolve(rng.standard_normal(len(t)), np.ones(24) / 24, mode="same") * np.exp(
+        -30 * t
+    )
+    out: Arr = (body + 0.6 * burst) * np.minimum(t / 0.002, 1.0)
+    return out
+
+
+def riser(dur: float) -> Arr:
+    """A swell that grows to its end: soft noise and a tone rising an octave, cut at the top."""
+    t = _t(int(dur * SR))
+    rng = np.random.default_rng(5)
+    noise = np.convolve(rng.standard_normal(len(t)), np.ones(16) / 16, mode="same")
+    tone = np.sin(2 * np.pi * (220 * t + 220 * t * t / (2 * dur)))
+    out: Arr = (0.7 * noise + 0.5 * tone) * (t / dur) ** 2.5
+    return out
+
+
 def pad(dur: float, chord: list[float], fade: float) -> Arr:
     t = _t(int(dur * SR))
     out = np.zeros_like(t)
@@ -118,7 +160,7 @@ def track(
 
     # The pad: A minor while the ring is told, then a brighter D major under the result.
     add(pad(film(10.2), [110.0, 164.81, 220.0, 261.63], 1.2), 0.0, 0.10)
-    add(pad(seconds - film(9.4), [146.83, 220.0, 293.66, 369.99], 0.9), 9.4, 0.10)
+    add(pad(seconds - film(9.4), [73.42, 146.83, 220.0, 329.63, 369.99], 1.4), 9.4, 0.11)
 
     # Scene 1.
     add(pluck(329.63, decay=4), 0.25, 0.22, -0.4)
@@ -173,11 +215,18 @@ def track(
             right[k0:kj] += 0.05 * note[: kj - k0] * (1 + pan) ** 0.5
 
     # Scene 4.
-    add(sweep(220, 880, 0.9), 9.3, 0.06)
-    for k, at in enumerate((10.45, 10.8)):
-        add(pluck([587.33, 739.99][k], 0.7, 6), at, 0.14, [-0.3, 0.3][k])
-    for f in (293.66, 369.99, 440.0, 587.33, 739.99):
-        add(pluck(f, 2.4, 1.6, 0.25), 11.35, 0.09)
+    # The swell lands on the headline figure (ring.html fades it in from 9.7 s of the story).
+    rise = riser(1.1)
+    add(rise, 9.75 - 1.1, 0.10)
+    add(impact(), 9.75, 0.55)
+    for f, pan in ((587.33, -0.4), (739.99, 0.0), (880.0, 0.4)):
+        add(bell(f, 3.2), 9.75, 0.08, pan)
+    # One wooden note per figure card, as each slides in.
+    for at, f, pan in ((10.45, 880.0, -0.35), (10.8, 1174.66, 0.35)):
+        add(marimba(f), at, 0.16, pan)
+    # The address: one low bell an octave under the chord, left to ring out.
+    add(bell(293.66, 4.0, 1.4, 2.0), 11.35, 0.16)
+    add(bell(1174.66, 3.0, 1.0), 11.4, 0.04, 0.2)
 
     # A little room: three soft echoes.
     for d, g in ((0.083, 0.22), (0.131, 0.15), (0.197, 0.1)):
