@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The ring, as a film</title>
+<!-- One 1080 by 1080 frame of the site's short film, drawn for a time t in seconds by
+     render(t). video/render.py steps t at 30 frames a second, screenshots each frame and
+     encodes them. Every number and the ring itself come from site/data.json, injected as
+     window.D, so the film says what the site says. -->
+<style>
+@font-face { font-family: "Inter"; font-weight: 400 600; src: url(../site/fonts/inter-latin.woff2) format("woff2"); }
+@font-face { font-family: "Newsreader"; font-weight: 200 800; src: url(../site/fonts/newsreader-latin.woff2) format("woff2"); }
+html, body { margin: 0; width: 1080px; height: 1080px; overflow: hidden; background: #0a111c; }
+svg { display: block; }
+text { font-family: Inter, sans-serif; }
+.serif { font-family: Newsreader, Georgia, serif; }
+</style>
+</head>
+<body>
+<svg id="s" width="1080" height="1080" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>
+"use strict";
+const NS = "http://www.w3.org/2000/svg";
+const W = 1080, H = 1080;
+const C = {
+  bg: "#0a111c", panel: "#111b2a", line: "#1e2b3d", ink: "#eef2f6", soft: "#a9b4c2", faint: "#6c7a8c",
+  teal: "#5fc4d6", tealDeep: "#0f5c6e", warn: "#f0736a", slate: "#8d98a8", good: "#58c286", violet: "#b191e0",
+};
+
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const ease = v => (v = clamp(v), v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2);
+const span = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const pct = v => `${Math.round(v * 100)}%`;
+
+function el(name, attrs, parent, text) {
+  const e = document.createElementNS(NS, name);
+  for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+  if (text != null) e.textContent = text;
+  (parent || S).appendChild(e);
+  return e;
+}
+let S;
+
+/* The ring's layout: each account at its longest path from one the ring never pays into, the
+   rule the site's ring uses, so money reads left to right. */
+function layout(r, x0, y0, w, h) {
+  const names = r.accounts.map(a => a.name), level = Object.fromEntries(names.map(n => [n, 0]));
+  for (let k = 0; k < names.length; k++)
+    for (const t of r.transfers) if (t.from !== t.to) level[t.to] = Math.max(level[t.to], level[t.from] + 1);
+  const depth = Math.max(...Object.values(level)), pos = {};
+  for (let l = 0; l <= depth; l++) {
+    const col = names.filter(n => level[n] === l);
+    col.forEach((n, i) => { pos[n] = [x0 + l * w / Math.max(depth, 1), y0 + (i + 0.5) * h / col.length]; });
+  }
+  return pos;
+}
+
+function headline(ds, arm) {
+  const pool = D.runs.filter(r => r.dataset === ds && r.kind === "temporal" && (r.arm === arm || (arm === "N" && r.arm.startsWith("N-"))));
+  pool.sort((a, b) => ((b.val_auprc != null) - (a.val_auprc != null)) || ((b.val_auprc || 0) - (a.val_auprc || 0)) || (a.hops - b.hops));
+  return pool[0];
+}
+
+function caption(t, a, b, head, sub) {
+  const k = Math.min(ease(span(t, a, a + 0.45)), 1 - ease(span(t, b - 0.4, b)));
+  if (k <= 0) return;
+  const g = el("g", {opacity: k, transform: `translate(0 ${(1 - k) * 10})`});
+  el("text", {x: W / 2, y: 884, "text-anchor": "middle", fill: C.ink, "font-size": 38, "font-weight": 600}, g, head);
+  el("text", {x: W / 2, y: 930, "text-anchor": "middle", fill: C.soft, "font-size": 25}, g, sub);
+}
+
+function arrow(g, x1, y1, x2, y2, color, width, k, glow) {
+  const dx = x2 - x1, dy = y2 - y1, d = Math.hypot(dx, dy) || 1;
+  const sx = x1 + dx / d * 24, sy = y1 + dy / d * 24, ex = x2 - dx / d * 27, ey = y2 - dy / d * 27;
+  const bend = 0.05 * d, mx = (sx + ex) / 2 - dy / d * bend, my = (sy + ey) / 2 + dx / d * bend;
+  // Drawn from its start: k is how much of the arrow is there.
+  const q = (u) => [(1 - u) * (1 - u) * sx + 2 * (1 - u) * u * mx + u * u * ex, (1 - u) * (1 - u) * sy + 2 * (1 - u) * u * my + u * u * ey];
+  const n = 24, pts = [];
+  for (let i = 0; i <= n; i++) pts.push(q(k * i / n));
+  const dpath = "M" + pts.map(p => p.map(v => v.toFixed(1)).join(",")).join(" L");
+  if (glow) el("path", {d: dpath, fill: "none", stroke: color, "stroke-width": width + 8, "stroke-opacity": 0.18 * glow, "stroke-linecap": "round"}, g);
+  el("path", {d: dpath, fill: "none", stroke: color, "stroke-width": width, "stroke-linecap": "round"}, g);
+  if (k > 0.98) {
+    const [px, py] = q(0.97), [qx, qy] = q(1), a = Math.atan2(qy - py, qx - px);
+    const s = 7 + width;
+    el("path", {d: `M${qx},${qy} L${qx - s * Math.cos(a - 0.45)},${qy - s * Math.sin(a - 0.45)} L${qx - s * Math.cos(a + 0.45)},${qy - s * Math.sin(a + 0.45)} Z`, fill: color}, g);
+  }
+}
+
+function node(g, x, y, name, opts) {
+  const r = opts.r || 20;
+  if (opts.halo) el("circle", {cx: x, cy: y, r: r + 10, fill: opts.halo, opacity: 0.18}, g);
+  el("circle", {cx: x, cy: y, r, fill: C.panel, stroke: opts.stroke || C.soft, "stroke-width": 2.5}, g);
+  el("text", {x, y: y + 6, "text-anchor": "middle", fill: C.ink, "font-size": opts.fs || 15, "font-weight": 600}, g, name);
+}
+
+function scoreBar(g, x, y, w, label, value, color, k, verdict, vcolor) {
+  el("text", {x, y, fill: C.soft, "font-size": 20}, g, label);
+  el("rect", {x, y: y + 14, width: w, height: 12, rx: 6, fill: C.line}, g);
+  el("rect", {x, y: y + 14, width: Math.max(12, w * value * k), height: 12, rx: 6, fill: color}, g);
+  el("text", {x: x + w, y, "text-anchor": "end", fill: C.ink, "font-size": 20, "font-weight": 600}, g, (value * k).toFixed(3));
+  if (verdict && k > 0.99) {
+    const b = el("g", {}, g);
+    el("rect", {x: x + w + 24, y: y + 2, width: 136, height: 34, rx: 17, fill: "none", stroke: vcolor, "stroke-width": 2}, b);
+    el("text", {x: x + w + 92, y: y + 25, "text-anchor": "middle", fill: vcolor, "font-size": 16, "font-weight": 600, "letter-spacing": "0.08em"}, b, verdict);
+  }
+}
+
+function render(t) {
+  S = document.getElementById("s");
+  S.innerHTML = "";
+  el("rect", {x: 0, y: 0, width: W, height: H, fill: C.bg});
+  const glowBg = el("radialGradient", {id: "bgGlow", cx: "50%", cy: "38%", r: "60%"}, el("defs", {}));
+  el("stop", {offset: "0%", "stop-color": "#123049", "stop-opacity": 0.85}, glowBg);
+  el("stop", {offset: "100%", "stop-color": C.bg, "stop-opacity": 0}, glowBg);
+  el("rect", {x: 0, y: 0, width: W, height: H, fill: "url(#bgGlow)"});
+
+  const r = D.ring;
+  const focus = r.transfers.findIndex(x => x.from === "A3" && x.to === "A15");
+  const F = r.transfers[focus];
+  const scored = r.transfers.filter(x => x.scored);
+  const caughtR = scored.filter(x => x.arms.R.flagged).length, caughtG = scored.filter(x => x.arms.G.flagged).length;
+
+  // The top bar, as on the other project's film.
+  const top = el("g", {opacity: 1 - ease(span(t, 9.2, 9.8))});
+  el("circle", {cx: 56, cy: 56, r: 7, fill: C.warn}, top);
+  el("text", {x: 74, y: 62, fill: C.ink, "font-size": 18, "font-weight": 600, "letter-spacing": "0.08em"}, top, "LAUNDERING RING");
+  el("text", {x: 284, y: 62, fill: C.faint, "font-size": 18}, top, "synthetic bank transfers, IBM's generator");
+  el("text", {x: W - 56, y: 46, "text-anchor": "end", fill: C.faint, "font-size": 13, "font-weight": 600, "letter-spacing": "0.1em"}, top, "TRANSFERS SCORED");
+  const nScored = t < 6.4 ? 1 : Math.round(lerp(1, scored.length, ease(span(t, 6.4, 8.4))));
+  el("text", {x: W - 56, y: 76, "text-anchor": "end", fill: C.ink, "font-size": 26, "font-weight": 600}, top, String(nScored));
+
+  /* Scene 1, 0 to 3 s: one transfer, on its own. Scene 2, 3 to 6.2 s: the ring around it.
+     Scene 3, 6.2 to 9.4 s: scored two ways. Scene 4, 9.4 s on: what it adds up to. */
+  const pos = layout(r, 130, 118, 820, 600);
+  const solo = {A3: [330, 400], A15: [750, 400]};
+  const m = ease(span(t, 3.0, 4.4));           // the pair moves into the ring
+  const reveal = span(t, 3.6, 5.8);            // the rest of the ring draws in
+  const graphOut = ease(span(t, 9.2, 9.9));    // the graph leaves for the result
+  const at = n => (n in solo ? [lerp(solo[n][0], pos[n][0], m), lerp(solo[n][1], pos[n][1], m)] : pos[n]);
+
+  const G = el("g", {opacity: 1 - graphOut, transform: `translate(${W / 2} ${430}) scale(${1 - 0.12 * graphOut}) translate(${-W / 2} ${-430})`});
+  // Every other transfer, drawn in the order the money moved.
+  const others = r.transfers.map((x, i) => ({x, i})).filter(o => o.i !== focus);
+  others.forEach((o, j) => {
+    const kk = ease(clamp((reveal - j / others.length * 0.75) / 0.25));
+    if (kk <= 0) return;
+    const [x1, y1] = at(o.x.from), [x2, y2] = at(o.x.to);
+    // Scene 3: the row model's pass, then graph features'.
+    const rk = span(t, 6.4, 7.6), gk = span(t, 7.7, 8.9);
+    const order = scored.indexOf(o.x) / scored.length;
+    let color = C.line, w = 2.5, glow = 0;
+    if (o.x.scored) {
+      color = "#3a4a60";
+      if (o.x.arms.R.flagged && rk > order) color = C.slate;
+      if (o.x.arms.G.flagged && gk > order) { color = C.teal; w = 3.5; glow = 1; }
+    }
+    arrow(G, x1, y1, x2, y2, color, w, kk, glow);
+  });
+  // The focus transfer: alone at first, then one arrow among many.
+  {
+    const [x1, y1] = at("A3"), [x2, y2] = at("A15");
+    const k = ease(span(t, 0.5, 1.4));
+    const gk = span(t, 7.7, 8.9), order = scored.indexOf(F) / scored.length;
+    const on = gk > order;
+    arrow(G, x1, y1, x2, y2, on ? C.teal : C.soft, lerp(5, on ? 4 : 2.5, m), k, on ? 1 : 0);
+    const amt = 1 - ease(span(t, 2.8, 3.3));
+    // Scene 3: the score graph features gave the transfer the row model let through.
+    const fk = ease(span(t, 7.7 + order * 1.2, 8.1 + order * 1.2)) * (1 - ease(span(t, 9.1, 9.4)));
+    if (fk > 0) {
+      const lx = (x1 + x2) / 2 + 20, ly = (y1 + y2) / 2 - 44;
+      const b = el("g", {opacity: fk}, G);
+      el("rect", {x: lx - 160, y: ly - 26, width: 320, height: 40, rx: 20, fill: "#0e2a36", stroke: C.teal, "stroke-width": 2}, b);
+      el("text", {x: lx, y: ly + 1, "text-anchor": "middle", fill: C.ink, "font-size": 18, "font-weight": 600}, b,
+        `Graph features: ${F.arms.G.score.toFixed(3)}, flagged`);
+    }
+    if (amt > 0) el("text", {x: (x1 + x2) / 2, y: (y1 + y2) / 2 - 26, "text-anchor": "middle", fill: C.ink, "font-size": 30, "font-weight": 600, opacity: amt * ease(span(t, 0.9, 1.4))}, G, `US$${Math.round(F.usd).toLocaleString()}`);
+  }
+  // Accounts.
+  for (const a of r.accounts) {
+    const isPair = a.name === "A3" || a.name === "A15";
+    const k = isPair ? ease(span(t, 0.2, 0.7)) : ease(span(t, 3.4 + (parseInt(a.name.slice(1), 10) % 7) * 0.12, 4.2 + (parseInt(a.name.slice(1), 10) % 7) * 0.12));
+    if (k <= 0) continue;
+    const [x, y] = at(a.name);
+    const g = el("g", {opacity: k}, G);
+    const hub = a.name === "A1" || a.name === "A15";
+    node(g, x, y, a.name, {r: isPair ? lerp(34, hub ? 26 : 17, m) : hub ? 26 : 17, fs: isPair ? lerp(22, 13, m) : 13,
+      stroke: hub && t > 4.6 ? C.teal : C.soft, halo: hub && t > 4.6 ? C.teal : null});
+  }
+
+  // Scene 1's scores under the lone transfer.
+  const s1 = Math.min(ease(span(t, 1.3, 1.8)), 1 - ease(span(t, 2.7, 3.1)));
+  if (s1 > 0) {
+    const g = el("g", {opacity: s1});
+    scoreBar(g, 300, 540, 480, "Row model, this transfer alone", F.arms.R.score, C.slate, ease(span(t, 1.5, 2.3)), "NOT FLAGGED", C.soft);
+  }
+  // Scene 3's tallies.
+  const s3 = Math.min(ease(span(t, 6.2, 6.6)), 1 - graphOut);
+  if (s3 > 0) {
+    const g = el("g", {opacity: s3});
+    const tally = (x, label, n, color, k) => { // k: 1, the count is exact
+      el("rect", {x, y: 728, width: 330, height: 84, rx: 14, fill: C.panel, stroke: C.line, "stroke-width": 2}, g);
+      el("text", {x: x + 22, y: 760, fill: C.faint, "font-size": 15, "font-weight": 600, "letter-spacing": "0.1em"}, g, label);
+      el("text", {x: x + 22, y: 798, fill: color, "font-size": 30, "font-weight": 600}, g, `${Math.round(n * k)} of ${scored.length} flagged`);
+    };
+    // The counts follow the arrows: a transfer counts once its arrow has changed colour.
+    const upTo = (arm, a, b) => scored.filter((x, i) => x.arms[arm].flagged && span(t, a, b) > i / scored.length).length;
+    tally(190, "ROW MODEL", upTo("R", 6.4, 7.6), C.slate, 1);
+    tally(560, "GRAPH FEATURES", upTo("G", 7.7, 8.9), C.teal, 1);
+  }
+
+  caption(t, 0.6, 3.0, "One transfer, seen on its own.", `The row model scores it ${F.arms.R.score.toFixed(3)} and lets it through.`);
+  caption(t, 3.3, 6.2, "Look one hop out.", `The money split across ${r.accounts.length - 2} accounts and gathered again in one.`);
+  caption(t, 6.5, 9.4, "Score it by the company it keeps.", `Graph features flag all ${caughtG}, including the one the row model let through.`);
+
+  // Scene 4: what it adds up to, across the test period.
+  const e = ease(span(t, 9.7, 10.4));
+  if (e > 0) {
+    const iG = headline("ibm-HI-Small", "G"), iR = headline("ibm-HI-Small", "R");
+    const pp = headline("ellipticpp", "G");
+    const live = D.serving.filter(x => x.centre === "counters" && x.hops === 1);
+    const g = el("g", {opacity: e, transform: `translate(0 ${(1 - e) * 16})`});
+    el("text", {x: W / 2, y: 236, "text-anchor": "middle", fill: C.teal, "font-size": 18, "font-weight": 600, "letter-spacing": "0.14em"}, g, "ACROSS 12 MILLION SYNTHETIC TRANSFERS");
+    el("text", {x: W / 2, y: 340, "text-anchor": "middle", fill: C.ink, "font-size": 104, "font-weight": 500, class: "serif"}, g,
+      `${pct(iG.recall_at_1pct_budget[0])} vs ${pct(iR.recall_at_1pct_budget[0])}`);
+    el("text", {x: W / 2, y: 392, "text-anchor": "middle", fill: C.soft, "font-size": 25}, g, "of laundering caught by the same 1% alert queue,");
+    el("text", {x: W / 2, y: 426, "text-anchor": "middle", fill: C.soft, "font-size": 25}, g, "graph features against the row alone");
+    const tiles = [
+      [`+${pp.delta_auprc[0].toFixed(2)}`, "PRECISION-RECALL AUC", "on real Bitcoin wallets"],
+      [`${Math.round(Math.min(...live.map(x => x.p50_ms)))} to ${Math.round(Math.max(...live.map(x => x.p50_ms)))} ms`, "LIVE SCORE, ONE HOP", "median, three stores"],
+    ];
+    tiles.forEach(([fig, lab, sub], i) => {
+      const k = ease(span(t, 10.4 + i * 0.35, 10.9 + i * 0.35));
+      const x = 190 + i * 370, tg = el("g", {opacity: k, transform: `translate(0 ${(1 - k) * 12})`}, g);
+      el("rect", {x, y: 480, width: 330, height: 136, rx: 16, fill: C.panel, stroke: C.line, "stroke-width": 2}, tg);
+      el("text", {x: x + 24, y: 516, fill: C.faint, "font-size": 14, "font-weight": 600, "letter-spacing": "0.1em"}, tg, lab);
+      el("text", {x: x + 24, y: 568, fill: C.ink, "font-size": 44, "font-weight": 600}, tg, fig);
+      el("text", {x: x + 24, y: 598, fill: C.soft, "font-size": 18}, tg, sub);
+    });
+    const k = ease(span(t, 11.3, 11.9));
+    const pg = el("g", {opacity: k}, g);
+    el("text", {x: W / 2, y: 690, "text-anchor": "middle", fill: C.soft, "font-size": 22}, pg, "Every number with its 95% interval, reproducible from the repository.");
+    el("rect", {x: W / 2 - 190, y: 730, width: 380, height: 64, rx: 32, fill: "#0e2a36", stroke: C.teal, "stroke-width": 2}, pg);
+    el("text", {x: W / 2, y: 771, "text-anchor": "middle", fill: C.ink, "font-size": 27, "font-weight": 600}, pg, "graph.peterparker.ca");
+    el("text", {x: W / 2, y: 1030, "text-anchor": "middle", fill: C.faint, "font-size": 15}, pg,
+      "IBM AML HI-Small (synthetic) and Elliptic++. The ring is IBM's; no real account is shown.");
+  }
+}
+window.render = render;
+</script>
+</body>
+</html>

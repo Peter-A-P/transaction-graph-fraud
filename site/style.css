@@ -1029,3 +1029,6 @@ tbody tr.reference { background: var(--accent-soft); }
    the headline and the lead. */
 .hero-sub { font-family: var(--serif); font-size: clamp(1.25rem, 2.2vw, 1.5rem); line-height: 1.4; color: var(--ink); margin: 0 0 1.1rem; max-width: 46rem; }
 .hero-sub strong { color: var(--accent-ink); font-weight: 600; }
+
+/* The film: square, so it is kept to a readable size rather than the column's width. */
+.demo-video { display: block; width: 100%; max-width: 40rem; aspect-ratio: 1; margin: 1rem auto 0; border-radius: var(--radius); background: #0a111c; box-shadow: var(--shadow); }

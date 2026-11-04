@@ -1,0 +1,81 @@
+"""Render the site's short film: video/ring.html drawn at 30 frames a second for 13.5 seconds,
+each frame screenshot by a headless browser and the frames encoded to H.264 MP4.
+
+    uv run --no-project --with playwright --with imageio-ffmpeg python video/render.py
+
+The page reads site/data.json (written by `consort site`), so run that first when the results
+change. It uses the machine's own Edge or Chrome (Playwright's `channel`), so no browser is
+downloaded, and imageio-ffmpeg's bundled ffmpeg, so none needs installing. Writes
+site/video/ring.mp4 and a poster frame beside it.
+"""
+
+from __future__ import annotations
+
+import json
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+FPS = 30
+SECONDS = 13.5
+POSTER_AT = 8.9  # the ring with every transfer scored
+
+
+def main() -> None:
+    import imageio_ffmpeg  # type: ignore[import-untyped]
+    from playwright.sync_api import sync_playwright
+
+    data = json.loads((ROOT / "site" / "data.json").read_text(encoding="utf8"))
+    out = ROOT / "site" / "video"
+    out.mkdir(parents=True, exist_ok=True)
+    frames = Path(tempfile.mkdtemp(prefix="ring-frames-"))
+    channel = sys.argv[1] if len(sys.argv) > 1 else "msedge"
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(channel=channel)
+            page = browser.new_page(viewport={"width": 1080, "height": 1080})
+            page.goto((ROOT / "video" / "ring.html").as_uri())
+            page.evaluate("d => { window.D = d; }", data)
+            page.evaluate("document.fonts.ready")
+            n = round(SECONDS * FPS)
+            for i in range(n):
+                page.evaluate("t => render(t)", i / FPS)
+                page.screenshot(path=str(frames / f"f{i:04d}.png"))
+            page.evaluate("t => render(t)", POSTER_AT)
+            page.screenshot(path=str(out / "ring-poster.jpg"), type="jpeg", quality=88)
+            browser.close()
+        ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+        subprocess.run(
+            [
+                ffmpeg,
+                "-v",
+                "error",
+                "-y",
+                "-framerate",
+                str(FPS),
+                "-i",
+                str(frames / "f%04d.png"),
+                "-c:v",
+                "libx264",
+                "-pix_fmt",
+                "yuv420p",
+                "-crf",
+                "20",
+                "-preset",
+                "slow",
+                "-movflags",
+                "+faststart",
+                str(out / "ring.mp4"),
+            ],
+            check=True,
+        )
+    finally:
+        shutil.rmtree(frames, ignore_errors=True)
+    print(f"wrote {out / 'ring.mp4'} and {out / 'ring-poster.jpg'}")
+
+
+if __name__ == "__main__":
+    main()

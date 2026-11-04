@@ -291,7 +291,8 @@ arithmetic are in [PLAN.md](PLAN.md); the figures are in
 
 ## The demo page
 
-Live at https://graph.peterparker.ca, styled like the other project pages on peterparker.ca:
+Live at https://graph.peterparker.ca, styled like the other project pages on peterparker.ca,
+with a 13-second film of the ring (`video/`):
 the results above as interactive charts with their intervals, and one laundering ring from
 IBM's synthetic set as each arm scored it, with arm G's case file for every transfer it
 flagged. The ring is chosen by a rule that reads no score: the scatter-gather attempt with the

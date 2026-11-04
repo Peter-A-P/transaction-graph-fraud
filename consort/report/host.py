@@ -19,6 +19,7 @@ CSP = "; ".join(
         "style-src 'self'",
         "img-src 'self' data:",
         "font-src 'self'",
+        "media-src 'self'",
         "connect-src 'self'",
         "object-src 'none'",
         "frame-ancestors 'none'",
@@ -47,6 +48,8 @@ def config() -> dict[str, Any]:
             ".woff2": "font/woff2",
             ".txt": "text/plain",
             ".svg": "image/svg+xml",
+            ".mp4": "video/mp4",
+            ".jpg": "image/jpeg",
         },
         "routes": [
             {
@@ -56,7 +59,7 @@ def config() -> dict[str, Any]:
         ],
         "navigationFallback": {
             "rewrite": "/index.html",
-            "exclude": ["/data.json", "/*.css", "/*.js", "/fonts/*", "/architecture/*"],
+            "exclude": ["/data.json", "/*.css", "/*.js", "/fonts/*", "/architecture/*", "/video/*"],
         },
         "responseOverrides": {"404": {"rewrite": "/index.html", "statusCode": 200}},
     }
