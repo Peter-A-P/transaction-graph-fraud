@@ -40,7 +40,7 @@ are nearly all laundering (PLAN.md 2.2); the leakage table below reads all test 
 | Elliptic++ (real, wallets) | R, row only | 0.389 (0.276 to 0.522) |  | 0.292 (0.191 to 0.445) | 0.108 (0.073 to 0.173); ceiling 0.110 | 0.207 (0.139 to 0.306); ceiling 0.221 |
 | Elliptic++ (real, wallets) | G, graph features, 3 hops | 0.595 (0.396 to 0.791) | 0.207 (0.069 to 0.388) | 0.477 (0.275 to 0.695) | 0.110 (0.073 to 0.178); ceiling 0.110 | 0.219 (0.147 to 0.336); ceiling 0.221 |
 | Elliptic++ (real, wallets) | N, graph neural network (sage), 2 hops | 0.418 (0.301 to 0.556) | 0.029 (-0.012 to 0.075) | 0.310 (0.185 to 0.483) | 0.107 (0.070 to 0.174); ceiling 0.110 | 0.202 (0.128 to 0.318); ceiling 0.221 |
-| Elliptic++ (real, wallets) | TabFM-G, 1 hop | 0.233 (0.147 to 0.376) | -0.156 (-0.241 to -0.052) | 0.143 (0.070 to 0.280) | 0.068 (0.040 to 0.108); ceiling 0.110 | 0.101 (0.059 to 0.184); ceiling 0.221 |
+| Elliptic++ (real, wallets) | TabFM-G, 1 hop | 0.413 (0.275 to 0.547) | 0.024 (-0.016 to 0.096) | 0.344 (0.230 to 0.482) | 0.105 (0.070 to 0.167); ceiling 0.110 | 0.202 (0.134 to 0.312); ceiling 0.221 |
 | Elliptic++ (real, wallets) | TabFM-R, 0 hops | 0.280 (0.173 to 0.399) | -0.109 (-0.175 to -0.053) | 0.229 (0.137 to 0.350) | 0.069 (0.041 to 0.109); ceiling 0.110 | 0.132 (0.088 to 0.201); ceiling 0.221 |
 | IBM AML HI-Small (synthetic), without the tail | R, row only | 0.088 (0.068 to 0.112) |  | 0.487 (0.442 to 0.523) | 0.373 (0.338 to 0.408); ceiling 1.000 | 0.474 (0.435 to 0.514); ceiling 1.000 |
 | IBM AML HI-Small (synthetic), without the tail | G, graph features, 1 hop | 0.377 (0.335 to 0.417) | 0.289 (0.257 to 0.317) | 0.720 (0.680 to 0.752) | 0.589 (0.551 to 0.624); ceiling 1.000 | 0.708 (0.672 to 0.739); ceiling 1.000 |
@@ -62,8 +62,10 @@ What the table says:
   better than the rest of it.
 - **TabFM, handed arm G's table, scores Elliptic best of all** (0.776, 0.08 above the row
   model), with no training. On Elliptic++'s wallets it does not: handed the row it is 0.11
-  below the row model, and handed arm G's table (10,000 context rows) 0.16 below it and 0.36
-  below arm G. Zero-shot is not a safe default on a set it has not been tried on.
+  below the row model, and handed arm G's table it ties the row model (0.413, +0.024, the
+  interval spanning zero) and sits 0.18 below arm G. How many training rows it is shown
+  matters as much as the table: at 10,000 context rows instead of 30,000 the same run scored
+  0.233. Zero-shot is not a safe default on a set it has not been tried on.
 - **On the real sets, the alert budget cannot separate the arms.** At 1% every arm sits at or
   near its ceiling, so the AUPRC column is where they differ.
 
@@ -154,7 +156,7 @@ labels the frozen arms never see (PLAN.md 2.6). Same rows for both.
 | Elliptic++ (real, wallets) | R, row only | 0.589 (0.517 to 0.699) | 0.283 (0.143 to 0.410) |  |
 | Elliptic++ (real, wallets) | G, graph features | 0.697 (0.640 to 0.758) | 0.542 (0.247 to 0.834) | 0.259 (0.055 to 0.512) |
 | Elliptic++ (real, wallets) | N, graph neural network | 0.663 (0.593 to 0.784) | 0.290 (0.124 to 0.432) | 0.007 (-0.042 to 0.093) |
-| Elliptic++ (real, wallets) | TabFM-G | 0.547 (0.428 to 0.656) | 0.126 (0.066 to 0.194) | -0.158 (-0.245 to -0.050) |
+| Elliptic++ (real, wallets) | TabFM-G | 0.616 (0.553 to 0.714) | 0.302 (0.134 to 0.494) | 0.019 (-0.038 to 0.146) |
 | Elliptic++ (real, wallets) | TabFM-R | 0.477 (0.385 to 0.587) | 0.183 (0.072 to 0.308) | -0.100 (-0.173 to -0.019) |
 <!-- /report:shift -->
 

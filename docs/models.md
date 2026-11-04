@@ -56,7 +56,9 @@ GraphSAGE (`SAGEConv`) and GAT (`GATConv`, 4 heads) in PyTorch Geometric 2.x, in
   refused rather than silently subsampled by the model.
 - **Context:** a sample of the training rows of a stated size that keeps every positive and
   spreads the negatives across split groups in proportion; deterministic by seed. The size is
-  a parameter in every table it appears in.
+  a parameter in every table it appears in. It moves the result: on Elliptic++'s graph
+  features, 10,000 context rows gave 0.233 test AUPRC and 30,000 gave 0.413 (2026-11-04), so
+  the README reports 30,000 there, the size TabFM-R used.
 - **Queries** are scored in batches of 1,000: 10,000 at once ran a 24 GB RTX 4090 out of
   memory on arm G's table for Elliptic (10,000 context rows), 2026-11-02.
 - **What a score costs:** arm TabFM-R on Elliptic (10,000 context rows, 32 members) scored its

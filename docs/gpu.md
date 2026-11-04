@@ -141,6 +141,14 @@ free), up from 10:55 to about 17:15 UTC. The timed TabFM-R on Elliptic took 83 m
 them scoring (docs/models.md has the cost per score). TabFM on Elliptic++'s graph features at
 10,000 context rows took 4 hours 42 minutes, 3 hours 37 of them scoring 71,880 rows, with the
 card at 100%, 6.8 GB of its memory in use and over 450 GB of host memory free throughout; it
-finished. So the README's Elliptic++ TabFM-G row is at 10,000 context rows where TabFM-R's is
-at 30,000. The 30,000-row retry was queued after it and stopped by hand before it got far: at
+finished. The 30,000-row retry was queued after it and stopped by hand before it got far: at
 the L4's pace it could not finish inside the pod's 10-hour watchdog.
+
+**The fifth pod, 2026-11-03 to 04.** A Secure Cloud RTX 4090 at US$0.89 an hour, up from
+23:41 to 04:55 UTC, for Elliptic++ TabFM-G at 30,000 context rows alone. It finished in 5
+hours 10 minutes, 3 hours 58 of them scoring, with 11 GB of the card's memory in use and over
+850 GB of host memory free throughout; the two earlier hangs did not repeat, and the memory
+log gives no cause for them. This run is the README's row, at the context TabFM-R used; the
+10,000-row run is kept in `data/runs/ctx10000/` and scored 0.233 against this one's 0.413.
+The laptop's launcher was lost with a restart of the session midway; a loop with the same
+pull and sweep took over, and the pod was terminated through GraphQL.
