@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/staticwebapp.config.json",
+  "globalHeaders": {
+    "Content-Security-Policy": "default-src 'none'; script-src 'sha256-v59SlYWnYd/wij2VPOZiTj5q3rftXRF/FM3lGfMKgFU='; style-src 'sha256-AVWXeV9DsLCph1kELI/f7wMtOr3T52HMIgLaUBQIM9g='; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy": "geolocation=(), camera=(), microphone=(), interest-cohort=()",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains"
+  },
+  "mimeTypes": {
+    ".html": "text/html",
+    ".txt": "text/plain",
+    ".json": "application/json"
+  },
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  },
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/index.html",
+      "statusCode": 200
+    }
+  }
+}

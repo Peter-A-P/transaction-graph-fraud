@@ -60,6 +60,7 @@ th { color: var(--ink-2); font-weight: 600; }
 @media (max-width: 760px) { .ring-wrap { grid-template-columns: 1fr; } }
 .edge { cursor: pointer; }
 .panel h3 { font-size: 15px; margin: 0 0 6px; }
+.panel h3.case { margin-top: 14px; }
 .panel .row { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; padding: 3px 0;
   border-bottom: 1px solid var(--grid); }
 .flag { font-weight: 600; color: var(--ink); }
@@ -168,8 +169,11 @@ function hover(node, html) {
   node.addEventListener("pointerleave", () => { tip.style.display = "none"; });
 }
 function legend(id, arms) {
-  document.getElementById(id).innerHTML = arms.map(a =>
-    `<span><i style="background:${COLOR[a]}"></i>${ARMS[a] || a}</span>`).join("");
+  // Colours go on through the style object, not a style attribute, which the host's content
+  // security policy refuses.
+  const box = document.getElementById(id);
+  box.innerHTML = arms.map(a => `<span><i></i>${ARMS[a] || a}</span>`).join("");
+  box.querySelectorAll("i").forEach((i, k) => { i.style.background = COLOR[arms[k]]; });
 }
 function table(id, head, rows) {
   document.getElementById(id).innerHTML = "<table><thead><tr>" + head.map(h => `<th>${h}</th>`).join("") +
@@ -376,7 +380,7 @@ function showTransfer(i, arm) {
     html += `<div class="row"><span>${ARMS[a] || a}</span><span>${v.score.toFixed(3)}${v.flagged ? " <b>flagged</b>" : ""}</span></div>`;
   const c = DATA.ring.cases.find(c => c.transfer === `${t.from} to ${t.to}` && c.hours === t.hours);
   if (c) {
-    html += `<h3 style="margin-top:14px">Case file (arm G)</h3><p class="small">Score ${c.score.toFixed(3)}. Of ${c.neighbours} direct neighbours, the
+    html += `<h3 class="case">Case file (arm G)</h3><p class="small">Score ${c.score.toFixed(3)}. Of ${c.neighbours} direct neighbours, the
       ones whose removal drops the score most, rescored through the exported model:</p>`;
     html += c.top.map(n => `<div class="row"><span>${n.account}${n.in_ring ? " (in this ring)" : n.in_any_laundering ? " (in another laundering transfer)" : ""}</span><span>${n.score_drop >= 0 ? "-" : "+"}${Math.abs(n.score_drop).toFixed(3)}</span></div>`).join("");
   }

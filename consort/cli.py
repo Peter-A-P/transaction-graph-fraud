@@ -503,6 +503,7 @@ def site(
     from datetime import UTC, datetime
 
     from consort.data.tasks import IBMTask
+    from consort.report import host
     from consort.report import site as st
     from consort.report import tables as tb
     from consort.report.summary import RunSummary
@@ -535,7 +536,13 @@ def site(
     payload = json.dumps(data, separators=(",", ":")).replace("</", "<\\/")
     out.mkdir(parents=True, exist_ok=True)
     page = out / "index.html"
-    page.write_text(template.replace("/*DATA*/null", payload), encoding="utf8")
+    html = template.replace("/*DATA*/null", payload)
+    page.write_text(html, encoding="utf8")
+    # The host's headers, its content security policy hashing this page's script and style.
+    (out / "staticwebapp.config.json").write_text(
+        json.dumps(host.config(html), indent=2) + "\n", encoding="utf8"
+    )
+    (out / "robots.txt").write_text("User-agent: *\nAllow: /\n", encoding="utf8")
     typer.echo(f"ring attempt {attempt}: {len(ring['transfers'])} transfers; wrote {page}")
 
 
