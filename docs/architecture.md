@@ -25,7 +25,7 @@ over groups with paired deltas (`consort.eval`), and writes one outcomes shape f
 to `data/runs`. From there the explanations and their faithfulness number and the case files
 (`consort.explain`), the serving benchmark over Neo4j and DuckDB with the parity test
 (`consort.serve`) and the 03 gate's paired comparison per dataset are produced, and the report
-writes the tables, the figures, the case files and the static site at consort.peterparker.ca
+writes the tables, the figures, the case files and the static site at graph.peterparker.ca
 (`consort.report`, `consort.site`). The ONNX export of the trained scorer and the feature view
 go to project 09 (`consort.models.export`).
 

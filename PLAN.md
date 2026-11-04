@@ -209,7 +209,7 @@ check.
 
 ### 2.9 The demo shows a ring, and models nothing
 
-consort.peterparker.ca is a static site on Azure Static Web Apps, the 01, 08 and 16 pattern: an
+graph.peterparker.ca is a static site on Azure Static Web Apps, the 01, 08 and 16 pattern: an
 explorer of one planted laundering ring from the synthetic set, with each arm's scores on its
 accounts; the recall-by-pattern figure; the hop curve; the shift chart; the case-file viewer.
 Nothing is modelled in the browser and nothing is uploaded. Only synthetic accounts are drawn;
@@ -310,7 +310,7 @@ Relative weeks of evenings and weekends, in order.
 |---|---|---|
 | 1 | Licences quoted in `docs/data.md`; the Elliptic++ email sent; loaders with checksums for Elliptic and IBM HI-Small and LI-Small; the graph build into DuckDB and PyG from one source; temporal inductive splits, the shift split, the random split; **the leakage test, before the first feature**; the pattern join tested against the generator's counts; arm R; the graph feature registry and arm G at one and two hops; the evaluator with bootstrap over groups and paired deltas; the leakage gap; `docs/patterns.md` | Arms R and G filled with intervals on Elliptic and both IBM sets; recall by pattern for R and G; the leakage gap published |
 | 2 | GPU price table and provider decision from 06's rule; a pod watchdog that deletes an idle pod (16's lesson); GraphSAGE and GAT with sampling on a rented GPU, three seeds, inductive; the hop curve for all arms at zero to three hops; the directed-multigraph ablation on HI-Small; the shift table on Elliptic for all arms; TabFM on arm R's and arm G's tables at a stated context size; the context-swap experiment; arm N's recall by pattern | Arm N and the TabFM column filled; the hop curve, the shift table and the context-swap chart in the README with intervals |
-| 3 | Explanations and the faithfulness number; case files; the serving benchmark on Neo4j and DuckDB with the parity test, p50, p99 and cost per million scores; ONNX export and the feature view for 09; the 03 gate per dataset; the static site; README tables from `consort report`; `docs/rejected.md`; `v0.1.0`; repository public; consort.peterparker.ca live; the status flip logged on peterparker.ca | Every number in section 1 in the README with its interval; the site live |
+| 3 | Explanations and the faithfulness number; case files; the serving benchmark on Neo4j and DuckDB with the parity test, p50, p99 and cost per million scores; ONNX export and the feature view for 09; the 03 gate per dataset; the static site; README tables from `consort report`; `docs/rejected.md`; `v0.1.0`; repository public; graph.peterparker.ca live; the status flip logged on peterparker.ca | Every number in section 1 in the README with its interval; the site live |
 | slack | One week | |
 
 First to drop if behind: Elliptic++ (a stretch already), then HI-Medium, then the
@@ -405,7 +405,7 @@ Whichever produces the clearest evidence becomes `docs/rejected.md`.
 - [ ] Serving latency p50 and p99 at one and two hops from at least one store with the parity test passing; cost per million scores, prices dated
 - [ ] ONNX export and the feature view for 09, with the export test passing
 - [ ] The 03 gate's paired comparison per dataset
-- [ ] consort.peterparker.ca live with the ring explorer, the figures and the case-file viewer
+- [ ] graph.peterparker.ca live with the ring explorer, the figures and the case-file viewer
 - [ ] One rejected approach documented with evidence (`docs/rejected.md`)
 - [ ] Repository public, `v0.1.0` tagged, the status flip logged on peterparker.ca
 
@@ -431,4 +431,7 @@ a Single Transaction Cannot Show" and "Fraud That Hides in the Company It Keeps"
 the problem rather than the result, and against a magnitude-in-the-name form ("Fraud Invisible
 in One Transaction, Caught Among a Million"), rejected because a magnitude in a name can read
 as a requirement. Repository `transaction-graph-fraud`, package `consort` (to keep company
-with), demo `consort.peterparker.ca`; infrastructure names travel together.
+with), demo `graph.peterparker.ca`. The demo was first to share the package's name,
+so infrastructure names travelled together; on 2026-11-04, before its DNS record went in, it
+was renamed, since a visitor does not know the package and "graph" says what the page is about,
+as the other project pages' addresses do (fraud, privacy, gate).

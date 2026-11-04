@@ -1,4 +1,4 @@
-# Putting the demo page on consort.peterparker.ca
+# Putting the demo page on graph.peterparker.ca
 
 The demo page is `site/`: `index.html` with its script, stylesheet and data inline,
 `staticwebapp.config.json` (the host's headers) and `robots.txt`. There is no backend, so
@@ -16,9 +16,9 @@ and `tests/test_host.py` fails in CI if the committed policy has fallen behind t
 page. A page whose policy is stale shows nothing but its headings, and says why only in the
 browser console.
 
-**Deployed 2026-11-04.** The app is `consort-peterparker-ca` in resource group `rg-portfolio-2`
+**Deployed 2026-11-04.** The app is `graph-peterparker-ca` in resource group `rg-portfolio-2`
 (subscription `PAP-POCs 2`, East US 2, Free plan), served at
-`thankful-water-06b5a3b0f.3.azurestaticapps.net`. The deploy token is the repository secret
+`victorious-moss-0866b5f0f.5.azurestaticapps.net`. The deploy token is the repository secret
 `AZURE_STATIC_WEB_APPS_API_TOKEN`, the repository variable `SITE` is `on`, and
 `.github/workflows/site.yml` uploads `site/` on every push to `main` that changes it. Before
 upload, the page was served locally with the policy's headers and rendered in headless Edge:
@@ -27,7 +27,7 @@ every chart drew and the console reported no violation. Cost: the Free plan, CA$
 ## 1. The app (done)
 
 ```powershell
-az staticwebapp create --name consort-peterparker-ca --resource-group rg-portfolio-2 `
+az staticwebapp create --name graph-peterparker-ca --resource-group rg-portfolio-2 `
   --location eastus2 --sku Free --subscription "PAP-POCs 2"
 ```
 
@@ -40,7 +40,7 @@ The token goes from the Azure CLI straight into GitHub's secret store, never on 
 file or in shell history. **The token alone is enough to publish to the site.**
 
 ```powershell
-az staticwebapp secrets list --name consort-peterparker-ca --resource-group rg-portfolio-2 `
+az staticwebapp secrets list --name graph-peterparker-ca --resource-group rg-portfolio-2 `
   --subscription "PAP-POCs 2" --query properties.apiKey -o tsv |
   gh secret set AZURE_STATIC_WEB_APPS_API_TOKEN --repo Peter-A-P/transaction-graph-fraud
 
@@ -56,21 +56,21 @@ In the Cloudflare dashboard, `peterparker.ca`, **DNS**, **Records**, **Add recor
 
 | Type | Name | Target | Proxy status | TTL |
 |---|---|---|---|---|
-| CNAME | `consort` | `thankful-water-06b5a3b0f.3.azurestaticapps.net` | **DNS only** | Auto |
+| CNAME | `graph` | `victorious-moss-0866b5f0f.5.azurestaticapps.net` | **DNS only** | Auto |
 
 **DNS only, the grey cloud.** A proxied record hides the target behind Cloudflare's addresses,
 Azure's validation cannot see the CNAME, and the certificate is never issued. Then:
 
 ```powershell
-az staticwebapp hostname set --name consort-peterparker-ca --resource-group rg-portfolio-2 `
-  --hostname consort.peterparker.ca --subscription "PAP-POCs 2"
+az staticwebapp hostname set --name graph-peterparker-ca --resource-group rg-portfolio-2 `
+  --hostname graph.peterparker.ca --subscription "PAP-POCs 2"
 ```
 
 Validation usually takes minutes; Azure issues and renews the certificate itself.
 
 ## 4. Check it
 
-- `https://consort.peterparker.ca` serves over HTTPS with no certificate warning.
+- `https://graph.peterparker.ca` serves over HTTPS with no certificate warning.
 - The browser console on the live page is empty: a policy violation is reported there and
   nowhere else.
 - The page's footer names the commit it was built from, and its figures match the README.
