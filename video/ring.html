@@ -24,7 +24,7 @@ const NS = "http://www.w3.org/2000/svg";
 const W = 1080, H = 1080;
 const C = {
   bg: "#0a111c", panel: "#111b2a", line: "#1e2b3d", ink: "#eef2f6", soft: "#a9b4c2", faint: "#6c7a8c",
-  teal: "#5fc4d6", tealDeep: "#0f5c6e", warn: "#f0736a", slate: "#8d98a8", good: "#58c286", violet: "#b191e0",
+  teal: "#5fc4d6", red: "#d9463c", redLight: "#f3a59d", tealDeep: "#0f5c6e", warn: "#f0736a", slate: "#8d98a8", good: "#58c286", violet: "#b191e0",
 };
 
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
@@ -219,7 +219,7 @@ function render(film) {
     const litK = c => (c >= 0 ? ease(span(zt, CLUSTER_AT(c), CLUSTER_AT(c) + 0.4)) : 0);
     for (const e of net.edges) {
       const a = net.nodes[e.a], b = net.nodes[e.b], on = lit(e.c);
-      el("line", {x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: on ? C.teal : "#2a3a50", "stroke-width": on ? 1.8 : 1,
+      el("line", {x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: on ? C.red : "#2a3a50", "stroke-width": on ? 1.8 : 1,
         "stroke-opacity": on ? 0.5 + 0.5 * litK(e.c) : 0.9, "vector-effect": "non-scaling-stroke"}, N);
     }
     for (const l of net.ringLinks) {
@@ -228,12 +228,12 @@ function render(film) {
     }
     for (const f of net.flows) {
       const a = net.nodes[f.e.a], b = net.nodes[f.e.b], u = (f.phase + film * f.speed) % 1;
-      el("circle", {cx: lerp(a.x, b.x, u), cy: lerp(a.y, b.y, u), r: 2.4 / sc, fill: lit(f.e.c) ? C.teal : "#c9d4e2", opacity: 0.75}, N);
+      el("circle", {cx: lerp(a.x, b.x, u), cy: lerp(a.y, b.y, u), r: 2.4 / sc, fill: lit(f.e.c) ? C.red : "#c9d4e2", opacity: 0.75}, N);
     }
     for (const n of net.nodes) {
       const on = lit(n.c);
-      if (n.hub && on) el("circle", {cx: n.x, cy: n.y, r: 16 / sc * (1 + 0.6 * (1 - litK(n.c))), fill: C.teal, opacity: 0.2 * litK(n.c)}, N);
-      el("circle", {cx: n.x, cy: n.y, r: (n.hub ? 5 : 2.8) / sc, fill: on ? C.teal : "#7d8ba0"}, N);
+      if (n.hub && on) el("circle", {cx: n.x, cy: n.y, r: 16 / sc * (1 + 0.6 * (1 - litK(n.c))), fill: C.red, opacity: 0.2 * litK(n.c)}, N);
+      el("circle", {cx: n.x, cy: n.y, r: (n.hub ? 5 : 2.8) / sc, fill: on ? C.red : "#7d8ba0"}, N);
     }
   }
   // Every other transfer, drawn in the order the money moved.
@@ -248,8 +248,8 @@ function render(film) {
     let color = C.line, w = 2.5, glow = 0;
     if (o.x.scored) {
       color = "#3a4a60";
-      if (o.x.arms.R.flagged && rk > order) color = C.slate;
-      if (o.x.arms.G.flagged && gk > order) { color = C.teal; w = 3.5; glow = 1; }
+      if (o.x.arms.R.flagged && rk > order) color = C.redLight;
+      if (o.x.arms.G.flagged && gk > order) { color = C.red; w = 3.5; glow = 1; }
     }
     arrow(G, x1, y1, x2, y2, color, w, kk, glow);
   });
@@ -259,14 +259,14 @@ function render(film) {
     const k = ease(span(t, 0.5, 1.4));
     const gk = span(t, 7.7, 8.9), order = scored.indexOf(F) / scored.length;
     const on = gk > order;
-    arrow(G, x1, y1, x2, y2, on ? C.teal : C.soft, lerp(5, on ? 4 : 2.5, m), k, on ? 1 : 0);
+    arrow(G, x1, y1, x2, y2, on ? C.red : C.soft, lerp(5, on ? 4 : 2.5, m), k, on ? 1 : 0);
     const amt = 1 - ease(span(t, 2.8, 3.3));
     // Scene 3: the score graph features gave the transfer the row model let through.
     const fk = ease(span(t, 7.7 + order * 1.2, 8.1 + order * 1.2)) * (1 - ease(span(t, 9.1, 9.4))) * ui;
     if (fk > 0) {
       const lx = (x1 + x2) / 2 + 20, ly = (y1 + y2) / 2 - 44;
       const b = el("g", {opacity: fk}, G);
-      el("rect", {x: lx - 160, y: ly - 26, width: 320, height: 40, rx: 20, fill: "#0e2a36", stroke: C.teal, "stroke-width": 2}, b);
+      el("rect", {x: lx - 160, y: ly - 26, width: 320, height: 40, rx: 20, fill: "#3a1519", stroke: C.red, "stroke-width": 2}, b);
       el("text", {x: lx, y: ly + 1, "text-anchor": "middle", fill: C.ink, "font-size": 18, "font-weight": 600}, b,
         `Graph features: ${F.arms.G.score.toFixed(3)}, flagged`);
     }
@@ -301,8 +301,8 @@ function render(film) {
     };
     // The counts follow the arrows: a transfer counts once its arrow has changed colour.
     const upTo = (arm, a, b) => scored.filter((x, i) => x.arms[arm].flagged && span(t, a, b) > i / scored.length).length;
-    tally(190, "ROW MODEL", upTo("R", 6.4, 7.6), C.slate, 1);
-    tally(560, "GRAPH FEATURES", upTo("G", 7.7, 8.9), C.teal, 1);
+    tally(190, "ROW MODEL", upTo("R", 6.4, 7.6), C.redLight, 1);
+    tally(560, "GRAPH FEATURES", upTo("G", 7.7, 8.9), C.red, 1);
   }
 
   caption(t, 0.6, 3.0, "One transfer, seen on its own.", `The row model scores it ${F.arms.R.score.toFixed(3)} and lets it through.`);

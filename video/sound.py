@@ -217,10 +217,10 @@ def track(
     # Scene 4.
     # The swell lands on the headline figure (ring.html fades it in from 9.7 s of the story).
     rise = riser(1.1)
-    add(rise, 9.75 - 1.1, 0.10)
-    add(impact(), 9.75, 0.55)
+    add(rise, 9.75 - 1.1, 0.05)
+    add(impact(), 9.75, 0.22)
     for f, pan in ((587.33, -0.4), (739.99, 0.0), (880.0, 0.4)):
-        add(bell(f, 3.2), 9.75, 0.08, pan)
+        add(bell(f, 3.2, 1.2), 9.75, 0.045, pan)
     # One wooden note per figure card, as each slides in.
     for at, f, pan in ((10.45, 880.0, -0.35), (10.8, 1174.66, 0.35)):
         add(marimba(f), at, 0.16, pan)
