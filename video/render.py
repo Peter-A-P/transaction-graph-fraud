@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 FPS = 30
 # The story (one transfer, the ring, both models scoring it) is drawn on a 9.2-second schedule
 # in ring.html and played STRETCH times slower; the result screen after it plays at its own pace.
-STRETCH = 1.6
+STRETCH = 1.3
 SPLIT = 9.2
 SECONDS = 13.5 + SPLIT * (STRETCH - 1)
 POSTER_AT = 8.9 * STRETCH  # the ring with every transfer scored
