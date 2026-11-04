@@ -3,411 +3,352 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fraud Known by the Company It Keeps</title>
-<meta name="description" content="When scoring an account by its neighbourhood beats scoring it alone: measured on real and synthetic transaction graphs.">
-<style>
-:root {
-  color-scheme: light;
-  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
-  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
-  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
-  --critical: #d03b3b;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
-    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
-  }
-}
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
-  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
-  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--page); color: var(--ink);
-  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
-main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
-h1 { font-size: 30px; line-height: 1.2; margin: 0 0 8px; letter-spacing: -0.01em; }
-h2 { font-size: 20px; margin: 48px 0 6px; }
-p { margin: 0 0 12px; color: var(--ink-2); max-width: 70ch; }
-.lede { font-size: 18px; color: var(--ink); }
-.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px;
-  padding: 16px; margin-top: 16px; }
-.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); margin: 4px 0 8px; }
-.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
-.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-.tabs button { font: inherit; font-size: 14px; padding: 4px 12px; border-radius: 999px; cursor: pointer;
-  border: 1px solid var(--ring); background: transparent; color: var(--ink-2); }
-.tabs button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
-svg { display: block; width: 100%; height: auto; overflow: visible; }
-svg text { fill: var(--muted); font-size: 12px; font-family: inherit; }
-svg .ink { fill: var(--ink); }
-svg .ink2 { fill: var(--ink-2); }
-.tip { position: fixed; pointer-events: none; background: var(--surface); color: var(--ink);
-  border: 1px solid var(--ring); border-radius: 8px; padding: 8px 10px; font-size: 13px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12); display: none; max-width: 280px; z-index: 10; }
-details { margin-top: 10px; font-size: 14px; }
-summary { cursor: pointer; color: var(--ink-2); }
-table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 8px; font-variant-numeric: tabular-nums; }
-th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--grid); }
-th { color: var(--ink-2); font-weight: 600; }
-.scroll { overflow-x: auto; }
-.ring-wrap { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; }
-@media (max-width: 760px) { .ring-wrap { grid-template-columns: 1fr; } }
-.edge { cursor: pointer; }
-.panel h3 { font-size: 15px; margin: 0 0 6px; }
-.panel h3.case { margin-top: 14px; }
-.panel .row { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; padding: 3px 0;
-  border-bottom: 1px solid var(--grid); }
-.flag { font-weight: 600; color: var(--ink); }
-.small { font-size: 13px; color: var(--muted); }
-footer { margin-top: 56px; font-size: 13px; color: var(--muted); }
-a { color: var(--s1); }
-</style>
+<title>Fraud Known by the Company It Keeps: when scoring the neighbourhood beats scoring the account</title>
+<meta name="description" content="Three ways of scoring money laundering on two real Bitcoin graphs and twelve million synthetic bank transfers: the row alone, graph features, and a graph neural network, with a tabular foundation model beside them. Which laundering shapes each one catches, how many hops of neighbours pay, what happens when the world shifts, and what a live score costs. Every number carries a 95% interval and is reproducible from the repository.">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main>
-<h1>Fraud Known by the Company It Keeps</h1>
-<p class="lede">A fraud model that scores the account alone misses the fraud that lives in the links
-between accounts. This page shows how much, measured: three ways of scoring the same accounts in
-the same time-ordered split, with 95% intervals.</p>
-<p>R scores the transaction's own row. G adds features computed from the account's neighbourhood.
-N is a graph neural network. TabFM is a tabular foundation model that is handed the data and not
-trained. Each dot is the arm's headline run, and its line is the interval over time steps or
-hours, never over single accounts.</p>
-
-<h2>Does the graph help?</h2>
-<p>Precision-recall AUC on the test period. IBM's synthetic sets leave out the generator's last few
-days, which are nearly all laundering.</p>
-<div class="card">
-  <div class="legend" id="main-legend"></div>
-  <svg id="main" role="img" aria-label="AUPRC by dataset and arm"></svg>
-  <details><summary>Table</summary><div class="scroll" id="main-table"></div></details>
-</div>
-
-<h2>One laundering ring, as each arm saw it</h2>
-<p id="ring-intro"></p>
-<div class="card ring-wrap">
-  <div>
-    <div class="tabs" id="ring-arms" role="group" aria-label="Arm"></div>
-    <svg id="ring" role="img" aria-label="The ring's accounts and transfers"></svg>
-    <p class="small">Thick arrows: transfers on the test days, which every arm scored. Coloured: in this
-    arm's 1% alert queue. Grey: not flagged, or not scored (earlier days or the generator's tail).
-    Select a transfer for its scores.</p>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="https://peterparker.ca"><span class="mono-mark" aria-hidden="true">P</span>Peter Parker</a>
+    <p class="top-nav"><a href="https://peterparker.ca">Project 17: Fraud Known by the Company It Keeps</a></p>
   </div>
-  <div class="panel" id="ring-panel"></div>
-</div>
+</header>
+<nav class="tabs" aria-label="This site">
+  <div class="tabs-inner">
+    <a href="index.html" aria-current="page">Overview</a>
+    <a href="#basics">The basics</a>
+    <a href="#ring-panel">A ring</a>
+    <a href="#main-panel">Does it help?</a>
+    <a href="#pattern-panel">Shapes</a>
+    <a href="#hop-panel">Hops</a>
+    <a href="#shift-panel">The shift</a>
+    <a href="#leak-panel">The usual split</a>
+    <a href="#why-panel">Why it flagged</a>
+    <a href="#gate-panel">The gate</a>
+    <a href="#cost-panel">Live cost</a>
+    <a href="#limits">Limits</a>
+    <a href="#takeaways">Takeaways</a>
+    <a href="#explorer">All results</a>
+    <a href="architecture.html">How it's built</a>
+  </div>
+</nav>
+<main>
 
-<h2>Which shapes only the graph can see</h2>
-<p>Of each laundering pattern's transfers on IBM HI-Small's test days, the share one 1% alert queue
-reaches. The patterns are the generator's. This measures what it plants, not what a bank sees.</p>
-<div class="card">
-  <div class="legend" id="pat-legend"></div>
-  <svg id="patterns" role="img" aria-label="Recall at a 1% alert budget by pattern"></svg>
-  <details><summary>Table</summary><div class="scroll" id="pat-table"></div></details>
-</div>
+  <header class="hero">
+    <div class="cta">
+      <a class="button primary" href="https://github.com/Peter-A-P/transaction-graph-fraud">Read the code</a>
+      <a class="button" href="#ring-panel">See one laundering ring scored</a>
+      <span class="cta-note">Every number below is read from the files the repository's report command writes.</span>
+    </div>
 
-<h2>How far guilt travels</h2>
-<p>AUPRC by the number of hops of neighbourhood. Hop 0 of arm G is the row model.</p>
-<div class="card">
-  <div class="tabs" id="hop-sets" role="group" aria-label="Dataset"></div>
-  <div class="legend" id="hop-legend"></div>
-  <svg id="hops" role="img" aria-label="AUPRC by hop count"></svg>
-  <details><summary>Table</summary><div class="scroll" id="hop-table"></div></details>
-</div>
+    <p class="eyebrow">Two real Bitcoin graphs, twelve million synthetic bank transfers, every number with its interval</p>
+    <h1>Money laundering is a shape, and a model that scores one account at a time cannot see it. <span class="hl">Scoring the neighbourhood</span> finds more of it, in milliseconds.</h1>
+    <p class="lead">
+      Most fraud models judge each account or each payment on its own row: the amount, the time,
+      the history. Laundering does not live in a row. It lives in the links: money fanning in from
+      many accounts to one, scattering out and gathering again, cycling back to where it started.
+      <strong>So does looking at the network catch what the row model misses, and is it worth
+      the cost?</strong> This project put three ways of scoring on the same accounts, in the same
+      time-ordered split: the row alone, the row plus features computed from each account's
+      neighbours, and a graph neural network that learns from the graph directly, with a
+      tabular foundation model beside them that is not trained at all. Then it asked what a risk
+      director would ask: how much more does each one catch with the same investigators, which
+      laundering shapes does only the graph see, how far out is it worth looking, what breaks
+      when criminals change their habits, and what does a live score cost?
+    </p>
+    <div class="hero-points">
+      <div class="point">
+        <span class="point-figure" id="hero-recall">-</span>
+        <span class="point-unit">of laundering transfers caught by the same 1% alert queue, with graph features against the row alone</span>
+        <span class="point-label" id="hero-recall-note"></span>
+      </div>
+      <div class="point good">
+        <span class="point-figure" id="hero-real">-</span>
+        <span class="point-unit">precision-recall AUC gained on real Bitcoin wallets, by adding the neighbourhood</span>
+        <span class="point-label" id="hero-real-note"></span>
+      </div>
+      <div class="point violet">
+        <span class="point-figure" id="hero-gnn">-</span>
+        <span class="point-unit">datasets where the graph neural network beat plain graph features</span>
+        <span class="point-label" id="hero-gnn-note"></span>
+      </div>
+      <div class="point">
+        <span class="point-figure" id="hero-ms">-</span>
+        <span class="point-unit">to fetch a transfer's neighbourhood and score it live, at the median</span>
+        <span class="point-label" id="hero-ms-note"></span>
+      </div>
+      <div class="point warnline">
+        <span class="point-figure" id="hero-leak">-</span>
+        <span class="point-unit">what the usual random split reports, against the honest time-ordered one</span>
+        <span class="point-label" id="hero-leak-note"></span>
+      </div>
+    </div>
+    <p class="hero-note">
+      The real data is a published, anonymised Bitcoin transaction graph; the bank transfers come
+      from IBM's laundering generator, and only those synthetic accounts are ever drawn here. Every
+      interval is a 95% bootstrap over time steps or hours, never over single accounts, and no
+      model was chosen by its test score. <a href="architecture.html">See how it's built</a>, in
+      three diagrams.
+    </p>
+  </header>
 
-<h2>When the world shifts</h2>
-<p>Elliptic's illicit Bitcoin transactions change after a dark market shut down at step 43. Every
-frozen arm collapses. The last two rows recover by using the latest labels: the row model is
-retrained, and TabFM's context replaced, before each test step.</p>
-<div class="card">
-  <div class="legend" id="shift-legend"></div>
-  <svg id="shift" role="img" aria-label="AUPRC before and after step 43"></svg>
-  <details><summary>Table</summary><div class="scroll" id="shift-table"></div></details>
-</div>
+  <section class="section" id="basics">
+    <h2>The basics, in plain words</h2>
+    <p class="section-lead">Three ideas carry the rest of this page. If you build fraud models for a living, skip ahead to <a href="#ring-panel">the ring</a>.</p>
+    <div class="guide">
+      <article class="guide-card">
+        <h3>A transaction graph</h3>
+        <p>Every account is a point and every payment is an arrow between two points. An account's
+        neighbours are the accounts it paid or was paid by: one hop. Their neighbours are two hops.
+        A laundering ring is a small pattern of arrows that looks ordinary one arrow at a time.</p>
+      </article>
+      <article class="guide-card">
+        <h3>Three ways of scoring, and a fourth</h3>
+        <p><span class="chip a-R">R</span> gradient-boosted trees on the account's own row.
+        <span class="chip a-G">G</span> the same trees, given the row plus counts and amounts
+        summed over its neighbours. <span class="chip a-N">N</span> a graph neural network that
+        passes messages along the arrows. <span class="chip a-TabFM-G">TabFM</span> Google's
+        tabular foundation model, shown the training rows and asked to score, with no training.</p>
+      </article>
+      <article class="guide-card">
+        <h3>An alert queue, and AUPRC</h3>
+        <p>A bank can investigate only so many accounts, so the useful question is how much of the
+        fraud lands in the top 1% of scores: the alert queue. Precision-recall AUC (AUPRC) sums up
+        the whole ranking in one number, from 0 to 1; with fraud this rare, a random guess scores
+        about the share of fraud, a few percent.</p>
+      </article>
+    </div>
+    <details class="disclose">
+      <summary>The three datasets, and why each one is here</summary>
+      <div class="guide">
+        <article class="guide-card">
+          <h3>Elliptic <span class="tag real">real</span></h3>
+          <p>203,769 Bitcoin transactions over 49 time steps, about 4,500 labelled illicit by
+          Elliptic. Its features already summarise each transaction's neighbours, which makes it a
+          hard test for anything that adds the graph again.</p>
+        </article>
+        <article class="guide-card">
+          <h3>Elliptic++ <span class="tag real">real</span></h3>
+          <p>The same network seen as 822,942 wallets and the payments between them, used with the
+          authors' written permission. Its published wallet features summarise each wallet's whole
+          life, so they were rebuilt step by step here, so that no wallet is scored with
+          knowledge of its future.</p>
+        </article>
+        <article class="guide-card">
+          <h3>IBM AML <span class="tag synth">synthetic</span></h3>
+          <p>Twelve million bank transfers between 1.2 million accounts, from IBM's generator,
+          which plants eight named laundering shapes and records which transfers are laundering.
+          The only set where recall can be measured by shape, and the only one drawn here.</p>
+        </article>
+      </div>
+    </details>
+    <details class="disclose">
+      <summary>How every number was made honest</summary>
+      <ol class="steps">
+        <li><span class="step-n">1</span><span><strong>Split by time, never at random.</strong> Train on the past, test on later accounts the model has never seen, the way a bank meets them.</span></li>
+        <li><span class="step-n">2</span><span><strong>No feature reads a label.</strong> A registry refuses any neighbourhood feature that touches a fraud label, and a leakage test runs on every build.</span></li>
+        <li><span class="step-n">3</span><span><strong>The same items for every arm.</strong> One evaluator reads every model's scores without knowing which model wrote them, and refuses to compare runs that scored different items.</span></li>
+        <li><span class="step-n">4</span><span><strong>Choose on validation.</strong> The hop count and the network design shown for each arm are the ones with the best validation score, never the best test score.</span></li>
+        <li><span class="step-n">5</span><span><strong>Intervals over groups.</strong> Resample time steps or hours, not accounts, because accounts in the same hour are not independent.</span></li>
+        <li><span class="step-n">6</span><span><strong>Time it on a named machine.</strong> Latency comes from a rented server with its price and date, never from a laptop.</span></li>
+      </ol>
+    </details>
+  </section>
 
-<footer>
-<p>Every number here is written from the repository's results by <code>consort site</code>, and none
-is edited by hand. Only synthetic accounts are drawn: the ring comes from IBM's AML generator
-(CDLA-Sharing 1.0), and its accounts are named by their place in the ring. Elliptic and Elliptic++
-appear only as aggregates. Nothing is modelled in the browser.</p>
-<p id="built"></p>
-</footer>
+  <section class="section" id="ring-panel">
+    <h2>One laundering ring, as each model saw it</h2>
+    <p class="section-lead" id="ring-intro"></p>
+    <div class="ring-layout">
+      <div class="ring-card">
+        <div class="seg" id="ring-arms" role="group" aria-label="Model"></div>
+        <div class="chart" id="ring"></div>
+        <div class="legend">
+          <span class="legend-item"><span class="swatch solid a-sw-on"></span>in this model's 1% alert queue</span>
+          <span class="legend-item"><span class="swatch solid sw-miss"></span>scored, missed</span>
+          <span class="legend-item"><span class="swatch dashed sw-faint"></span>not scored: before the test days or in the generator's tail</span>
+        </div>
+      </div>
+      <aside class="ring-side" id="ring-side" aria-live="polite"></aside>
+    </div>
+    <div class="verdict" id="ring-verdict"></div>
+  </section>
+
+  <section class="section" id="main-panel">
+    <h2>Does the graph help? On every dataset, yes</h2>
+    <p class="section-lead">Each dot is one model's precision-recall AUC on the test period, with its 95% interval. The
+    grey tick in each group is the row model, the line to beat. Switch to the paired view to see
+    each model's gain over the row model on exactly the same items, where an interval clear of
+    zero is a real difference.</p>
+    <div class="seg" id="main-view" role="group" aria-label="View"></div>
+    <div class="legend" id="main-legend"></div>
+    <figure class="chart-figure"><div class="chart" id="main"></div>
+      <figcaption>IBM's rows leave out the generator's last few days, which are nearly all laundering. For graph features and the graph neural network, the hop count and design shown are the ones with the best validation score.</figcaption>
+    </figure>
+    <div class="verdict" id="main-verdict"></div>
+    <div class="assumption" id="main-assumption"></div>
+  </section>
+
+  <section class="section" id="pattern-panel">
+    <h2>Which laundering shapes only the graph can see</h2>
+    <p class="section-lead">IBM's generator records which shape each laundering transfer belongs to. For each shape, the
+    share of its transfers that one shared 1% alert queue reaches, from the row model's dot to the
+    graph features' dot. The longer the bar, the more the neighbourhood adds.</p>
+    <div class="legend" id="pattern-legend"></div>
+    <figure class="chart-figure"><div class="chart" id="patterns"></div>
+      <figcaption>IBM HI-Small, all test days, 95% intervals in the hover. The shapes are the generator's own, so this measures what it plants, not what a bank sees; about a fifth of the attempts behind each name are too small to show their shape.</figcaption>
+    </figure>
+    <div class="verdict" id="pattern-verdict"></div>
+  </section>
+
+  <section class="section" id="hop-panel">
+    <h2>How far guilt travels</h2>
+    <p class="section-lead">More hops means looking at neighbours of neighbours, and fetching more of the graph for every
+    score. AUPRC by hop count; hop 0 is the row alone. The shaded band is the 95% interval.</p>
+    <div class="seg" id="hop-sets" role="group" aria-label="Dataset"></div>
+    <div class="legend" id="hop-legend"></div>
+    <figure class="chart-figure"><div class="chart" id="hops"></div></figure>
+    <div class="verdict" id="hop-verdict"></div>
+  </section>
+
+  <section class="section" id="shift-panel">
+    <h2>When the world changes overnight</h2>
+    <p class="section-lead">At Elliptic's time step 43 a large dark market was shut down, and illicit Bitcoin traffic
+    changed shape. Every model was trained on steps 1 to 34 and then frozen. Each line runs from
+    its score before the shutdown to its score after it. The dashed lines are allowed to recover:
+    before each test step, the row model is retrained, or the foundation model's examples are
+    swapped, on the four latest labelled steps.</p>
+    <div class="seg" id="shift-sets" role="group" aria-label="Dataset"></div>
+    <figure class="chart-figure"><div class="chart" id="shift"></div></figure>
+    <div class="verdict" id="shift-verdict"></div>
+    <div class="assumption" id="shift-assumption"></div>
+  </section>
+
+  <section class="section" id="leak-panel">
+    <h2>The number most papers report is not the one a bank would get</h2>
+    <p class="section-lead">Most published results on these datasets split accounts at random, so the model trains on the
+    same days it is tested on. This project's split is by time. Each row runs from the honest
+    score to the random-split score of the same model.</p>
+    <div class="legend">
+      <span class="legend-item"><span class="swatch dot sw-accent"></span>time-ordered split (this project)</span>
+      <span class="legend-item"><span class="swatch dot sw-warn"></span>random split (the usual one)</span>
+      <span class="legend-item"><span class="swatch dot sw-violet"></span>features that could see later days</span>
+    </div>
+    <figure class="chart-figure"><div class="chart" id="leak"></div>
+      <figcaption>All test days, IBM included. The random split is run once per model, to publish this gap, and never carries a headline number.</figcaption>
+    </figure>
+    <div class="verdict" id="leak-verdict"></div>
+  </section>
+
+  <section class="section" id="why-panel">
+    <h2>Can an investigator read why it flagged?</h2>
+    <p class="section-lead">A flag an investigator cannot explain is a flag they cannot act on. For every flagged transfer,
+    each neighbouring account is removed in turn and the transfer rescored through the exported
+    model; the neighbours whose removal drops the score most are the explanation. The test: how
+    often do those top neighbours include an account the generator actually used for laundering,
+    against the same number of neighbours picked at random?</p>
+    <div class="legend">
+      <span class="legend-item"><span class="swatch dot sw-accent"></span>neighbours the explanation picks</span>
+      <span class="legend-item"><span class="swatch dot sw-faint"></span>the same number picked at random</span>
+    </div>
+    <figure class="chart-figure"><div class="chart" id="faith"></div>
+      <figcaption id="faith-caption"></figcaption>
+    </figure>
+    <div class="verdict" id="faith-verdict"></div>
+  </section>
+
+  <section class="section" id="gate-panel">
+    <h2>Would it pass a release gate?</h2>
+    <p class="section-lead">Project 03's release gate decides whether a challenger is at least as good as the model it would
+    replace, within a stated margin, before anyone ships it. Here the question is the business
+    one: of the laundering in the test period, how much more does the 1% alert queue reach than
+    the row model's, allowing a 3-point margin?</p>
+    <figure class="chart-figure"><div class="chart" id="gate"></div>
+      <figcaption>Paired over the same illicit items; the gate's own interval and verdict, from its ledger in the repository.</figcaption>
+    </figure>
+    <div class="verdict" id="gate-verdict"></div>
+  </section>
+
+  <section class="section" id="cost-panel">
+    <h2>What a live score costs</h2>
+    <p class="section-lead">A score behind a payment decision has a few dozen milliseconds. One call here scores one
+    transfer from scratch: both accounts' neighbourhoods fetched from the store, the graph
+    features computed by the batch run's own code, and the score from the exported model. A
+    thousand calls on a rented server. The bar is the median; the whisker reaches the 99th
+    percentile.</p>
+    <div class="seg" id="cost-view" role="group" aria-label="How an account's own counts are found"></div>
+    <figure class="chart-figure"><div class="chart" id="cost"></div>
+      <figcaption id="cost-caption"></figcaption>
+    </figure>
+    <div class="verdict" id="cost-verdict"></div>
+  </section>
+
+  <section class="section" id="limits">
+    <h2>Where the result is weakest</h2>
+    <p class="section-lead">A result is only as useful as its stated limits. These are the ones that matter most.</p>
+    <div class="guide two" id="limit-cards"></div>
+    <div class="leak-card" id="rejected">
+      <span class="eyebrow">Tried and rejected</span>
+      <h3>Scoring an account by how many of its neighbours are already known to be illicit</h3>
+      <p id="rejected-text"></p>
+    </div>
+  </section>
+
+  <section class="section" id="takeaways">
+    <h2>What to take from it</h2>
+    <p class="section-lead">Measured on four datasets with these models and versions. Not laws of nature, but the right
+    questions to ask before funding a graph.</p>
+    <div class="guide two">
+      <article class="guide-card">
+        <h3>Start with graph features, not a graph neural network</h3>
+        <p>Neighbourhood counts and sums fed to the gradient-boosted trees a team already runs gave
+        the gain on every dataset. The graph neural network never beat them, cost GPU time to
+        train, and moved more from one random seed to the next.</p>
+      </article>
+      <article class="guide-card">
+        <h3>One hop, from counters, is the live design</h3>
+        <p>On the bank transfers the second hop added nothing measurable and cost several times as
+        much to fetch. One hop, with each account's own counts kept as running counters, scores in
+        milliseconds in every store tested.</p>
+      </article>
+      <article class="guide-card">
+        <h3>Ask how the split was made</h3>
+        <p>A random split hides the drift a bank lives with and can make a weak model look
+        excellent. Any graph fraud result should be tested on accounts from a later period than
+        the ones it learned from.</p>
+      </article>
+      <article class="guide-card">
+        <h3>Plan for the shift, not just the model</h3>
+        <p>When the market changed, every frozen model collapsed, graph or not. What recovered
+        was fresh labels: retraining on the latest weeks, or swapping the foundation model's
+        examples, which costs no training at all.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="explorer">
+    <h2>All results</h2>
+    <p class="section-lead">The headline run of every model on every dataset, as the repository's README tables print them.</p>
+    <div class="table-wrap"><table class="tight" id="all-table"></table></div>
+  </section>
+
 </main>
+<footer class="foot">
+  <div class="foot-inner">
+    <p>
+      Source, method, the data terms and every table these numbers are read from:
+      <a href="https://github.com/Peter-A-P/transaction-graph-fraud">github.com/Peter-A-P/transaction-graph-fraud</a>
+    </p>
+    <ul>
+      <li>Elliptic: Weber et al., 2019, CC BY-NC-ND 4.0, never redistributed and never drawn here</li>
+      <li>Elliptic++: Elmougy and Liu, KDD 2023, aggregate results only, with the authors' permission</li>
+      <li>IBM AML: Altman et al., NeurIPS 2023, CDLA-Sharing 1.0; the only accounts drawn</li>
+      <li>Type: Newsreader and Inter, SIL Open Font License, served from this host</li>
+    </ul>
+    <p class="foot-credit" id="built"></p>
+  </div>
+</footer>
 <div class="tip" id="tip" role="tooltip"></div>
-<script>
-const DATA = {"runs":[{"dataset":"elliptic","arm":"G+nlr","hops":1,"val_auprc":0.9573440314840825,"auprc":[0.6947,0.3808,0.8369],"before_43":[0.8844,0.8144,0.9596],"from_43":[0.0407,0.0248,0.094],"patterns":{}},{"dataset":"elliptic","arm":"G","hops":1,"val_auprc":0.9663226805168529,"auprc":[0.714,0.4081,0.8461],"before_43":[0.8914,0.8225,0.9605],"from_43":[0.0554,0.0365,0.1067],"patterns":{}},{"dataset":"elliptic","arm":"G","hops":2,"val_auprc":0.9692508866246451,"auprc":[0.7175,0.4057,0.8505],"before_43":[0.8965,0.8282,0.9635],"from_43":[0.0544,0.0355,0.1127],"patterns":{}},{"dataset":"elliptic","arm":"G","hops":3,"val_auprc":0.9708574385962457,"auprc":[0.7198,0.4089,0.8512],"before_43":[0.8972,0.8305,0.9629],"from_43":[0.0561,0.0353,0.122],"patterns":{}},{"dataset":"elliptic","arm":"N-gat","hops":2,"val_auprc":0.876138399887468,"auprc":[0.5714,0.2283,0.7476],"before_43":[0.775,0.6468,0.8493],"from_43":[0.0399,0.0273,0.0768],"patterns":{}},{"dataset":"elliptic","arm":"N-sage","hops":0,"val_auprc":0.8892043167083814,"auprc":[0.5947,0.2993,0.7451],"before_43":[0.8002,0.7359,0.8544],"from_43":[0.0265,0.0153,0.0505],"patterns":{}},{"dataset":"elliptic","arm":"N-sage","hops":1,"val_auprc":0.8981270527903432,"auprc":[0.6127,0.2955,0.7666],"before_43":[0.8153,0.7434,0.8657],"from_43":[0.0345,0.0225,0.0662],"patterns":{}},{"dataset":"elliptic","arm":"N-sage","hops":2,"val_auprc":0.9176851763670474,"auprc":[0.5828,0.2247,0.7578],"before_43":[0.8051,0.7062,0.8686],"from_43":[0.0378,0.0269,0.0679],"patterns":{}},{"dataset":"elliptic","arm":"N-sage","hops":3,"val_auprc":0.9122224424476391,"auprc":[0.5644,0.2338,0.722],"before_43":[0.7755,0.6934,0.8227],"from_43":[0.0466,0.0294,0.0961],"patterns":{}},{"dataset":"elliptic","arm":"R-retrain","hops":0,"val_auprc":null,"auprc":[0.7916,0.5572,0.8854],"before_43":[0.8908,0.8005,0.9427],"from_43":[0.3109,0.1373,0.5425],"patterns":{}},{"dataset":"elliptic","arm":"R","hops":0,"val_auprc":0.9620052799675707,"auprc":[0.6944,0.3731,0.8351],"before_43":[0.8871,0.812,0.957],"from_43":[0.0392,0.0258,0.0722],"patterns":{}},{"dataset":"elliptic","arm":"TabFM-G","hops":1,"val_auprc":0.9837488333531785,"auprc":[0.7758,0.491,0.8913],"before_43":[0.9085,0.8203,0.9688],"from_43":[0.1717,0.0928,0.3634],"patterns":{}},{"dataset":"elliptic","arm":"TabFM-R-swap","hops":0,"val_auprc":null,"auprc":[0.8721,0.6907,0.9445],"before_43":[0.9294,0.8418,0.9791],"from_43":[0.6493,0.0939,0.9148],"patterns":{}},{"dataset":"elliptic","arm":"TabFM-R","hops":0,"val_auprc":0.9758208920945978,"auprc":[0.6976,0.3764,0.8334],"before_43":[0.8768,0.7858,0.9472],"from_43":[0.0671,0.0384,0.1397],"patterns":{}},{"dataset":"ellipticpp","arm":"G","hops":1,"val_auprc":0.9142924974215799,"auprc":[0.515,0.3487,0.6868],"before_43":[0.6514,0.6025,0.714],"from_43":[0.4501,0.1947,0.7144],"patterns":{}},{"dataset":"ellipticpp","arm":"G","hops":2,"val_auprc":0.9124103029144544,"auprc":[0.5947,0.3989,0.7945],"before_43":[0.6764,0.626,0.7348],"from_43":[0.5535,0.2537,0.8398],"patterns":{}},{"dataset":"ellipticpp","arm":"G","hops":3,"val_auprc":0.9202922432986445,"auprc":[0.5951,0.3959,0.7914],"before_43":[0.6969,0.6396,0.7585],"from_43":[0.542,0.247,0.8338],"patterns":{}},{"dataset":"ellipticpp","arm":"N-gat","hops":2,"val_auprc":0.8366656130481455,"auprc":[0.4064,0.2642,0.5583],"before_43":[0.6308,0.5813,0.7128],"from_43":[0.2853,0.0696,0.4619],"patterns":{}},{"dataset":"ellipticpp","arm":"N-sage","hops":0,"val_auprc":0.881695979776308,"auprc":[0.3188,0.173,0.5022],"before_43":[0.6152,0.558,0.7262],"from_43":[0.1826,0.0326,0.3583],"patterns":{}},{"dataset":"ellipticpp","arm":"N-sage","hops":1,"val_auprc":0.8857545248219362,"auprc":[0.3817,0.2444,0.5657],"before_43":[0.673,0.6167,0.7679],"from_43":[0.2239,0.0628,0.3963],"patterns":{}},{"dataset":"ellipticpp","arm":"N-sage","hops":2,"val_auprc":0.9087774206647016,"auprc":[0.4179,0.3012,0.5559],"before_43":[0.6634,0.5929,0.7845],"from_43":[0.2902,0.1243,0.4325],"patterns":{}},{"dataset":"ellipticpp","arm":"R","hops":0,"val_auprc":0.9072719741051768,"auprc":[0.3886,0.276,0.5224],"before_43":[0.5888,0.5171,0.6986],"from_43":[0.2832,0.143,0.4101],"patterns":{}},{"dataset":"ellipticpp","arm":"TabFM-G","hops":1,"val_auprc":0.907450369303144,"auprc":[0.4127,0.2745,0.5472],"before_43":[0.6163,0.5529,0.7138],"from_43":[0.3023,0.1339,0.494],"patterns":{}},{"dataset":"ellipticpp","arm":"TabFM-R","hops":0,"val_auprc":0.8901176877939649,"auprc":[0.2798,0.1728,0.3989],"before_43":[0.4768,0.385,0.5868],"from_43":[0.183,0.0723,0.308],"patterns":{}},{"dataset":"ibm-HI-Small","arm":"G-window","hops":1,"val_auprc":0.5505833416210069,"auprc":[0.5397,0.4909,0.5848],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.8939,0.8116,0.9571],"CYCLE":[0.9798,0.9496,1.0],"FAN-IN":[0.9919,0.9717,1.0],"FAN-OUT":[0.9771,0.9481,1.0],"GATHER-SCATTER":[0.9921,0.9828,1.0],"NONE":[0.4313,0.3894,0.4746],"RANDOM":[0.9643,0.92,1.0],"SCATTER-GATHER":[0.9958,0.9824,1.0],"STACK":[0.9573,0.9191,0.9905]}},{"dataset":"ibm-HI-Small","arm":"G","hops":1,"val_auprc":0.4455089064490646,"auprc":[0.377,0.3352,0.4168],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.803,0.7162,0.8909],"CYCLE":[0.8384,0.7523,0.8948],"FAN-IN":[0.9593,0.9098,0.992],"FAN-OUT":[0.8702,0.8053,0.9219],"GATHER-SCATTER":[0.9475,0.9237,0.969],"NONE":[0.4016,0.3615,0.4417],"RANDOM":[0.8452,0.7671,0.9186],"SCATTER-GATHER":[0.8996,0.8609,0.9442],"STACK":[0.8803,0.8235,0.9434]}},{"dataset":"ibm-HI-Small","arm":"G","hops":2,"val_auprc":0.44546035410425416,"auprc":[0.3797,0.3361,0.4216],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.8182,0.7194,0.9032],"CYCLE":[0.8182,0.7404,0.8776],"FAN-IN":[0.9512,0.8991,0.9833],"FAN-OUT":[0.916,0.8589,0.9649],"GATHER-SCATTER":[0.9554,0.9306,0.976],"NONE":[0.4205,0.3808,0.4646],"RANDOM":[0.7976,0.7053,0.8796],"SCATTER-GATHER":[0.9163,0.8782,0.9483],"STACK":[0.8547,0.7934,0.9174]}},{"dataset":"ibm-HI-Small","arm":"N-gat","hops":2,"val_auprc":0.10209792972669869,"auprc":[0.0711,0.0591,0.0857],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.6212,0.4762,0.7564],"CYCLE":[0.5455,0.4555,0.6494],"FAN-IN":[0.6016,0.4955,0.6807],"FAN-OUT":[0.5496,0.4324,0.6317],"GATHER-SCATTER":[0.6535,0.5848,0.6997],"NONE":[0.4124,0.3713,0.4565],"RANDOM":[0.6548,0.5424,0.7738],"SCATTER-GATHER":[0.6025,0.5355,0.6806],"STACK":[0.641,0.5575,0.7219]}},{"dataset":"ibm-HI-Small","arm":"N-sage+rmp+ego","hops":2,"val_auprc":0.26507039917094116,"auprc":[0.0826,0.066,0.1044],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.6515,0.54,0.7533],"CYCLE":[0.7273,0.632,0.828],"FAN-IN":[0.7967,0.7232,0.8788],"FAN-OUT":[0.7557,0.6765,0.8397],"GATHER-SCATTER":[0.7953,0.7458,0.8385],"NONE":[0.2938,0.2495,0.3453],"RANDOM":[0.6548,0.5357,0.7821],"SCATTER-GATHER":[0.7824,0.7302,0.8519],"STACK":[0.6581,0.5481,0.7434]}},{"dataset":"ibm-HI-Small","arm":"N-sage","hops":1,"val_auprc":0.12094361560430021,"auprc":[0.0683,0.0555,0.0833],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.6212,0.4923,0.75],"CYCLE":[0.4949,0.4,0.5834],"FAN-IN":[0.5854,0.4789,0.6692],"FAN-OUT":[0.5191,0.4153,0.6142],"GATHER-SCATTER":[0.6194,0.5696,0.6712],"NONE":[0.3747,0.3281,0.4214],"RANDOM":[0.631,0.5269,0.726],"SCATTER-GATHER":[0.5816,0.5216,0.6498],"STACK":[0.5897,0.4842,0.6875]}},{"dataset":"ibm-HI-Small","arm":"N-sage","hops":2,"val_auprc":0.12803507276809117,"auprc":[0.0717,0.0589,0.0887],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.6364,0.4857,0.7679],"CYCLE":[0.5455,0.4504,0.6338],"FAN-IN":[0.6016,0.5,0.6777],"FAN-OUT":[0.6641,0.5859,0.7523],"GATHER-SCATTER":[0.6719,0.6069,0.7217],"NONE":[0.3639,0.312,0.3973],"RANDOM":[0.6071,0.4737,0.7143],"SCATTER-GATHER":[0.6067,0.5498,0.6756],"STACK":[0.6239,0.5339,0.7153]}},{"dataset":"ibm-HI-Small","arm":"R","hops":0,"val_auprc":0.06478571474565102,"auprc":[0.0882,0.0678,0.1122],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.6515,0.5439,0.7576],"CYCLE":[0.697,0.6039,0.8108],"FAN-IN":[0.7398,0.6667,0.8316],"FAN-OUT":[0.8092,0.7248,0.8846],"GATHER-SCATTER":[0.7087,0.6557,0.776],"NONE":[0.124,0.0927,0.1636],"RANDOM":[0.5833,0.4831,0.6705],"SCATTER-GATHER":[0.728,0.6835,0.7802],"STACK":[0.7179,0.6207,0.7975]}},{"dataset":"ibm-LI-Small","arm":"G","hops":1,"val_auprc":0.12014218264398459,"auprc":[0.0941,0.0679,0.1263],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.7619,0.6326,0.8864],"CYCLE":[0.8571,0.7199,0.9512],"FAN-IN":[0.8571,0.6362,1.0],"FAN-OUT":[0.7391,0.5869,0.8725],"GATHER-SCATTER":[0.8429,0.7297,0.9394],"NONE":[0.4339,0.3747,0.4856],"RANDOM":[0.9048,0.7222,1.0],"SCATTER-GATHER":[0.7627,0.6452,0.8636],"STACK":[0.875,0.7141,1.0]}},{"dataset":"ibm-LI-Small","arm":"G","hops":2,"val_auprc":0.11928890827186393,"auprc":[0.1103,0.0832,0.1417],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.9048,0.7727,1.0],"CYCLE":[0.8333,0.6857,0.9455],"FAN-IN":[0.7857,0.5385,1.0],"FAN-OUT":[0.8043,0.6862,0.9211],"GATHER-SCATTER":[0.8571,0.759,0.9559],"NONE":[0.4649,0.414,0.524],"RANDOM":[0.8571,0.6521,1.0],"SCATTER-GATHER":[0.8136,0.7164,0.8936],"STACK":[0.875,0.7083,1.0]}},{"dataset":"ibm-LI-Small","arm":"N-sage","hops":1,"val_auprc":0.03199718129800049,"auprc":[0.0289,0.0242,0.0365],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.5952,0.45,0.7447],"CYCLE":[0.3571,0.2249,0.5],"FAN-IN":[0.5,0.2143,0.7647],"FAN-OUT":[0.5217,0.3809,0.6739],"GATHER-SCATTER":[0.4857,0.3529,0.6213],"NONE":[0.436,0.3852,0.4855],"RANDOM":[0.4762,0.2941,0.7],"SCATTER-GATHER":[0.4237,0.2963,0.5646],"STACK":[0.4583,0.2399,0.6667]}},{"dataset":"ibm-LI-Small","arm":"N-sage","hops":2,"val_auprc":0.03663046892889085,"auprc":[0.0248,0.0204,0.0307],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.6905,0.5249,0.8519],"CYCLE":[0.5,0.3529,0.6572],"FAN-IN":[0.5,0.25,0.7694],"FAN-OUT":[0.7391,0.6046,0.8511],"GATHER-SCATTER":[0.7571,0.6337,0.8611],"NONE":[0.3554,0.3103,0.3952],"RANDOM":[0.6667,0.4736,0.8519],"SCATTER-GATHER":[0.5593,0.4375,0.6668],"STACK":[0.625,0.423,0.8077]}},{"dataset":"ibm-LI-Small","arm":"R","hops":0,"val_auprc":0.01303460070986317,"auprc":[0.0186,0.0128,0.0274],"before_43":null,"from_43":null,"patterns":{"BIPARTITE":[0.5476,0.38,0.7106],"CYCLE":[0.5238,0.3877,0.743],"FAN-IN":[0.8571,0.5789,1.0],"FAN-OUT":[0.5435,0.3985,0.7452],"GATHER-SCATTER":[0.5714,0.4231,0.7423],"NONE":[0.1942,0.1502,0.2282],"RANDOM":[0.5238,0.3125,0.7917],"SCATTER-GATHER":[0.4576,0.3529,0.6667],"STACK":[0.5,0.2777,0.7143]}}],"ring":{"attempt":235,"accounts":[{"name":"A1","transfers_in_data":83},{"name":"A2","transfers_in_data":7},{"name":"A3","transfers_in_data":42},{"name":"A4","transfers_in_data":4},{"name":"A5","transfers_in_data":36},{"name":"A6","transfers_in_data":14},{"name":"A7","transfers_in_data":101},{"name":"A8","transfers_in_data":30},{"name":"A9","transfers_in_data":10},{"name":"A10","transfers_in_data":6},{"name":"A11","transfers_in_data":17},{"name":"A12","transfers_in_data":7},{"name":"A13","transfers_in_data":6},{"name":"A14","transfers_in_data":10},{"name":"A15","transfers_in_data":18}],"transfers":[{"from":"A1","to":"A2","usd":19707.31,"hours":0.0,"day":6,"scored":false,"laundering":true,"arms":{}},{"from":"A1","to":"A3","usd":10897.02,"hours":4.2,"day":6,"scored":false,"laundering":true,"arms":{}},{"from":"A1","to":"A4","usd":18348.21,"hours":4.5,"day":6,"scored":false,"laundering":true,"arms":{}},{"from":"A1","to":"A5","usd":13201.33,"hours":8.1,"day":6,"scored":false,"laundering":true,"arms":{}},{"from":"A1","to":"A6","usd":18150.36,"hours":9.6,"day":6,"scored":false,"laundering":true,"arms":{}},{"from":"A1","to":"A7","usd":18831.38,"hours":10.3,"day":6,"scored":false,"laundering":true,"arms":{}},{"from":"A1","to":"A8","usd":6724.17,"hours":10.7,"day":6,"scored":false,"laundering":true,"arms":{}},{"from":"A1","to":"A9","usd":7403.73,"hours":12.1,"day":6,"scored":false,"laundering":true,"arms":{}},{"from":"A1","to":"A10","usd":4585.89,"hours":13.2,"day":6,"scored":false,"laundering":true,"arms":{}},{"from":"A1","to":"A11","usd":4189.78,"hours":18.1,"day":7,"scored":false,"laundering":true,"arms":{}},{"from":"A1","to":"A12","usd":6741.71,"hours":26.0,"day":7,"scored":false,"laundering":true,"arms":{}},{"from":"A1","to":"A13","usd":8422.84,"hours":26.6,"day":7,"scored":false,"laundering":true,"arms":{}},{"from":"A1","to":"A14","usd":2493.11,"hours":31.8,"day":7,"scored":false,"laundering":true,"arms":{}},{"from":"A2","to":"A15","usd":19707.31,"hours":37.4,"day":7,"scored":false,"laundering":true,"arms":{}},{"from":"A3","to":"A15","usd":10068.92,"hours":42.5,"day":8,"scored":true,"laundering":true,"arms":{"R":{"score":0.0127,"flagged":false},"G":{"score":0.5363,"flagged":true},"N":{"score":0.9961,"flagged":true}}},{"from":"A4","to":"A15","usd":16942.48,"hours":46.2,"day":8,"scored":true,"laundering":true,"arms":{"R":{"score":0.0138,"flagged":false},"G":{"score":0.1584,"flagged":true},"N":{"score":0.9761,"flagged":false}}},{"from":"A5","to":"A15","usd":11699.21,"hours":49.7,"day":8,"scored":true,"laundering":true,"arms":{"R":{"score":0.0229,"flagged":true},"G":{"score":0.7399,"flagged":true},"N":{"score":0.9975,"flagged":true}}},{"from":"A6","to":"A15","usd":15492.23,"hours":58.4,"day":8,"scored":true,"laundering":true,"arms":{"R":{"score":0.0295,"flagged":true},"G":{"score":0.4041,"flagged":true},"N":{"score":0.9939,"flagged":false}}},{"from":"A7","to":"A15","usd":21254.73,"hours":60.3,"day":8,"scored":true,"laundering":true,"arms":{"R":{"score":0.0039,"flagged":false},"G":{"score":0.4131,"flagged":true},"N":{"score":0.997,"flagged":true}}},{"from":"A8","to":"A15","usd":6616.04,"hours":69.1,"day":9,"scored":true,"laundering":true,"arms":{"R":{"score":0.0431,"flagged":true},"G":{"score":0.6598,"flagged":true},"N":{"score":0.9984,"flagged":true}}},{"from":"A9","to":"A15","usd":8383.91,"hours":70.8,"day":9,"scored":true,"laundering":true,"arms":{"R":{"score":0.0482,"flagged":true},"G":{"score":0.9789,"flagged":true},"N":{"score":0.9993,"flagged":true}}},{"from":"A10","to":"A15","usd":4028.18,"hours":73.6,"day":9,"scored":true,"laundering":true,"arms":{"R":{"score":0.0189,"flagged":true},"G":{"score":0.9208,"flagged":true},"N":{"score":0.9949,"flagged":false}}},{"from":"A11","to":"A15","usd":3992.11,"hours":74.1,"day":9,"scored":true,"laundering":true,"arms":{"R":{"score":0.0185,"flagged":true},"G":{"score":0.8403,"flagged":true},"N":{"score":0.9973,"flagged":true}}},{"from":"A12","to":"A15","usd":6741.71,"hours":77.1,"day":9,"scored":true,"laundering":true,"arms":{"R":{"score":0.0662,"flagged":true},"G":{"score":0.9923,"flagged":true},"N":{"score":0.994,"flagged":false}}},{"from":"A13","to":"A15","usd":7697.08,"hours":82.1,"day":9,"scored":true,"laundering":true,"arms":{"R":{"score":0.1072,"flagged":true},"G":{"score":0.9966,"flagged":true},"N":{"score":0.9962,"flagged":true}}},{"from":"A14","to":"A15","usd":2493.11,"hours":94.7,"day":10,"scored":false,"laundering":true,"arms":{"R":{"score":0.0123,"flagged":false},"G":{"score":0.5525,"flagged":true},"N":{"score":0.9966,"flagged":true}}}],"cases":[{"transfer":"A3 to A15","hours":42.5,"score":0.5363,"neighbours":4,"top":[{"account":"outside 1","in_ring":false,"in_any_laundering":false,"score_drop":0.4728},{"account":"A1","in_ring":true,"in_any_laundering":true,"score_drop":0.3219},{"account":"outside 2","in_ring":false,"in_any_laundering":true,"score_drop":0.2311},{"account":"A2","in_ring":true,"in_any_laundering":true,"score_drop":-0.1298}]},{"transfer":"A4 to A15","hours":46.2,"score":0.1584,"neighbours":2,"top":[{"account":"A2","in_ring":true,"in_any_laundering":true,"score_drop":0.0252},{"account":"A1","in_ring":true,"in_any_laundering":true,"score_drop":0.0204}]},{"transfer":"A5 to A15","hours":49.7,"score":0.7399,"neighbours":6,"top":[{"account":"outside 3","in_ring":false,"in_any_laundering":false,"score_drop":0.3711},{"account":"A1","in_ring":true,"in_any_laundering":true,"score_drop":0.2868},{"account":"outside 4","in_ring":false,"in_any_laundering":false,"score_drop":0.2379},{"account":"outside 5","in_ring":false,"in_any_laundering":false,"score_drop":0.1805},{"account":"outside 6","in_ring":false,"in_any_laundering":true,"score_drop":0.0735}]},{"transfer":"A6 to A15","hours":58.4,"score":0.4041,"neighbours":6,"top":[{"account":"A1","in_ring":true,"in_any_laundering":true,"score_drop":0.2546},{"account":"outside 7","in_ring":false,"in_any_laundering":false,"score_drop":0.151},{"account":"outside 8","in_ring":false,"in_any_laundering":false,"score_drop":-0.0733},{"account":"outside 9","in_ring":false,"in_any_laundering":false,"score_drop":-0.132},{"account":"outside 10","in_ring":false,"in_any_laundering":false,"score_drop":-0.1675}]},{"transfer":"A7 to A15","hours":60.3,"score":0.4131,"neighbours":7,"top":[{"account":"outside 11","in_ring":false,"in_any_laundering":false,"score_drop":0.3422},{"account":"A1","in_ring":true,"in_any_laundering":true,"score_drop":0.2362},{"account":"outside 12","in_ring":false,"in_any_laundering":false,"score_drop":0.2225},{"account":"outside 13","in_ring":false,"in_any_laundering":false,"score_drop":-0.0113},{"account":"outside 14","in_ring":false,"in_any_laundering":false,"score_drop":-0.0744}]},{"transfer":"A8 to A15","hours":69.1,"score":0.6598,"neighbours":10,"top":[{"account":"A3","in_ring":true,"in_any_laundering":true,"score_drop":0.268},{"account":"A6","in_ring":true,"in_any_laundering":true,"score_drop":0.1996},{"account":"A4","in_ring":true,"in_any_laundering":true,"score_drop":0.1805},{"account":"A5","in_ring":true,"in_any_laundering":true,"score_drop":0.1431},{"account":"A2","in_ring":true,"in_any_laundering":true,"score_drop":0.1374}]},{"transfer":"A9 to A15","hours":70.8,"score":0.9789,"neighbours":9,"top":[{"account":"A3","in_ring":true,"in_any_laundering":true,"score_drop":0.0205},{"account":"A2","in_ring":true,"in_any_laundering":true,"score_drop":0.0181},{"account":"A4","in_ring":true,"in_any_laundering":true,"score_drop":0.0152},{"account":"A1","in_ring":true,"in_any_laundering":true,"score_drop":0.014},{"account":"A6","in_ring":true,"in_any_laundering":true,"score_drop":0.0098}]},{"transfer":"A10 to A15","hours":73.6,"score":0.9208,"neighbours":9,"top":[{"account":"A1","in_ring":true,"in_any_laundering":true,"score_drop":0.1145},{"account":"A3","in_ring":true,"in_any_laundering":true,"score_drop":0.0621},{"account":"A4","in_ring":true,"in_any_laundering":true,"score_drop":0.0403},{"account":"A2","in_ring":true,"in_any_laundering":true,"score_drop":0.04},{"account":"A6","in_ring":true,"in_any_laundering":true,"score_drop":0.0275}]},{"transfer":"A11 to A15","hours":74.1,"score":0.8403,"neighbours":9,"top":[{"account":"A1","in_ring":true,"in_any_laundering":true,"score_drop":0.1814},{"account":"A3","in_ring":true,"in_any_laundering":true,"score_drop":0.0948},{"account":"A4","in_ring":true,"in_any_laundering":true,"score_drop":0.0696},{"account":"A2","in_ring":true,"in_any_laundering":true,"score_drop":0.0619},{"account":"A6","in_ring":true,"in_any_laundering":true,"score_drop":0.032}]},{"transfer":"A12 to A15","hours":77.1,"score":0.9923,"neighbours":8,"top":[{"account":"A3","in_ring":true,"in_any_laundering":true,"score_drop":0.0078},{"account":"A4","in_ring":true,"in_any_laundering":true,"score_drop":0.0048},{"account":"A2","in_ring":true,"in_any_laundering":true,"score_drop":0.0047},{"account":"A7","in_ring":true,"in_any_laundering":true,"score_drop":0.0036},{"account":"A6","in_ring":true,"in_any_laundering":true,"score_drop":0.0034}]},{"transfer":"A13 to A15","hours":82.1,"score":0.9966,"neighbours":7,"top":[{"account":"A1","in_ring":true,"in_any_laundering":true,"score_drop":0.0077},{"account":"A3","in_ring":true,"in_any_laundering":true,"score_drop":0.0068},{"account":"A2","in_ring":true,"in_any_laundering":true,"score_drop":0.0063},{"account":"A4","in_ring":true,"in_any_laundering":true,"score_drop":0.0061},{"account":"A6","in_ring":true,"in_any_laundering":true,"score_drop":0.0047}]},{"transfer":"A14 to A15","hours":94.7,"score":0.5525,"neighbours":14,"top":[{"account":"A1","in_ring":true,"in_any_laundering":true,"score_drop":0.0687},{"account":"A9","in_ring":true,"in_any_laundering":true,"score_drop":-0.0958},{"account":"A2","in_ring":true,"in_any_laundering":true,"score_drop":-0.0973},{"account":"outside 15","in_ring":false,"in_any_laundering":false,"score_drop":-0.1064},{"account":"A4","in_ring":true,"in_any_laundering":true,"score_drop":-0.1105}]}]},"serving":[{"store":"memory","dataset":"ibm-HI-Small","unit":"transfer","centre":"history","hops":1,"hub_cap":50,"calls":1000,"p50_ms":3.8459940114989877,"p99_ms":105.76571878744289,"mean_ms":9.348744827788323,"mean_edges_fetched":9608.148,"utilisation":0.5,"usd_per_million":4.622434942628671,"machine":{"name":"RunPod SECURE NVIDIA GeForce RTX 4090","usd_per_hour":0.89,"price_date":"2026-11-02","host":"326ab94a291e","cpu":"x86_64","cores":48,"usable_cpus":10.2,"threads":1,"reportable":true}},{"store":"memory","dataset":"ibm-HI-Small","unit":"transfer","centre":"counters","hops":1,"hub_cap":50,"calls":1000,"p50_ms":4.4072880409657955,"p99_ms":4.952577040530741,"mean_ms":4.426979478448629,"mean_edges_fetched":94.351,"utilisation":0.5,"usd_per_million":2.1888954087884893,"machine":{"name":"RunPod SECURE NVIDIA GeForce RTX 4090","usd_per_hour":0.89,"price_date":"2026-11-02","host":"326ab94a291e","cpu":"x86_64","cores":48,"usable_cpus":10.2,"threads":1,"reportable":true}},{"store":"duckdb","dataset":"ibm-HI-Small","unit":"transfer","centre":"history","hops":1,"hub_cap":50,"calls":1000,"p50_ms":11.573537602089345,"p99_ms":114.51138068921864,"mean_ms":17.157906975829974,"mean_edges_fetched":9608.148,"utilisation":0.5,"usd_per_million":8.48363178249371,"machine":{"name":"RunPod SECURE NVIDIA GeForce RTX 4090","usd_per_hour":0.89,"price_date":"2026-11-02","host":"326ab94a291e","cpu":"x86_64","cores":48,"usable_cpus":10.2,"threads":1,"reportable":true}},{"store":"duckdb","dataset":"ibm-HI-Small","unit":"transfer","centre":"counters","hops":1,"hub_cap":50,"calls":1000,"p50_ms":10.165564133785665,"p99_ms":11.220014593563974,"mean_ms":10.187324004014954,"mean_edges_fetched":94.351,"utilisation":0.5,"usd_per_million":5.037065757540728,"machine":{"name":"RunPod SECURE NVIDIA GeForce RTX 4090","usd_per_hour":0.89,"price_date":"2026-11-02","host":"326ab94a291e","cpu":"x86_64","cores":48,"usable_cpus":10.2,"threads":1,"reportable":true}},{"store":"neo4j","dataset":"ibm-HI-Small","unit":"transfer","centre":"history","hops":1,"hub_cap":50,"calls":1000,"p50_ms":22.041057934984565,"p99_ms":9549.18192000594,"mean_ms":549.9637698647566,"mean_edges_fetched":9608.148,"utilisation":0.5,"usd_per_million":271.9265306553519,"machine":{"name":"RunPod SECURE NVIDIA GeForce RTX 4090","usd_per_hour":0.89,"price_date":"2026-11-02","host":"326ab94a291e","cpu":"x86_64","cores":48,"usable_cpus":10.2,"threads":1,"reportable":true}},{"store":"neo4j","dataset":"ibm-HI-Small","unit":"transfer","centre":"counters","hops":1,"hub_cap":50,"calls":1000,"p50_ms":16.501876525580883,"p99_ms":134.2715827911161,"mean_ms":22.763138147769496,"mean_edges_fetched":94.351,"utilisation":0.5,"usd_per_million":11.255107195286028,"machine":{"name":"RunPod SECURE NVIDIA GeForce RTX 4090","usd_per_hour":0.89,"price_date":"2026-11-02","host":"326ab94a291e","cpu":"x86_64","cores":48,"usable_cpus":10.2,"threads":1,"reportable":true}},{"store":"memory","dataset":"ibm-HI-Small","unit":"transfer","centre":"history","hops":2,"hub_cap":50,"calls":1000,"p50_ms":9.510667063295841,"p99_ms":181.77578437840566,"mean_ms":19.05068203411065,"mean_edges_fetched":9970.742,"utilisation":0.5,"usd_per_million":9.4195038946436,"machine":{"name":"RunPod SECURE NVIDIA GeForce RTX 4090","usd_per_hour":0.89,"price_date":"2026-11-02","host":"326ab94a291e","cpu":"x86_64","cores":48,"usable_cpus":10.2,"threads":1,"reportable":true}},{"store":"memory","dataset":"ibm-HI-Small","unit":"transfer","centre":"counters","hops":2,"hub_cap":50,"calls":1000,"p50_ms":10.07561688311398,"p99_ms":12.10758170345798,"mean_ms":10.258452960522845,"mean_edges_fetched":545.442,"utilisation":0.5,"usd_per_million":5.072235074925184,"machine":{"name":"RunPod SECURE NVIDIA GeForce RTX 4090","usd_per_hour":0.89,"price_date":"2026-11-02","host":"326ab94a291e","cpu":"x86_64","cores":48,"usable_cpus":10.2,"threads":1,"reportable":true}},{"store":"duckdb","dataset":"ibm-HI-Small","unit":"transfer","centre":"history","hops":2,"hub_cap":50,"calls":1000,"p50_ms":46.48182413075119,"p99_ms":298.17359048407525,"mean_ms":61.66657011327334,"mean_edges_fetched":9970.742,"utilisation":0.5,"usd_per_million":30.490693000451813,"machine":{"name":"RunPod SECURE NVIDIA GeForce RTX 4090","usd_per_hour":0.89,"price_date":"2026-11-02","host":"326ab94a291e","cpu":"x86_64","cores":48,"usable_cpus":10.2,"threads":1,"reportable":true}},{"store":"duckdb","dataset":"ibm-HI-Small","unit":"transfer","centre":"counters","hops":2,"hub_cap":50,"calls":1000,"p50_ms":45.949175604619086,"p99_ms":125.94400774221866,"mean_ms":51.97779016941786,"mean_edges_fetched":545.442,"utilisation":0.5,"usd_per_million":25.70012958376772,"machine":{"name":"RunPod SECURE NVIDIA GeForce RTX 4090","usd_per_hour":0.89,"price_date":"2026-11-02","host":"326ab94a291e","cpu":"x86_64","cores":48,"usable_cpus":10.2,"threads":1,"reportable":true}},{"store":"neo4j","dataset":"ibm-HI-Small","unit":"transfer","centre":"history","hops":2,"hub_cap":50,"calls":1000,"p50_ms":53.76405350398272,"p99_ms":9911.432321295142,"mean_ms":610.7774948240258,"mean_edges_fetched":9970.742,"utilisation":0.5,"usd_per_million":301.995539107435,"machine":{"name":"RunPod SECURE NVIDIA GeForce RTX 4090","usd_per_hour":0.89,"price_date":"2026-11-02","host":"326ab94a291e","cpu":"x86_64","cores":48,"usable_cpus":10.2,"threads":1,"reportable":true}},{"store":"neo4j","dataset":"ibm-HI-Small","unit":"transfer","centre":"counters","hops":2,"hub_cap":50,"calls":1000,"p50_ms":48.001022543758154,"p99_ms":348.3933047391474,"mean_ms":75.90042671049014,"mean_edges_fetched":545.442,"utilisation":0.5,"usd_per_million":37.52854431796457,"machine":{"name":"RunPod SECURE NVIDIA GeForce RTX 4090","usd_per_hour":0.89,"price_date":"2026-11-02","host":"326ab94a291e","cpu":"x86_64","cores":48,"usable_cpus":10.2,"threads":1,"reportable":true}}],"built":"2026-11-04","commit":"2f5b8d2"};
-const ARMS = {R: "R, row only", G: "G, graph features", N: "N, graph neural network",
-  "TabFM-R": "TabFM, row", "TabFM-G": "TabFM, graph features",
-  "R-retrain": "R, retrained each step", "TabFM-R-swap": "TabFM-R, context swapped each step"};
-const COLOR = {R: "var(--s1)", G: "var(--s2)", N: "var(--s3)", "TabFM-R": "var(--s4)",
-  "TabFM-G": "var(--s5)", "R-retrain": "var(--s1)", "TabFM-R-swap": "var(--s4)"};
-const SETS = {"elliptic": "Elliptic", "ellipticpp": "Elliptic++",
-  "ibm-HI-Small": "IBM HI-Small", "ibm-LI-Small": "IBM LI-Small"};
-const NS = "http://www.w3.org/2000/svg";
-const f3 = v => v == null ? "" : v.toFixed(3);
-const iv = t => t ? `${f3(t[0])} (${f3(t[1])} to ${f3(t[2])})` : "not run";
-const pct = v => `${Math.round(v * 100)}%`;
-const tip = document.getElementById("tip");
-function el(name, attrs, parent) {
-  const e = document.createElementNS(NS, name);
-  for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
-  if (parent) parent.appendChild(e);
-  return e;
-}
-function text(parent, x, y, s, attrs) { const t = el("text", {x, y, ...attrs}, parent); t.textContent = s; return t; }
-function hover(node, html) {
-  node.addEventListener("pointermove", ev => {
-    tip.innerHTML = html(); tip.style.display = "block";
-    const x = Math.min(ev.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
-    tip.style.left = x + "px"; tip.style.top = (ev.clientY + 14) + "px";
-  });
-  node.addEventListener("pointerleave", () => { tip.style.display = "none"; });
-}
-function legend(id, arms) {
-  // Colours go on through the style object, not a style attribute, which the host's content
-  // security policy refuses.
-  const box = document.getElementById(id);
-  box.innerHTML = arms.map(a => `<span><i></i>${ARMS[a] || a}</span>`).join("");
-  box.querySelectorAll("i").forEach((i, k) => { i.style.background = COLOR[arms[k]]; });
-}
-function table(id, head, rows) {
-  document.getElementById(id).innerHTML = "<table><thead><tr>" + head.map(h => `<th>${h}</th>`).join("") +
-    "</tr></thead><tbody>" + rows.map(r => "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>").join("") +
-    "</tbody></table>";
-}
-function tabs(id, options, current, onPick) {
-  const box = document.getElementById(id); box.innerHTML = "";
-  for (const [key, label] of options) {
-    const b = document.createElement("button"); b.textContent = label;
-    b.setAttribute("aria-pressed", key === current); b.onclick = () => {
-      for (const o of box.children) o.setAttribute("aria-pressed", "false");
-      b.setAttribute("aria-pressed", "true"); onPick(key);
-    };
-    box.appendChild(b);
-  }
-}
-// The headline run per dataset and arm: best validation AUPRC (seed 0, temporal), as the README.
-function headline(ds, arm) {
-  const pool = DATA.runs.filter(r => r.dataset === ds &&
-    (r.arm === arm || (arm === "N" && r.arm.startsWith("N-"))));
-  pool.sort((a, b) => ((b.val_auprc ?? -1) - (a.val_auprc ?? -1)) || (a.hops - b.hops));
-  return pool[0];
-}
-function armKey(r) { return r.arm.startsWith("N-") ? "N" : r.arm; }
-
-// A horizontal dot-and-interval plot: one row per (group, arm), x from 0 to 1.
-function dotPlot(svgId, groups, valueOf, opts) {
-  const svg = document.getElementById(svgId); svg.innerHTML = "";
-  const rows = groups.flatMap(g => g.items.map(it => ({g, it})));
-  // Drawn at the container's own width, so text stays 12px on a phone. A narrow screen puts
-  // each group's name on a line of its own above its rows.
-  const W = Math.max(300, svg.parentElement.clientWidth - 32), narrow = W < 640;
-  const L = narrow ? 84 : (opts.left || 190), R = 16, rowH = 22, top = 8;
-  const gap = narrow ? 30 : 14;
-  const H = top + rows.length * rowH + groups.length * gap + 28;
-  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  const x = v => L + v * (W - L - R);
-  for (let t = 0; t <= 1.0001; t += narrow ? 0.5 : 0.25) {
-    el("line", {x1: x(t), x2: x(t), y1: top, y2: H - 22, stroke: "var(--grid)"}, svg);
-    text(svg, x(t), H - 6, t.toFixed(2), {"text-anchor": "middle"});
-  }
-  let y = top;
-  for (const g of groups) {
-    y += narrow ? gap - 6 : gap / 2;
-    g.items.forEach((it, i) => {
-      const cy = y + rowH / 2;
-      if (i === 0) text(svg, 0, narrow ? cy - rowH / 2 - 4 : cy + 4, g.label, {class: "ink", "font-weight": "600"});
-      text(svg, L - 10, cy + 4, narrow && it.short ? it.short : it.label, {"text-anchor": "end"});
-      const v = valueOf(it);
-      if (v) {
-        const c = COLOR[it.arm];
-        el("line", {x1: x(v[1]), x2: x(v[2]), y1: cy, y2: cy, stroke: c, "stroke-width": 2, "stroke-linecap": "round"}, svg);
-        el("circle", {cx: x(v[0]), cy, r: 5, fill: c, stroke: "var(--surface)", "stroke-width": 2}, svg);
-        const hit = el("rect", {x: L, y: cy - rowH / 2, width: W - L - R, height: rowH, fill: "transparent"}, svg);
-        hover(hit, () => `<b>${g.label}</b><br>${ARMS[it.arm] || it.arm}${it.note ? ", " + it.note : ""}<br>${opts.metric}: ${iv(v)}`);
-      } else {
-        text(svg, x(0) + 4, cy + 4, "not run");
-      }
-      y += rowH;
-    });
-    y += narrow ? 6 : gap / 2;
-  }
-}
-
-function drawMain() {
-  const sets = Object.keys(SETS);
-  const groups = sets.map(ds => {
-    const arms = ["R", "G", "N", "TabFM-R", "TabFM-G"].filter(a => headline(ds, a));
-    return {label: SETS[ds], items: arms.map(a => {
-      const r = headline(ds, a);
-      const note = a === "R" ? "" : `${r.hops} hop${r.hops === 1 ? "" : "s"}`;
-      return {arm: a, label: a.startsWith("TabFM") ? ARMS[a] : a, short: a, run: r, note};
-    })};
-  });
-  legend("main-legend", ["R", "G", "N", "TabFM-R", "TabFM-G"]);
-  dotPlot("main", groups, it => it.run.auprc, {metric: "AUPRC"});
-  table("main-table", ["Dataset", "Arm", "Hops", "AUPRC (95% interval)"],
-    groups.flatMap(g => g.items.map(it => [g.label, ARMS[it.arm], it.run.hops, iv(it.run.auprc)])));
-}
-
-function drawPatterns() {
-  const order = ["FAN-IN", "FAN-OUT", "CYCLE", "SCATTER-GATHER", "GATHER-SCATTER", "BIPARTITE", "STACK", "RANDOM", "NONE"];
-  const names = {"FAN-IN": "Fan-in", "FAN-OUT": "Fan-out", "CYCLE": "Cycle", "SCATTER-GATHER": "Scatter-gather",
-    "GATHER-SCATTER": "Gather-scatter", "BIPARTITE": "Bipartite", "STACK": "Stack", "RANDOM": "Random", "NONE": "No named pattern"};
-  const heads = Object.fromEntries(["R", "G", "N"].map(a => [a, headline("ibm-HI-Small", a)]));
-  const groups = order.map(p => ({label: names[p], items: ["R", "G", "N"].filter(a => heads[a]).map(a =>
-    ({arm: a, label: a, pat: heads[a].patterns[p]}))}));
-  legend("pat-legend", ["R", "G", "N"]);
-  dotPlot("patterns", groups, it => it.pat, {metric: "Recall at 1% budget", left: 170});
-  table("pat-table", ["Pattern", "R", "G", "N"], order.map(p =>
-    [names[p], ...["R", "G", "N"].map(a => heads[a] ? iv(heads[a].patterns[p]) : "not run")]));
-}
-
-function drawHops(ds) {
-  const svg = document.getElementById("hops"); svg.innerHTML = "";
-  const W = Math.max(300, svg.parentElement.clientWidth - 32), H = 320, L = 44, R = 20, T = 12, B = 34;
-  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  const series = {
-    G: [0, 1, 2, 3].map(h => DATA.runs.find(r => r.dataset === ds && r.arm === (h === 0 ? "R" : "G") && r.hops === h)),
-    N: [0, 1, 2, 3].map(h => DATA.runs.find(r => r.dataset === ds && r.arm === "N-sage" && r.hops === h)),
-  };
-  const all = Object.values(series).flat().filter(Boolean).flatMap(r => r.auprc);
-  const ymax = Math.min(1, Math.ceil((Math.max(...all) + 0.02) * 5) / 5);
-  const x = h => L + h * (W - L - R) / 3, y = v => T + (1 - v / ymax) * (H - T - B);
-  for (let t = 0; t <= ymax + 1e-9; t += ymax > 0.4 ? 0.2 : 0.1) {
-    el("line", {x1: L, x2: W - R, y1: y(t), y2: y(t), stroke: "var(--grid)"}, svg);
-    text(svg, L - 8, y(t) + 4, t.toFixed(1), {"text-anchor": "end"});
-  }
-  for (let h = 0; h <= 3; h++) text(svg, x(h), H - 10, `${h} hop${h === 1 ? "" : "s"}`, {"text-anchor": "middle"});
-  for (const [arm, runs] of Object.entries(series)) {
-    const pts = runs.map((r, h) => r && {h, v: r.auprc}).filter(Boolean);
-    if (!pts.length) continue;
-    const band = pts.map(p => `${x(p.h)},${y(p.v[2])}`).concat(pts.slice().reverse().map(p => `${x(p.h)},${y(p.v[1])}`));
-    el("polygon", {points: band.join(" "), fill: COLOR[arm], opacity: 0.12}, svg);
-    el("polyline", {points: pts.map(p => `${x(p.h)},${y(p.v[0])}`).join(" "), fill: "none", stroke: COLOR[arm], "stroke-width": 2}, svg);
-    for (const p of pts) {
-      el("circle", {cx: x(p.h), cy: y(p.v[0]), r: 5, fill: COLOR[arm], stroke: "var(--surface)", "stroke-width": 2}, svg);
-      const hit = el("circle", {cx: x(p.h), cy: y(p.v[0]), r: 14, fill: "transparent"}, svg);
-      hover(hit, () => `<b>${SETS[ds]}, ${p.h} hop${p.h === 1 ? "" : "s"}</b><br>${arm === "G" && p.h === 0 ? "R (hop 0)" : ARMS[arm]}<br>AUPRC ${iv(p.v)}`);
-    }
-    const last = pts[pts.length - 1];
-    text(svg, x(last.h) - 8, y(last.v[0]) - 10, arm, {class: "ink2", "text-anchor": "end", "font-weight": "600"});
-  }
-  legend("hop-legend", ["G", "N"]);
-  const fetch = DATA.serving.filter(s => s.dataset === ds && s.centre === "counters");
-  table("hop-table", ["Hops", "G, AUPRC", "N, AUPRC", "Live fetch and score, p50 (ms)"], [0, 1, 2, 3].map(h => [h,
-    series.G[h] ? iv(series.G[h].auprc) : "not run", series.N[h] ? iv(series.N[h].auprc) : "not run",
-    fetch.filter(s => s.hops === h).map(s => `${s.store} ${s.p50_ms.toFixed(1)}`).join("; ") || ""]));
-}
-
-function drawShift() {
-  const arms = ["R", "G", "N", "TabFM-R", "TabFM-G", "R-retrain", "TabFM-R-swap"];
-  const groups = [];
-  for (const ds of ["elliptic", "ellipticpp"]) {
-    const items = arms.map(a => ({a, r: headline(ds, a)})).filter(o => o.r && o.r.from_43);
-    for (const {a, r} of items) groups.push({label: `${SETS[ds]}: ${ARMS[a]}`, items: [
-      {arm: a, label: "before 43", v: r.before_43}, {arm: a, label: "from 43", v: r.from_43}]});
-  }
-  legend("shift-legend", ["R", "G", "N", "TabFM-R", "TabFM-G"]);
-  dotPlot("shift", groups, it => it.v, {metric: "AUPRC", left: 330});
-  table("shift-table", ["Dataset and arm", "Before step 43", "From step 43"],
-    groups.map(g => [g.label, iv(g.items[0].v), iv(g.items[1].v)]));
-}
-
-function drawRing(arm) {
-  const ring = DATA.ring, svg = document.getElementById("ring"); svg.innerHTML = "";
-  // Layered: each account at its longest path from an account the ring never pays into,
-  // so money reads left to right. A cycle has no such account, so it falls back to a circle.
-  const names = ring.accounts.map(a => a.name), level = Object.fromEntries(names.map(n => [n, 0]));
-  const into = new Set(ring.transfers.map(t => t.to));
-  const acyclic = names.some(n => !into.has(n));
-  if (acyclic) for (let k = 0; k < names.length; k++)
-    for (const t of ring.transfers) if (t.from !== t.to) level[t.to] = Math.max(level[t.to], level[t.from] + 1);
-  const depth = Math.max(...Object.values(level));
-  const ok = acyclic && depth < names.length;
-  const W = 560, H = 440, pos = {};
-  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  if (ok) {
-    for (let l = 0; l <= depth; l++) {
-      const col = names.filter(n => level[n] === l);
-      col.forEach((n, i) => { pos[n] = [40 + l * (W - 80) / Math.max(depth, 1), 24 + (i + 0.5) * (H - 48) / col.length]; });
-    }
-  } else {
-    names.forEach((n, i) => { const t = -Math.PI / 2 + 2 * Math.PI * i / names.length;
-      pos[n] = [W / 2 + (H / 2 - 40) * Math.cos(t), H / 2 + (H / 2 - 40) * Math.sin(t)]; });
-  }
-  const defs = el("defs", {}, svg);
-  for (const [id, c] of [["on", COLOR[arm]], ["off", "var(--axis)"]]) {
-    const m = el("marker", {id: "arrow-" + id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse"}, defs);
-    el("path", {d: "M0,0 L10,5 L0,10 z", fill: c}, m);
-  }
-  const panel = document.getElementById("ring-panel");
-  ring.transfers.forEach((t, i) => {
-    const [x1, y1] = pos[t.from], [x2, y2] = pos[t.to];
-    const dx = x2 - x1, dy = y2 - y1, d = Math.hypot(dx, dy) || 1;
-    const sx = x1 + dx / d * 14, sy = y1 + dy / d * 14, ex = x2 - dx / d * 16, ey = y2 - dy / d * 16;
-    const bend = 0.06 * d, mx = (sx + ex) / 2 - dy / d * bend, my = (sy + ey) / 2 + dx / d * bend;
-    const s = t.arms[arm], on = t.scored && s && s.flagged;
-    const path = el("path", {d: `M${sx},${sy} Q${mx},${my} ${ex},${ey}`, fill: "none",
-      stroke: on ? COLOR[arm] : "var(--axis)", "stroke-width": t.scored ? 2.5 : 1.2,
-      "marker-end": `url(#arrow-${on ? "on" : "off"})`, class: "edge"}, svg);
-    const hit = el("path", {d: path.getAttribute("d"), fill: "none", stroke: "transparent", "stroke-width": 12, class: "edge"}, svg);
-    hover(hit, () => `<b>${t.from} to ${t.to}</b><br>US$${t.usd.toLocaleString()} at hour ${t.hours}<br>` +
-      (t.scored ? Object.entries(t.arms).map(([a, v]) => `${a}: ${v.score.toFixed(3)}${v.flagged ? ", flagged" : ""}`).join("<br>") : "not scored (before the test days, or in the tail)"));
-    hit.addEventListener("click", () => showTransfer(i, arm));
-  });
-  for (const a of ring.accounts) {
-    const [x, y] = pos[a.name];
-    el("circle", {cx: x, cy: y, r: 12, fill: "var(--surface)", stroke: "var(--ink-2)", "stroke-width": 1.5}, svg);
-    text(svg, x, y + 4, a.name, {"text-anchor": "middle", class: "ink", "font-size": 10, "font-weight": "600"});
-  }
-  const scored = ring.transfers.filter(t => t.scored);
-  const caught = scored.filter(t => t.arms[arm] && t.arms[arm].flagged).length;
-  panel.innerHTML = `<h3>${ARMS[arm]}</h3><p>Its 1% alert queue reaches <span class="flag">${caught} of ${scored.length}</span>
-    scored transfers in this ring.</p><p class="small">Select a transfer for its scores, and, where arm G flagged it, its case file.</p>`;
-}
-function showTransfer(i, arm) {
-  const t = DATA.ring.transfers[i];
-  const panel = document.getElementById("ring-panel");
-  let html = `<h3>${t.from} to ${t.to}</h3><p class="small">US$${t.usd.toLocaleString()}, hour ${t.hours} of the ring, day ${t.day}${t.laundering ? ", laundering" : ""}</p>`;
-  if (!t.scored) html += "<p>Not scored: it falls before the test days or in the generator's tail.</p>";
-  else for (const [a, v] of Object.entries(t.arms))
-    html += `<div class="row"><span>${ARMS[a] || a}</span><span>${v.score.toFixed(3)}${v.flagged ? " <b>flagged</b>" : ""}</span></div>`;
-  const c = DATA.ring.cases.find(c => c.transfer === `${t.from} to ${t.to}` && c.hours === t.hours);
-  if (c) {
-    html += `<h3 class="case">Case file (arm G)</h3><p class="small">Score ${c.score.toFixed(3)}. Of ${c.neighbours} direct neighbours, the
-      ones whose removal drops the score most, rescored through the exported model:</p>`;
-    html += c.top.map(n => `<div class="row"><span>${n.account}${n.in_ring ? " (in this ring)" : n.in_any_laundering ? " (in another laundering transfer)" : ""}</span><span>${n.score_drop >= 0 ? "-" : "+"}${Math.abs(n.score_drop).toFixed(3)}</span></div>`).join("");
-  }
-  panel.innerHTML = html;
-}
-
-function boot() {
-  if (!DATA) return;
-  drawMain(); drawPatterns(); drawShift();
-  const r = DATA.ring;
-  document.getElementById("ring-intro").textContent =
-    `A scatter-gather attempt planted by the IBM generator: ${r.accounts.length} accounts and ${r.transfers.length} transfers over ` +
-    `${Math.ceil(Math.max(...r.transfers.map(t => t.hours)) / 24)} days. It was chosen by a rule that reads no score: the attempt of that ` +
-    `pattern with the most transfers on the test days. ${r.transfers.filter(t => t.scored).length} of its transfers were scored.`;
-  tabs("ring-arms", ["R", "G", "N"].map(a => [a, ARMS[a]]), "G", drawRing);
-  drawRing("G");
-  let hopSet = "ellipticpp";
-  tabs("hop-sets", Object.entries(SETS), hopSet, ds => { hopSet = ds; drawHops(ds); });
-  drawHops(hopSet);
-  let width = window.innerWidth;
-  window.addEventListener("resize", () => {
-    if (window.innerWidth === width) return;
-    width = window.innerWidth; drawMain(); drawPatterns(); drawShift(); drawHops(hopSet);
-  });
-  document.getElementById("built").textContent = `Built ${DATA.built} from commit ${DATA.commit}.`;
-}
-boot();
-</script>
+<script src="app.js"></script>
 </body>
 </html>

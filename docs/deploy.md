@@ -1,20 +1,27 @@
 # Putting the demo page on graph.peterparker.ca
 
-The demo page is `site/`: `index.html` with its script, stylesheet and data inline,
-`staticwebapp.config.json` (the host's headers) and `robots.txt`. There is no backend, so
-hosting it is a file upload and one DNS record, the same path as the other project pages on
-peterparker.ca.
+The demo site is `site/`: two pages (`index.html` and `architecture.html`), one stylesheet,
+one script (`app.js`), two fonts, the three architecture diagrams, `data.json`, the host's
+configuration (`staticwebapp.config.json`) and `robots.txt`. There is no backend, so hosting it
+is a file upload and one DNS record, the same path as the other project pages on
+peterparker.ca. It is styled like them: the stylesheet starts from theirs, with the same type,
+palette, header, menu, figure cards and callouts.
 
-**Every number on the page comes from the committed results.** `consort site` writes all three
-files from `results/` and the IBM HI-Small runs. When the results change, run `consort report`,
-then `consort site`, and commit `site/` with the tables.
+**Every number on the page comes from `site/data.json`**, and none is typed by hand: the
+figures, and every number in the findings beside them, are drawn by `app.js` from that file.
+`consort site` writes it from the committed results (`results/summary.json`,
+`results/faithfulness.json`, `results/serving.json` and the gate's ledger), adds the ring,
+which needs IBM's data and the exported model, and copies the diagrams from
+`docs/architecture/`. When the results change, run `consort report`, then `consort site`, and
+commit `site/` with the tables. In CI, `tests/test_page.py` fails if the committed data.json
+has fallen behind the results, and `tests/test_host.py` if a diagram has fallen behind the
+documentation's or the script looks for an element the page does not have.
 
-**The content security policy allows only the page's own script and stylesheet**, by their
-SHA-256 hashes: no other script, no style attribute, no request to anywhere. The hashes change
-whenever the page does, so `consort site` writes the policy from the page it has just written,
-and `tests/test_host.py` fails in CI if the committed policy has fallen behind the committed
-page. A page whose policy is stale shows nothing but its headings, and says why only in the
-browser console.
+**The content security policy allows this origin and nothing else**: no inline script, no
+style attribute, no font, script or request from anywhere else. The fonts (Newsreader and
+Inter, SIL Open Font License) are served from the site itself for that reason.
+`tests/test_host.py` fails if a page uses anything the policy refuses, which would otherwise
+show only as a blank chart and a line in the browser console.
 
 **Deployed 2026-11-04.** The app is `graph-peterparker-ca` in resource group `rg-portfolio-2`
 (subscription `PAP-POCs 2`, East US 2, Free plan), served at

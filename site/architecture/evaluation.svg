@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1236" height="772" viewBox="0 0 1236 772" role="img" aria-label="Elliptic&#x27;s 49 time steps give the temporal inductive split, the random split run once for the leakage gap, the unknown-label rule and the shift split at step 43 with the context-swap schedule; the synthetic set gives the serving benchmark, the hop curve and recall by generator pattern; the leakage test guards every split and the parity test guards the serving path; every claim is bootstrapped over groups before the faithfulness number, the gate and the cost table are written." font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#14201E"/></marker><marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#0E6E60"/></marker><marker id="arrow-signal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#A64C1C"/></marker><marker id="arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#5C6B67"/></marker></defs>
+<rect width="1236" height="772" fill="#FFFFFF"/>
+<text x="28" y="42" font-size="16" font-weight="700" fill="#14201E">Evaluation design: which split carries which claim, and what the guards prove</text>
+<rect x="12.0" y="60.0" width="332.0" height="446.0" rx="8" fill="#F6F8F7" stroke="#D5DCD9" stroke-width="1"/>
+<text x="24.0" y="74.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" font-weight="600" letter-spacing="0.08em" fill="#5C6B67">ELLIPTIC, REAL, 49 TIME STEPS</text>
+<rect x="892.0" y="60.0" width="332.0" height="446.0" rx="8" fill="#F6F8F7" stroke="#D5DCD9" stroke-width="1"/>
+<text x="904.0" y="74.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" font-weight="600" letter-spacing="0.08em" fill="#5C6B67">IBM AML, SYNTHETIC, PATTERNS LABELLED</text>
+<path d="M 328.0 122.0 L 468.0 122.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 908.0 234.0 L 768.0 234.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 328.0 458.0 L 562.0 458.0 Q 568.0 458.0 568.0 464.0 L 568.0 537.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 908.0 458.0 L 674.0 458.0 Q 668.0 458.0 668.0 464.0 L 668.0 537.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 468.0 570.0 L 184.0 570.0 Q 178.0 570.0 178.0 576.0 L 178.0 649.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 618.0 603.0 L 618.0 650.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 768.0 570.0 L 1052.0 570.0 Q 1058.0 570.0 1058.0 576.0 L 1058.0 650.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<rect x="28.0" y="90.0" width="300.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/>
+<text x="178.0" y="118.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Temporal inductive split</text>
+<text x="178.0" y="134.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">train early, validate next, test latest</text>
+<rect x="28.0" y="202.0" width="300.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/>
+<text x="178.0" y="230.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Random split, run once</text>
+<text x="178.0" y="246.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">the leakage gap</text>
+<rect x="28.0" y="314.0" width="300.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/>
+<text x="178.0" y="342.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Unknown-label nodes</text>
+<text x="178.0" y="358.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">pass messages, never counted</text>
+<rect x="28.0" y="425.0" width="300.0" height="66.0" rx="4" fill="#FFFFFF" stroke="#A64C1C" stroke-width="1.6"/>
+<rect x="28.0" y="425.0" width="5" height="66.0" rx="2" fill="#A64C1C"/>
+<text x="178.0" y="446.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Shift split</text>
+<text x="178.0" y="462.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">train 1 to 34; test 39 to 42 and 43 to 49;</text>
+<text x="178.0" y="478.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">context swap step by step</text>
+<rect x="908.0" y="202.0" width="300.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/>
+<text x="1058.0" y="230.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Serving benchmark</text>
+<text x="1058.0" y="246.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Neo4j and DuckDB; fetch, features, score</text>
+<rect x="908.0" y="314.0" width="300.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#A64C1C" stroke-width="1.6"/>
+<rect x="908.0" y="314.0" width="5" height="64.0" rx="2" fill="#A64C1C"/>
+<text x="1058.0" y="342.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">The hop curve</text>
+<text x="1058.0" y="358.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">0 to 3 hops, gain beside fetch latency</text>
+<rect x="908.0" y="426.0" width="300.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#A64C1C" stroke-width="1.6"/>
+<rect x="908.0" y="426.0" width="5" height="64.0" rx="2" fill="#A64C1C"/>
+<text x="1058.0" y="454.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Recall by pattern</text>
+<text x="1058.0" y="470.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">fan-in, fan-out, cycle, scatter-gather, ...</text>
+<rect x="468.0" y="82.0" width="300.0" height="80.0" rx="4" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
+<rect x="468.0" y="82.0" width="5" height="80.0" rx="2" fill="#0E6E60"/>
+<text x="618.0" y="103.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Leakage test on every build</text>
+<text x="618.0" y="119.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">no test-step row in training; no feature</text>
+<text x="618.0" y="135.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">reads a label</text>
+<text x="618.0" y="152.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">consort.data.leakage</text>
+<rect x="468.0" y="202.0" width="300.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
+<rect x="468.0" y="202.0" width="5" height="64.0" rx="2" fill="#0E6E60"/>
+<text x="618.0" y="223.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Serving parity test</text>
+<text x="618.0" y="239.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">fetch-path features equal batch features</text>
+<text x="618.0" y="256.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">consort.serve.parity</text>
+<rect x="468.0" y="537.0" width="300.0" height="66.0" rx="4" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/>
+<text x="618.0" y="558.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Bootstrap over groups</text>
+<text x="618.0" y="574.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">time steps or components; 95% intervals;</text>
+<text x="618.0" y="590.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">paired deltas on identical items</text>
+<rect x="28.0" y="649.0" width="300.0" height="66.0" rx="4" fill="#FFFFFF" stroke="#A64C1C" stroke-width="1.6"/>
+<rect x="28.0" y="649.0" width="5" height="66.0" rx="2" fill="#A64C1C"/>
+<text x="178.0" y="670.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Explanation faithfulness</text>
+<text x="178.0" y="686.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">known illicit neighbour in the top k,</text>
+<text x="178.0" y="702.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">against random neighbours</text>
+<rect x="468.0" y="650.0" width="300.0" height="64.0" rx="4" fill="#F2F4F3" stroke="#5C6B67" stroke-width="1.1" stroke-dasharray="5 3"/>
+<text x="618.0" y="678.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">The 03 gate</text>
+<text x="618.0" y="694.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">G and N against R, delta stated</text>
+<rect x="908.0" y="650.0" width="300.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#A64C1C" stroke-width="1.6"/>
+<rect x="908.0" y="650.0" width="5" height="64.0" rx="2" fill="#A64C1C"/>
+<text x="1058.0" y="678.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Cost per million scores</text>
+<text x="1058.0" y="694.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">per hop, per store, prices dated</text>
+<rect x="367.0" y="112.0" width="62.0" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="398.0" y="124.0" font-size="12" text-anchor="middle" fill="#14201E">every split</text>
+<rect x="799.3" y="224.0" width="77.4" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="838.0" y="236.0" font-size="12" text-anchor="middle" fill="#14201E">ten accounts</text>
+<rect x="371.6" y="448.0" width="152.7" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="448.0" y="460.0" font-size="12" text-anchor="middle" fill="#14201E">outcomes from every claim</text>
+<rect x="273.0" y="560.0" width="100.1" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="323.0" y="572.0" font-size="12" text-anchor="middle" fill="#14201E">flagged accounts</text>
+<rect x="597.3" y="616.5" width="41.3" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="618.0" y="628.5" font-size="12" text-anchor="middle" fill="#14201E">paired</text>
+<rect x="871.3" y="560.0" width="83.4" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="913.0" y="572.0" font-size="12" text-anchor="middle" fill="#14201E">latency traces</text>
+<rect x="28" y="736" width="26" height="16" rx="3" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
+<text x="62" y="748" font-size="11" fill="#5C6B67">the guard against a wrong number</text>
+<rect x="260.48" y="736" width="26" height="16" rx="3" fill="#FFFFFF" stroke="#A64C1C" stroke-width="1.6"/>
+<text x="294.48" y="748" font-size="11" fill="#5C6B67">the numbers</text>
+<rect x="379.77" y="736" width="26" height="16" rx="3" fill="#F2F4F3" stroke="#5C6B67" stroke-dasharray="4 3"/>
+<text x="413.77" y="748" font-size="11" fill="#5C6B67">reused</text>
+</svg>

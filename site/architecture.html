@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How it's built: Fraud Known by the Company It Keeps</title>
+<meta name="description" content="How the transaction graphs are split, scored three ways, evaluated and served in Fraud Known by the Company It Keeps, in three diagrams.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="https://peterparker.ca"><span class="mono-mark" aria-hidden="true">P</span>Peter Parker</a>
+    <p class="top-nav"><a href="https://peterparker.ca">Project 17: Fraud Known by the Company It Keeps</a></p>
+  </div>
+</header>
+<nav class="tabs" aria-label="This site">
+  <div class="tabs-inner">
+    <a href="index.html">Overview</a>
+    <a href="index.html#ring-panel">A ring</a>
+    <a href="index.html#main-panel">Does it help?</a>
+    <a href="index.html#pattern-panel">Shapes</a>
+    <a href="index.html#hop-panel">Hops</a>
+    <a href="index.html#shift-panel">The shift</a>
+    <a href="index.html#leak-panel">The usual split</a>
+    <a href="index.html#cost-panel">Live cost</a>
+    <a href="index.html#takeaways">Takeaways</a>
+    <a href="architecture.html" aria-current="page">How it's built</a>
+  </div>
+</nav>
+<main>
+
+  <header class="hero">
+    <p class="eyebrow">Architecture</p>
+    <h1>How it's built</h1>
+    <p class="lead">
+      How the transaction graphs are split, scored three ways, evaluated and served, in three
+      pictures. They were drawn before the first line of code, so that the design could not be
+      shaped to fit the result. Select a diagram to open it full size.
+    </p>
+    <p class="hero-note"><a href="index.html">Back to the findings</a></p>
+  </header>
+
+  <section class="section" id="the-system">
+    <h2>The system</h2>
+    <figure class="arch-figure">
+      <a href="architecture/system.svg"><img src="architecture/system.svg" width="1236" height="1148" alt="Public transaction graphs are fetched with their licences quoted and built once into DuckDB edge tables and PyTorch Geometric objects; time-ordered splits pass a leakage test on every build; three arms and a foundation-model column score the same accounts; one evaluator that does not know which model scored writes the intervals; the explanations, the serving benchmark, the release gate and the report follow, and the ONNX scorer and feature view are handed to the real-time platform."></a>
+    </figure>
+    <div class="prose">
+      <p>Two public Bitcoin graphs and IBM's synthetic bank transfers come in, each with its licence read and quoted before the first download, fetched by the reader and checked against committed checksums; nothing raw is in the repository. The graph is built once from one source into DuckDB edge tables and PyTorch Geometric objects, and split by time, so that every test account is later than, and new to, everything the models learned from. A leakage test runs on every build.</p>
+      <p>Three arms score the same accounts: gradient-boosted trees on the row, the same trees on the row plus neighbourhood features, and a graph neural network. Google's TabFM scores the first two tables without training. One evaluator reads every arm's scores without knowing which model wrote them and bootstraps over time steps or hours. From there come the explanations and their faithfulness number, the serving benchmark over three stores, project 03's release gate, and one report command that writes the README's tables and the data behind this site. The exported scorer and its feature view go to project 09's real-time platform.</p>
+      <p class="where">Where it lives: <code>consort.data</code>, <code>consort.graph</code>, <code>consort.models</code>, <code>consort.eval</code>, <code>consort.explain</code>, <code>consort.serve</code>, <code>consort.gate</code> and <code>consort.report</code>.</p>
+    </div>
+  </section>
+
+  <section class="section" id="three-arms">
+    <h2>One account through the three arms</h2>
+    <figure class="arch-figure">
+      <a href="architecture/three-arms.svg"><img src="architecture/three-arms.svg" width="1236" height="500" alt="One account with its row features and its neighbourhood, capped at a stated number of neighbours per hop, is scored three ways: gradient boosting on the row alone, gradient boosting on the row plus neighbourhood features that may not read a label, and a graph neural network; the tabular foundation model scores the first two feature tables from a sample that keeps every positive; one evaluator reads every score the same way."></a>
+    </figure>
+    <div class="prose">
+      <p>One test account, with its own row and its neighbourhood out to a stated number of hops, capped at the most recent neighbours per hop so that a hub cannot swamp it. The same code fetches that neighbourhood in the batch run and in the live benchmark, and a parity test holds the two to the same features.</p>
+      <p>The row model sees only the account. Graph features add degree, counterparties, amounts and velocity summed over the neighbourhood, from a registry that refuses any feature that reads a fraud label. The graph neural network passes messages along the same neighbourhood. The foundation model is shown a sample of training rows that keeps every positive, and scores without training.</p>
+      <p class="where">Where it lives: <code>consort.graph.neighbourhood</code>, <code>consort.graph.features</code>, <code>consort.models</code>.</p>
+    </div>
+  </section>
+
+  <section class="section" id="evaluation">
+    <h2>Which split carries which claim</h2>
+    <figure class="arch-figure">
+      <a href="architecture/evaluation.svg"><img src="architecture/evaluation.svg" width="1236" height="772" alt="Elliptic's 49 time steps give the time-ordered split, the random split run once for the leakage gap, the unknown-label rule and the shift split at step 43 with the context-swap schedule; the synthetic set gives the serving benchmark, the hop curve and recall by generator pattern; the leakage test guards every split and the parity test guards the serving path; every claim is bootstrapped over groups."></a>
+    </figure>
+    <div class="prose">
+      <p>The time-ordered split carries every headline number. The random split is run once, only so that the gap it opens can be published. Accounts with no label pass messages in the graph and never enter a metric. The shift test trains before Elliptic's step 43 and tests before and after it, with the step-by-step recovery schedule.</p>
+      <p>The synthetic set carries what the real sets cannot: recall by laundering shape, and the live serving benchmark, since the real sets are never served or drawn. Every interval resamples time steps or hours, never single accounts, and every comparison between models is paired on identical items.</p>
+      <p class="where">Where it lives: <code>consort.data.splits</code>, <code>consort.data.leakage</code>, <code>consort.serve.parity</code>, <code>consort.eval</code>.</p>
+    </div>
+  </section>
+
+</main>
+<footer class="foot">
+  <div class="foot-inner">
+    <p>
+      Source and method:
+      <a href="https://github.com/Peter-A-P/transaction-graph-fraud">github.com/Peter-A-P/transaction-graph-fraud</a>
+    </p>
+    <ul>
+      <li>Type: Newsreader and Inter, SIL Open Font License, served from this host</li>
+    </ul>
+  </div>
+</footer>
+</body>
+</html>

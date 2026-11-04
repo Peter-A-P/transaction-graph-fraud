@@ -1,19 +1,38 @@
 {
   "$schema": "https://json.schemastore.org/staticwebapp.config.json",
   "globalHeaders": {
-    "Content-Security-Policy": "default-src 'none'; script-src 'sha256-v59SlYWnYd/wij2VPOZiTj5q3rftXRF/FM3lGfMKgFU='; style-src 'sha256-AVWXeV9DsLCph1kELI/f7wMtOr3T52HMIgLaUBQIM9g='; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+    "Content-Security-Policy": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "no-referrer",
     "Permissions-Policy": "geolocation=(), camera=(), microphone=(), interest-cohort=()",
     "Strict-Transport-Security": "max-age=31536000; includeSubDomains"
   },
   "mimeTypes": {
+    ".json": "application/json",
+    ".js": "text/javascript",
+    ".css": "text/css",
     ".html": "text/html",
+    ".woff2": "font/woff2",
     ".txt": "text/plain",
-    ".json": "application/json"
+    ".svg": "image/svg+xml"
   },
+  "routes": [
+    {
+      "route": "/data.json",
+      "headers": {
+        "Cache-Control": "public, max-age=600, must-revalidate"
+      }
+    }
+  ],
   "navigationFallback": {
-    "rewrite": "/index.html"
+    "rewrite": "/index.html",
+    "exclude": [
+      "/data.json",
+      "/*.css",
+      "/*.js",
+      "/fonts/*",
+      "/architecture/*"
+    ]
   },
   "responseOverrides": {
     "404": {

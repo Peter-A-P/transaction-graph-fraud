@@ -291,14 +291,14 @@ arithmetic are in [PLAN.md](PLAN.md); the figures are in
 
 ## The demo page
 
-[site/index.html](site/index.html), live at
-https://graph.peterparker.ca, is one static page: the results above as charts, and one
-laundering ring from IBM's synthetic set, as each arm scored it, with arm G's case file for every
-transfer it flagged. The ring is chosen by a rule that reads no score: the scatter-gather
-attempt with the most transfers on the test days. Its accounts are named by their place in the
-ring. Only synthetic accounts are drawn; Elliptic appears only as aggregates. `uv run consort
-site` rebuilds it from `results/` and the IBM HI-Small runs. How it is hosted, and the content security policy
-that allows only the page's own script and stylesheet, is in [docs/deploy.md](docs/deploy.md).
+Live at https://graph.peterparker.ca, styled like the other project pages on peterparker.ca:
+the results above as interactive charts with their intervals, and one laundering ring from
+IBM's synthetic set as each arm scored it, with arm G's case file for every transfer it
+flagged. The ring is chosen by a rule that reads no score: the scatter-gather attempt with the
+most transfers on the test days. Its accounts are named by their place in the ring. Only
+synthetic accounts are drawn; Elliptic appears only as aggregates. Every number on it is read
+from `site/data.json`, which `uv run consort site` writes from `results/`, the gate's ledger
+and the IBM HI-Small runs; how it is hosted is in [docs/deploy.md](docs/deploy.md).
 
 ## Data and citations
 
