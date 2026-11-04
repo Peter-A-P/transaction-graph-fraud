@@ -177,26 +177,3 @@ def _cases(
                 }
             )
     return out
-
-
-def aggregates(summary: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """What the figures draw, from results/summary.json: seed-0 temporal runs, each metric
-    with its interval; IBM's on the without-tail slice, as the README's tables read them."""
-    out = []
-    for r in summary:
-        if r["kind"] != "temporal" or r["seed"] != 0:
-            continue
-        m = r["slices"].get(TAIL, r["metrics"]) if r["dataset"].startswith("ibm-") else r["metrics"]
-        out.append(
-            {
-                "dataset": r["dataset"],
-                "arm": r["arm"],
-                "hops": r["hops"],
-                "val_auprc": r.get("val_auprc"),
-                "auprc": m.get("auprc"),
-                "before_43": r["slices"].get("before-43", {}).get("auprc"),
-                "from_43": r["slices"].get("from-43", {}).get("auprc"),
-                "patterns": r.get("patterns") or {},
-            }
-        )
-    return out

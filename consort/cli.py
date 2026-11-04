@@ -497,13 +497,16 @@ def site(
     model: Path = Path("checkpoints/ibm-HI-Small.temporal.G.h1.cap50.s0.onnx"),
     pattern: str = "SCATTER-GATHER",
 ) -> None:
-    """The demo site: one synthetic ring scored by every arm, with arm G's case files, and the
-    aggregate figures, from results/ and the IBM HI-Small runs; written to site/index.html."""
+    """The demo site's data: one synthetic ring scored by every arm, with arm G's case files,
+    and the aggregate figures, from results/, the gate's ledger and the IBM HI-Small runs;
+    written to site/data.json beside the hand-written page, with the host's configuration and
+    a copy of the architecture diagrams (docs/deploy.md)."""
+    import shutil
     import subprocess
     from datetime import UTC, datetime
 
     from consort.data.tasks import IBMTask
-    from consort.report import host
+    from consort.report import host, page
     from consort.report import site as st
     from consort.report import tables as tb
     from consort.report.summary import RunSummary
@@ -520,30 +523,22 @@ def site(
     attempt = st.pick_ring(task, pattern)
     contract = json.loads(model.with_suffix(".features.json").read_text())
     ring = st.ring(task, attempt, heads, model, contract["hops"], contract["hub_cap"])
-    serving = Path("results/serving.json")
     commit = subprocess.run(
         ["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, check=True
     ).stdout.strip()
     data = {
-        "runs": st.aggregates(summary),
+        **page.figures(Path(".")),
         "ring": ring,
-        "serving": json.loads(serving.read_text()) if serving.exists() else [],
         "built": datetime.now(UTC).strftime("%Y-%m-%d"),
         "commit": commit,
     }
-    template = (Path(st.__file__).parent / "site.html").read_text(encoding="utf8")
-    # Inside a script element, "</" must not appear in the data.
-    payload = json.dumps(data, separators=(",", ":")).replace("</", "<\\/")
     out.mkdir(parents=True, exist_ok=True)
-    page = out / "index.html"
-    html = template.replace("/*DATA*/null", payload)
-    page.write_text(html, encoding="utf8")
-    # The host's headers, its content security policy hashing this page's script and style.
-    (out / "staticwebapp.config.json").write_text(
-        json.dumps(host.config(html), indent=2) + "\n", encoding="utf8"
+    (out / "data.json").write_text(json.dumps(data, separators=(",", ":")) + "\n", encoding="utf8")
+    host.write(out)
+    shutil.copytree(Path("docs/architecture"), out / "architecture", dirs_exist_ok=True)
+    typer.echo(
+        f"ring attempt {attempt}: {len(ring['transfers'])} transfers; wrote {out / 'data.json'}"
     )
-    (out / "robots.txt").write_text("User-agent: *\nAllow: /\n", encoding="utf8")
-    typer.echo(f"ring attempt {attempt}: {len(ring['transfers'])} transfers; wrote {page}")
 
 
 @app.command()

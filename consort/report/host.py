@@ -1,54 +1,70 @@
-"""The host's configuration for the demo page, written beside it by `consort site`.
+"""The host's configuration for the demo site, written beside it by `consort site`.
 
-The page is one file with its script and stylesheet inline, so the content security policy
-allows exactly those two by their SHA-256 hashes and nothing else: no other script, no style
-attribute, no request anywhere. The hashes change whenever the page does, which is why the
-configuration is written from the page rather than by hand, and why a test fails when the
-committed configuration has fallen behind the committed page.
+The site is a page, a stylesheet, a script, two fonts, the diagrams and data.json, all served
+from the one origin, so the content security policy allows this origin and nothing else: no
+inline script, no style attribute, no request to anywhere else. tests/test_host.py fails if the
+committed configuration differs from this one, or if the page uses anything it refuses.
 """
 
 from __future__ import annotations
 
-import base64
-import hashlib
-import re
+import json
+from pathlib import Path
 from typing import Any
 
-
-def _hashes(page: str, tag: str) -> list[str]:
-    bodies = re.findall(rf"<{tag}>(.*?)</{tag}>", page, flags=re.S)
-    if not bodies:
-        raise ValueError(f"no inline <{tag}> in the page")
-    return [
-        "'sha256-" + base64.b64encode(hashlib.sha256(b.encode("utf8")).digest()).decode() + "'"
-        for b in bodies
+CSP = "; ".join(
+    [
+        "default-src 'none'",
+        "script-src 'self'",
+        "style-src 'self'",
+        "img-src 'self' data:",
+        "font-src 'self'",
+        "connect-src 'self'",
+        "object-src 'none'",
+        "frame-ancestors 'none'",
+        "base-uri 'none'",
+        "form-action 'none'",
     ]
+)
 
 
-def config(page: str) -> dict[str, Any]:
-    """Azure Static Web Apps' staticwebapp.config.json for `page`, the site's index.html."""
-    csp = "; ".join(
-        [
-            "default-src 'none'",
-            "script-src " + " ".join(_hashes(page, "script")),
-            "style-src " + " ".join(_hashes(page, "style")),
-            "img-src 'self' data:",
-            "object-src 'none'",
-            "frame-ancestors 'none'",
-            "base-uri 'none'",
-            "form-action 'none'",
-        ]
-    )
+def config() -> dict[str, Any]:
+    """Azure Static Web Apps' staticwebapp.config.json for the site."""
     return {
         "$schema": "https://json.schemastore.org/staticwebapp.config.json",
         "globalHeaders": {
-            "Content-Security-Policy": csp,
+            "Content-Security-Policy": CSP,
             "X-Content-Type-Options": "nosniff",
             "Referrer-Policy": "no-referrer",
             "Permissions-Policy": "geolocation=(), camera=(), microphone=(), interest-cohort=()",
             "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
         },
-        "mimeTypes": {".html": "text/html", ".txt": "text/plain", ".json": "application/json"},
-        "navigationFallback": {"rewrite": "/index.html"},
+        "mimeTypes": {
+            ".json": "application/json",
+            ".js": "text/javascript",
+            ".css": "text/css",
+            ".html": "text/html",
+            ".woff2": "font/woff2",
+            ".txt": "text/plain",
+            ".svg": "image/svg+xml",
+        },
+        "routes": [
+            {
+                "route": "/data.json",
+                "headers": {"Cache-Control": "public, max-age=600, must-revalidate"},
+            }
+        ],
+        "navigationFallback": {
+            "rewrite": "/index.html",
+            "exclude": ["/data.json", "/*.css", "/*.js", "/fonts/*", "/architecture/*"],
+        },
         "responseOverrides": {"404": {"rewrite": "/index.html", "statusCode": 200}},
     }
+
+
+def write(out: Path) -> None:
+    """The configuration and robots.txt, into the site folder."""
+    (out / "staticwebapp.config.json").write_text(
+        json.dumps(config(), indent=2) + "\n", encoding="utf8"
+    )
+    (out / "robots.txt").write_text("User-agent: *\nAllow: /\n", encoding="utf8")
