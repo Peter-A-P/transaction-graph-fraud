@@ -79,14 +79,21 @@ def pad(dur: float, chord: list[float], fade: float) -> Arr:
     return res
 
 
-def track(ring: dict[str, Any], seconds: float) -> tuple[Arr, Arr]:
-    """Left and right channels for the film of `ring` (site/data.json's ring)."""
+def track(
+    ring: dict[str, Any], seconds: float, stretch: float = 1.0, split: float = 9.2
+) -> tuple[Arr, Arr]:
+    """Left and right channels for the film of `ring` (site/data.json's ring). Times below are
+    the story's, as ring.html draws it; the story plays `stretch` times slower up to `split`."""
+
+    def film(at: float) -> float:
+        return at * stretch if at < split else at + split * (stretch - 1)
+
     n = int(seconds * SR)
     left, right = np.zeros(n), np.zeros(n)
     rng = np.random.default_rng(17)
 
     def add(sig: Arr, at: float, gain: float, pan: float = 0.0) -> None:
-        i = int(at * SR)
+        i = int(film(at) * SR)
         j = min(n, i + len(sig))
         if i >= n:
             return
@@ -94,13 +101,13 @@ def track(ring: dict[str, Any], seconds: float) -> tuple[Arr, Arr]:
         right[i:j] += sig[: j - i] * gain * (1 + pan) ** 0.5
 
     # The pad: A minor while the ring is told, then a brighter D major under the result.
-    add(pad(10.2, [110.0, 164.81, 220.0, 261.63], 1.2), 0.0, 0.10)
-    add(pad(seconds - 9.4, [146.83, 220.0, 293.66, 369.99], 0.9), 9.4, 0.10)
+    add(pad(film(10.2), [110.0, 164.81, 220.0, 261.63], 1.2), 0.0, 0.10)
+    add(pad(seconds - film(9.4), [146.83, 220.0, 293.66, 369.99], 0.9), 9.4, 0.10)
 
     # Scene 1.
     add(pluck(329.63, decay=4), 0.25, 0.22, -0.4)
     add(pluck(392.0, decay=4), 0.40, 0.22, 0.4)
-    add(sweep(260, 620, 0.95), 0.5, 0.10)
+    add(sweep(260, 620, 0.95 * stretch), 0.5, 0.10)
     add(pluck(196.0, 0.6, 7, 0.1), 1.55, 0.18)
     add(thud(), 2.35, 0.40)
 
@@ -109,7 +116,7 @@ def track(ring: dict[str, Any], seconds: float) -> tuple[Arr, Arr]:
     for k, name in enumerate(names):
         at = 3.4 + (int(name[1:]) % 7) * 0.12 + 0.15
         add(pluck(SCALE[k % 5] / 2, 0.5, 8, 0.2), at, 0.07, -0.6 + 1.2 * k / max(len(names) - 1, 1))
-    add(sweep(180, 360, 2.0), 3.7, 0.05)
+    add(sweep(180, 360, 2.0 * stretch), 3.7, 0.05)
 
     # Scene 3: an arrow changes colour when its pass reaches its place in the scored list.
     scored = [x for x in ring["transfers"] if x["scored"]]

@@ -21,8 +21,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 FPS = 30
-SECONDS = 13.5
-POSTER_AT = 8.9  # the ring with every transfer scored
+# The story (one transfer, the ring, both models scoring it) is drawn on a 9.2-second schedule
+# in ring.html and played STRETCH times slower; the result screen after it plays at its own pace.
+STRETCH = 1.6
+SPLIT = 9.2
+SECONDS = 13.5 + SPLIT * (STRETCH - 1)
+POSTER_AT = 8.9 * STRETCH  # the ring with every transfer scored
 
 
 def main() -> None:
@@ -40,6 +44,7 @@ def main() -> None:
             page = browser.new_page(viewport={"width": 1080, "height": 1080})
             page.goto((ROOT / "video" / "ring.html").as_uri())
             page.evaluate("d => { window.D = d; }", data)
+            page.evaluate("k => { window.TIMING = k; }", {"stretch": STRETCH, "split": SPLIT})
             page.evaluate("document.fonts.ready")
             n = round(SECONDS * FPS)
             for i in range(n):
@@ -77,7 +82,7 @@ def main() -> None:
         sys.path.insert(0, str(Path(__file__).parent))
         import sound
 
-        left, right = sound.track(data["ring"], SECONDS)
+        left, right = sound.track(data["ring"], SECONDS, STRETCH, SPLIT)
         sound.write_wav(frames / "track.wav", left, right)
         subprocess.run(
             [

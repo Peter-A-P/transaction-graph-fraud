@@ -107,7 +107,11 @@ function scoreBar(g, x, y, w, label, value, color, k, verdict, vcolor) {
   }
 }
 
-function render(t) {
+function render(film) {
+  // The film's time to the story's: the story plays TIMING.stretch times slower up to its end,
+  // the result screen after it at its own pace.
+  const k = (window.TIMING || {}).stretch || 1, split = (window.TIMING || {}).split || 9.2;
+  const t = film < split * k ? film / k : film - split * (k - 1);
   S = document.getElementById("s");
   S.innerHTML = "";
   el("rect", {x: 0, y: 0, width: W, height: H, fill: C.bg});

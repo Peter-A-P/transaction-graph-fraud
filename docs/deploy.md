@@ -17,7 +17,7 @@ commit `site/` with the tables. In CI, `tests/test_page.py` fails if the committ
 has fallen behind the results, and `tests/test_host.py` if a diagram has fallen behind the
 documentation's or the script looks for an element the page does not have.
 
-**The film** (`site/video/ring-sound.mp4`, 13.5 seconds, 1080 by 1080, with a silent cut
+**The film** (`site/video/ring-sound.mp4`, about 18 seconds, 1080 by 1080, with a silent cut
 `ring.mp4` for autoplaying feeds and `ring-poster.jpg`) is the ring on the page told in four steps: one transfer the row model lets
 through, the ring around it, both models scoring it, and the headline figures. It is drawn by
 `video/ring.html` from `site/data.json`, so its numbers and its ring are the page's, and
