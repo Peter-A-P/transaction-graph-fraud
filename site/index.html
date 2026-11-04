@@ -42,20 +42,19 @@
       <span class="cta-note">Every number below is read from the files the repository's report command writes.</span>
     </div>
 
-    <p class="eyebrow">Two real Bitcoin graphs, twelve million synthetic bank transfers, every number with its interval</p>
-    <h1>Money laundering is a shape, and a model that scores one account at a time cannot see it. <span class="hl">Scoring the neighbourhood</span> finds more of it, in milliseconds.</h1>
+    <p class="eyebrow">Twelve million synthetic bank transfers and two real Bitcoin graphs, every number with its interval</p>
+    <h1>Each transfer looked ordinary. <span class="hl">Together they were a laundering ring.</span></h1>
+    <p class="hero-sub">
+      Scoring each account by the accounts it trades with caught <strong id="sub-g">-</strong> of the
+      laundering in a 1% alert queue. Scoring it alone caught <strong id="sub-r">-</strong>.
+    </p>
     <p class="lead">
-      Most fraud models judge each account or each payment on its own row: the amount, the time,
-      the history. Laundering does not live in a row. It lives in the links: money fanning in from
-      many accounts to one, scattering out and gathering again, cycling back to where it started.
-      <strong>So does looking at the network catch what the row model misses, and is it worth
-      the cost?</strong> This project put three ways of scoring on the same accounts, in the same
-      time-ordered split: the row alone, the row plus features computed from each account's
-      neighbours, and a graph neural network that learns from the graph directly, with a
-      tabular foundation model beside them that is not trained at all. Then it asked what a risk
-      director would ask: how much more does each one catch with the same investigators, which
-      laundering shapes does only the graph see, how far out is it worth looking, what breaks
-      when criminals change their habits, and what does a live score cost?
+      Launderers move money as a pattern: fanning in from many accounts to one, scattering out
+      and gathering again, cycling back to where it started. One payment at a time, none of it
+      looks unusual. This project put three ways of scoring on the same accounts, in the same
+      time-ordered split, and measured what each one catches: the row alone, the row plus
+      features from each account's neighbours, and a graph neural network, with a foundation
+      model beside them that is never trained.
     </p>
     <div class="hero-points">
       <div class="point">

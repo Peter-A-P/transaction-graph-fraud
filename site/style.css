@@ -1024,3 +1024,8 @@ tbody tr.reference { background: var(--accent-soft); }
 .ref-tick { opacity: 0.35; }
 #all-table th, #all-table td { white-space: normal; }
 #all-table td.num { white-space: nowrap; }
+
+/* The line under the headline: the measured result the headline promises, a size between
+   the headline and the lead. */
+.hero-sub { font-family: var(--serif); font-size: clamp(1.25rem, 2.2vw, 1.5rem); line-height: 1.4; color: var(--ink); margin: 0 0 1.1rem; max-width: 46rem; }
+.hero-sub strong { color: var(--accent-ink); font-weight: 600; }

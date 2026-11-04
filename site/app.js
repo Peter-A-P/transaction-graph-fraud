@@ -155,6 +155,8 @@ function rowLabels(s, groups, narrow, L) {
 function hero() {
   const ibmG = headline("ibm-HI-Small", "G"), ibmR = headline("ibm-HI-Small", "R");
   const gateG = D.gate.find(g => g.run.startsWith("ibm-HI-Small.") && g.run.includes(".G."));
+  $("sub-g").textContent = pct(ibmG.recall_at_1pct_budget[0]);
+  $("sub-r").textContent = pct(ibmR.recall_at_1pct_budget[0]);
   $("hero-recall").textContent = `${pct(ibmG.recall_at_1pct_budget[0])} vs ${pct(ibmR.recall_at_1pct_budget[0])}`;
   $("hero-recall-note").textContent = `IBM HI-Small, synthetic bank transfers: ${ci(ibmG.recall_at_1pct_budget, pct)} with graph features.` +
     (gateG ? ` Project 03's release gate passes it at ${pts(gateG.difference[0])}.` : "");
