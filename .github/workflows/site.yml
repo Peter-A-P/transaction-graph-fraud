@@ -1,0 +1,37 @@
+name: website
+
+# The demo page, site/, uploaded to Azure Static Web Apps on every push to main that changes it.
+# Nothing is built here: `consort site` writes site/index.html, its host configuration and
+# robots.txt from the committed results, and tests/test_host.py fails in CI if the
+# configuration's content security policy has fallen behind the page. The upload token is the
+# repository secret AZURE_STATIC_WEB_APPS_API_TOKEN, never a file in the repository.
+#
+# Runs only while the repository variable SITE is on (docs/deploy.md); otherwise it skips.
+
+on:
+  push:
+    branches: [main]
+    paths: [site/**, .github/workflows/site.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ vars.SITE == 'on' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: site
+          skip_app_build: true

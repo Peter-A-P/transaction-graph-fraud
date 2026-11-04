@@ -12,7 +12,8 @@ authors' written permission, rebuilt step by step because its published wallet f
 lifetime aggregates); the serving benchmark on IBM HI-Small, since the real sets are never
 served; the gate, the faithfulness numbers, the handover and the demo page are built.
 `consort report` writes every README table from `results/summary.json`; `consort site` writes
-`site/index.html`. Still open: the site deployed, `v0.1.0`, and the repository public. Read
+`site/index.html`. The site is deployed to Azure Static Web Apps (`docs/deploy.md`); still open: its DNS record at
+consort.peterparker.ca, `v0.1.0`, and the repository public. Read
 `docs/gpu.md` before renting: RunPod deletes go through GraphQL, never REST.
 
 ## Read first
