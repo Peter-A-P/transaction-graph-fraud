@@ -345,7 +345,16 @@ def report(
             and t.get("centre", "history") == "counters"
         ]
         if not rows:
-            return ("not measured yet", "not measured yet")
+            # The real sets are never served (Elliptic is never drawn or redistributed, and
+            # the benchmark is IBM's); at zero hops there is no neighbourhood to fetch.
+            why = (
+                "not served"
+                if dataset.startswith("elliptic")
+                else "no fetch"
+                if hops == 0
+                else "not measured"
+            )
+            return (why, why)
         p = {q: "; ".join(f"{t['store']} {t[q]:.1f}" for t in rows) for q in ("p50_ms", "p99_ms")}
         return (p["p50_ms"], p["p99_ms"])
 
