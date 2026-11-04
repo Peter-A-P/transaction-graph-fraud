@@ -68,12 +68,19 @@ def test_summaries_are_cached_by_the_outcomes_file(runs: Path, tmp_path: Path) -
 
 def test_headline_hop_is_chosen_on_validation(runs: Path, tmp_path: Path) -> None:
     summaries = _summaries(runs, tmp_path / "cache")
-    gs = [s for s in summaries if s.arm == "G"]
-    best = max(gs, key=lambda s: s.val_auprc or 0.0)
-    worst = min(gs, key=lambda s: s.val_auprc or 0.0)
+    gs = sorted((s for s in summaries if s.arm == "G"), key=lambda s: s.hops)
+    assert len(gs) >= 2
+    # The toy graph is easy enough that every hop count can reach 1.0 on validation, and then
+    # the pick is only the tie-break, so the validation scores are set here: more hops, worse.
+    for i, s in enumerate(gs):
+        s.val_auprc = 0.9 - 0.1 * i
+    best, worst = gs[0], gs[-1]
     # Give the worse-on-validation run the better test score: the headline must not move.
     worst.metrics["auprc"] = (0.999, 0.99, 1.0)
     assert tb.headline(summaries, "elliptic", "G") is best
+    # And the other way round, so the tie-break to fewer hops cannot pass it alone.
+    best.val_auprc, worst.val_auprc = worst.val_auprc, best.val_auprc
+    assert tb.headline(summaries, "elliptic", "G") is worst
 
 
 def test_tables_fill_only_between_markers(runs: Path, tmp_path: Path) -> None:
