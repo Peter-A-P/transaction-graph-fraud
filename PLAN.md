@@ -1,15 +1,16 @@
 # Plan: Fraud Known by the Company It Keeps
 
-**Written:** 2026-10-31. **Status:** plan only, nothing built. **Build:** three weeks of
-evenings and weekends plus one of slack, starting when this plan is approved; the weeks in
+**Written:** 2026-10-31, before the first line of code; amended in place where the build
+proved it wrong, each amendment dated and explained. **Status:** built; the results are in the
+README. **Build:** three weeks of evenings and weekends plus one of slack; the weeks in
 section 6 are relative, not dated. **Package:** `consort`. **Repository:**
 `transaction-graph-fraud`.
 **Fed by:** 09 (the fraud framing, the alert-budget view of a review queue, the ONNX
 challenger interface and the offline-online parity test it established), 03 (the gate runs the
 paired comparison between arms with intervals from 02), 04 (only if a model ever writes a case
 narrative; no model vendor is in the plan). **Feeds:** 09 (a challenger scorer exported to
-ONNX, and graph features as a feature view for its store), the serving project in the plan's
-reserve (a trained model with a measured neighbourhood fetch to put on a cluster).
+ONNX, and graph features as a feature view for its store), a later serving
+project (a trained model with a measured neighbourhood fetch to put on a cluster).
 
 This is the portfolio's first project on a graph: it scores an account by the company it
 keeps, and publishes when that beats scoring the account alone, which laundering shapes only
@@ -223,7 +224,7 @@ Elliptic is shown in tables only, since its licence forbids redistribution of th
 - A language model anywhere in the headline. No narratives, no model grading another.
 - A general anti-money-laundering product: sanctions screening, name matching, case
   management. The plan rejected screening for 05 on the same grounds.
-- Any data that is not public or any design from the employer's systems (section 9).
+- Any data that is not public, or any design that is not from public sources (section 9).
 
 ## 3. Data
 
@@ -299,11 +300,11 @@ match the trained model's on a thousand rows.
 | 03 | The gate's `outcomes_file` adapter: one spec per dataset and hop, the paired comparison of arm G and arm N against arm R with a stated delta, the ledger record written to this repository; a fourth real use of the adapter after 06, 07 and 16 |
 | 02 | Interval and paired-delta conventions, through 03 |
 | 04 | Not in the plan. If a case narrative is ever generated, it routes through `boundary` with `data_class=public`, which the synthetic accounts are |
-| The serving reserve | A trained model, an ONNX export, a measured fetch path and a load client: the inputs that project needs on day one |
+| A later serving project | A trained model, an ONNX export, a measured fetch path and a load client: the inputs that project needs on day one |
 
 ## 6. Week by week
 
-Relative weeks of evenings and weekends, in order; the build starts when the plan is approved.
+Relative weeks of evenings and weekends, in order.
 
 | Week | Built | Done when |
 |---|---|---|
@@ -332,21 +333,23 @@ the Azure Static Web Apps free tier.
 | TabFM inference | Two feature tables, three datasets, the step-by-step context swap on Elliptic; about 4 GPU hours | 2 | 3 |
 | Serving benchmark | The same rented machine for the fetch-and-score runs, about 3 hours; Neo4j container free | 1 | 2 |
 | Development, evaluation and explanation runs | Local CPU for Elliptic and the tabular arms; about 4 rented hours for arm N's explanations | 2 | 3 |
-| Pods left idle (16 lost about US$15 this way) | The watchdog from week 2; a reserve of | 4 | 5 |
+| Pods left idle | The watchdog from week 2; a reserve of | 4 | 5 |
 | Object storage for checkpoints, one month | | 2 | 3 |
 | Demo site | Azure Static Web Apps free tier | 0 | 0 |
 | **Total** | | **19** | **27** |
 
-Budgeted **CA$20 to 40**, outside the plan's CA$2,110 as 13, 14 and 15 are: 16's overrun has
-already consumed the contingency line this was first assigned to, so it draws on the monthly
-allowance directly and is capped by it. If the GPU time runs over, HI-Medium goes first, then
-GAT, then the ablation. Actuals go to STATUS in the plan repository next to this estimate.
+Budgeted **CA$20 to 40**. If the GPU time runs over, HI-Medium goes first, then GAT, then the
+ablation. *Spent, 2026-11-04:* about US$33 (about CA$45 at 1.35 CAD/USD) over seven pods (a smoke
+test, five queues, the serving benchmark), CA$5 over the cap: IBM's arm N ran four hours on
+the CPU of the first pod before its sampler was fixed, and TabFM on Elliptic++'s graph
+features hung two pods before it finished on a later one. HI-Medium was not run. Each pod is
+in `docs/gpu.md`.
 
 ## 8. Handover and reuse
 
 `consort` v0.1.0 at the end of week 3. 09 can import the ONNX scorer and the feature view.
 The evaluator, the feature registry and the neighbourhood fetch are dataset-agnostic: a fourth
-graph is a loader and a manifest. The serving reserve project starts from the trained models,
+graph is a loader and a manifest. A later serving project would start from the trained models,
 the fetch path and the load client. `docs/patterns.md` and the pattern labeller are the part a
 reader interested in the topic takes away, with the figure.
 
@@ -362,9 +365,9 @@ reader interested in the topic takes away, with the figure.
 | Hubs make two hops explode | A per-hop neighbour cap, reported; the latency table shows the uncapped p99 on a sample so the cap's cost is visible |
 | The GNN does not beat graph features plus XGBoost | Published either way through the gate; that is the field's open question and the README's first finding whichever way it falls |
 | TabFM's bounded context | A stratified sample at a stated size with every positive kept; the size is a parameter in the table and the limit is a finding; weights non-commercial, which the cost column notes as "not deployable by a bank" |
-| Pods left running (16's US$15) | A watchdog that deletes a pod idle for thirty minutes, written before the first rental |
+| Pods left running | A watchdog that deletes a pod idle for thirty minutes, written before the first rental |
 | The laptop tempts a shortcut | Elliptic and the tabular arms may train on it; nothing timed is reported from it. Every latency number comes from the rented machine or the VPS |
-| Employer boundary (Rule G) | Crypto transactions and synthetic bank transfers, far from any public programme; public data and public problem statements only; no internal architecture, features, thresholds or code; 09's note applies. If the build drifts toward an internal design, stop and raise it |
+| Public sources only | Crypto transactions and synthetic bank transfers, far from any public programme; public data and public problem statements only; no non-public architecture, features, thresholds or code. If the build drifts toward a non-public design, stop and raise it |
 
 ## 10. Candidates for the rejected approach
 

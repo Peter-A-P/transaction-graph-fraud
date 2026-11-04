@@ -6,13 +6,14 @@ graph and on synthetic bank transfers with labelled laundering patterns; three a
 graph features, graph neural network), a tabular foundation model as a fourth column, the hop
 curve, the shift at Elliptic's step 43, the leakage gap, explanation faithfulness and the cost
 of a live neighbourhood fetch. The plan is in [PLAN.md](PLAN.md); the diagrams in
-[docs/architecture.md](docs/architecture.md). Status: building since 2026-10-31. All four datasets are fetched and checked (Elliptic, IBM
-HI-Small and LI-Small, and Elliptic++ with both authors' written permission, rebuilt step by
-step because its published wallet features are lifetime aggregates). Arms R and G are measured
-on all four on the laptop; arm N and the TabFM column run on rented pods through
-`ops/pod-run.sh`; `consort report` writes every README table from `results/summary.json`. The
-serving benchmark and the 03 gate specs are still to run. Read `docs/gpu.md` before renting:
-RunPod deletes go through GraphQL, never REST.
+[docs/architecture.md](docs/architecture.md). Status (2026-11-04): arms R, G and N and the TabFM column are
+measured on all four datasets (Elliptic, IBM HI-Small and LI-Small, and Elliptic++ with both
+authors' written permission, rebuilt step by step because its published wallet features are
+lifetime aggregates); the serving benchmark on IBM HI-Small, since the real sets are never
+served; the gate, the faithfulness numbers, the handover and the demo page are built.
+`consort report` writes every README table from `results/summary.json`; `consort site` writes
+`site/index.html`. Still open: the site deployed, `v0.1.0`, and the repository public. Read
+`docs/gpu.md` before renting: RunPod deletes go through GraphQL, never REST.
 
 ## Read first
 
