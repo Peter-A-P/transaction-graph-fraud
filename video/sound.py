@@ -82,15 +82,27 @@ def pad(dur: float, chord: list[float], fade: float) -> Arr:
 def track(
     ring: dict[str, Any],
     seconds: float,
-    stretch: float = 1.0,
+    segments: list[tuple[float, float, float]] | None = None,
     split: float = 9.2,
     zoom: float = 0.0,
 ) -> tuple[Arr, Arr]:
     """Left and right channels for the film of `ring` (site/data.json's ring). Times below are
-    the story's, as ring.html draws it; the story plays `stretch` times slower up to `split`."""
+    the story's, as ring.html draws it; each of `segments` (story start, end, times slower)
+    plays at its own speed up to `split`, then the zoom, then the rest at its own pace."""
+
+    segs = segments or [(0.0, split, 1.0)]
+    story = sum((b - a) * k for a, b, k in segs)
 
     def film(at: float) -> float:
-        return at * stretch if at < split else at + split * (stretch - 1) + zoom
+        acc = 0.0
+        for a, b, k in segs:
+            if at < b:
+                return acc + (at - a) * k
+            acc += (b - a) * k
+        return acc + zoom + (at - split)
+
+    def slow(at: float) -> float:  # how many times slower the story plays at `at`
+        return next((k for a, b, k in segs if a <= at < b), 1.0)
 
     n = int(seconds * SR)
     left, right = np.zeros(n), np.zeros(n)
@@ -111,7 +123,7 @@ def track(
     # Scene 1.
     add(pluck(329.63, decay=4), 0.25, 0.22, -0.4)
     add(pluck(392.0, decay=4), 0.40, 0.22, 0.4)
-    add(sweep(260, 620, 0.95 * stretch), 0.5, 0.10)
+    add(sweep(260, 620, 0.95 * slow(0.5)), 0.5, 0.10)
     add(pluck(196.0, 0.6, 7, 0.1), 1.55, 0.18)
     add(thud(), 2.35, 0.40)
 
@@ -120,7 +132,7 @@ def track(
     for k, name in enumerate(names):
         at = 3.4 + (int(name[1:]) % 7) * 0.12 + 0.15
         add(pluck(SCALE[k % 5] / 2, 0.5, 8, 0.2), at, 0.07, -0.6 + 1.2 * k / max(len(names) - 1, 1))
-    add(sweep(180, 360, 2.0 * stretch), 3.7, 0.05)
+    add(sweep(180, 360, 2.0 * slow(3.7)), 3.7, 0.05)
 
     # Scene 3: an arrow changes colour when its pass reaches its place in the scored list.
     scored = [x for x in ring["transfers"] if x["scored"]]
@@ -141,7 +153,7 @@ def track(
     # The zoom out to the network: a long low rise, a soft wash of moving transfers, and a
     # high note as each other ring lights (at 1.6 + 0.17 i s into the zoom, as ring.html has it).
     if zoom:
-        base = split * stretch
+        base = story
 
         i0 = int(base * SR)
         rise = sweep(70, 180, zoom)

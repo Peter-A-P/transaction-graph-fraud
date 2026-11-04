@@ -21,14 +21,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 FPS = 30
-# The story (one transfer, the ring, both models scoring it) is drawn on a 9.2-second schedule
-# in ring.html and played STRETCH times slower; the result screen after it plays at its own pace.
-STRETCH = 1.3
+# The story is drawn on a 9.2-second schedule in ring.html; each scene plays at its own speed
+# (story start, story end, how many times slower): one transfer, the ring drawing in around it,
+# both models scoring it. The result screen after it plays at its own pace.
+SEGMENTS = [(0.0, 3.0, 1.3), (3.0, 6.2, 1.0), (6.2, 9.2, 1.3)]
 SPLIT = 9.2
+STORY = sum((b - a) * k for a, b, k in SEGMENTS)
 # Then the camera pulls back from the ring to the network around it, for ZOOM seconds.
 ZOOM = 4.2
-SECONDS = 13.5 + SPLIT * (STRETCH - 1) + ZOOM
-POSTER_AT = 8.9 * STRETCH  # the ring with every transfer scored
+SECONDS = STORY + ZOOM + (13.5 - SPLIT)
+POSTER_AT = STORY - 0.3 * SEGMENTS[-1][2]  # the ring with every transfer scored
 
 
 def main() -> None:
@@ -47,7 +49,7 @@ def main() -> None:
             page.goto((ROOT / "video" / "ring.html").as_uri())
             page.evaluate("d => { window.D = d; }", data)
             page.evaluate(
-                "k => { window.TIMING = k; }", {"stretch": STRETCH, "split": SPLIT, "zoom": ZOOM}
+                "k => { window.TIMING = k; }", {"segments": SEGMENTS, "split": SPLIT, "zoom": ZOOM}
             )
             page.evaluate("document.fonts.ready")
             n = round(SECONDS * FPS)
@@ -86,7 +88,7 @@ def main() -> None:
         sys.path.insert(0, str(Path(__file__).parent))
         import sound
 
-        left, right = sound.track(data["ring"], SECONDS, STRETCH, SPLIT, ZOOM)
+        left, right = sound.track(data["ring"], SECONDS, SEGMENTS, SPLIT, ZOOM)
         sound.write_wav(frames / "track.wav", left, right)
         subprocess.run(
             [

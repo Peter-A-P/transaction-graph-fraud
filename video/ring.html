@@ -161,12 +161,20 @@ function network(pos) {
 }
 
 function render(film) {
-  // The film's time to the story's: the story plays TIMING.stretch times slower up to its end,
-  // the result screen after it at its own pace.
-  const T = window.TIMING || {}, k = T.stretch || 1, split = T.split || 9.2, Z = T.zoom || 0;
+  // The film's time to the story's: each scene at its own speed (TIMING.segments), then the
+  // zoom, then the result screen at its own pace.
+  const T = window.TIMING || {}, split = T.split || 9.2, Z = T.zoom || 0;
+  // Each scene of the story plays at its own speed: segments of (story start, end, times slower).
+  const segs = T.segments || [[0, split, 1]];
+  const story = segs.reduce((acc, [a, b, k]) => acc + (b - a) * k, 0);
+  const toStory = f => {
+    let acc = 0;
+    for (const [a, b, k] of segs) { if (f < acc + (b - a) * k) return a + (f - acc) / k; acc += (b - a) * k; }
+    return split;
+  };
   // zt: seconds into the zoom (negative before it); the story is held while the camera pulls back.
-  const zt = film - split * k;
-  const t = zt < 0 ? film / k : zt < Z ? split - 0.01 : film - split * (k - 1) - Z;
+  const zt = film - story;
+  const t = zt < 0 ? toStory(film) : zt < Z ? split - 0.01 : split + zt - Z;
   const zu = Z ? ease(span(zt, 0.3, Z - 1.1)) : 0;         // how far the camera has pulled back
   const ui = Z && zt >= 0 ? 1 - ease(span(zt, 0, 0.5)) : 1; // the story's labels leave as it starts
   S = document.getElementById("s");
