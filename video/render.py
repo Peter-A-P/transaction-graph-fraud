@@ -25,7 +25,9 @@ FPS = 30
 # in ring.html and played STRETCH times slower; the result screen after it plays at its own pace.
 STRETCH = 1.3
 SPLIT = 9.2
-SECONDS = 13.5 + SPLIT * (STRETCH - 1)
+# Then the camera pulls back from the ring to the network around it, for ZOOM seconds.
+ZOOM = 4.2
+SECONDS = 13.5 + SPLIT * (STRETCH - 1) + ZOOM
 POSTER_AT = 8.9 * STRETCH  # the ring with every transfer scored
 
 
@@ -44,7 +46,9 @@ def main() -> None:
             page = browser.new_page(viewport={"width": 1080, "height": 1080})
             page.goto((ROOT / "video" / "ring.html").as_uri())
             page.evaluate("d => { window.D = d; }", data)
-            page.evaluate("k => { window.TIMING = k; }", {"stretch": STRETCH, "split": SPLIT})
+            page.evaluate(
+                "k => { window.TIMING = k; }", {"stretch": STRETCH, "split": SPLIT, "zoom": ZOOM}
+            )
             page.evaluate("document.fonts.ready")
             n = round(SECONDS * FPS)
             for i in range(n):
@@ -82,7 +86,7 @@ def main() -> None:
         sys.path.insert(0, str(Path(__file__).parent))
         import sound
 
-        left, right = sound.track(data["ring"], SECONDS, STRETCH, SPLIT)
+        left, right = sound.track(data["ring"], SECONDS, STRETCH, SPLIT, ZOOM)
         sound.write_wav(frames / "track.wav", left, right)
         subprocess.run(
             [

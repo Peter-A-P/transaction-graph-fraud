@@ -62,8 +62,8 @@ function headline(ds, arm) {
   return pool[0];
 }
 
-function caption(t, a, b, head, sub) {
-  const k = Math.min(ease(span(t, a, a + 0.45)), 1 - ease(span(t, b - 0.4, b)));
+function caption(t, a, b, head, sub, mult = 1) {
+  const k = Math.min(ease(span(t, a, a + 0.45)), 1 - ease(span(t, b - 0.4, b))) * mult;
   if (k <= 0) return;
   const g = el("g", {opacity: k, transform: `translate(0 ${(1 - k) * 10})`});
   el("text", {x: W / 2, y: 884, "text-anchor": "middle", fill: C.ink, "font-size": 38, "font-weight": 600}, g, head);
@@ -107,11 +107,68 @@ function scoreBar(g, x, y, w, label, value, color, k, verdict, vcolor) {
   }
 }
 
+/* The wider network the zoom pulls back to: an illustration, not data. Accounts scattered
+   around the ring, each paying its nearest neighbours, a few long links, and a dozen other
+   rings (an account many others pay into) that light up as the camera pulls back. Drawn in
+   the ring's own coordinates; the ring sits at its centre, joined to the rest through A1 and A15. */
+const CX = 540, CY = 418;
+const CLUSTERS = 12, CLUSTER_AT = i => 1.6 + i * 0.17;  // seconds into the zoom; sound.py uses the same
+let NET = null;
+function network(pos) {
+  if (NET) return NET;
+  let seed = 1717;
+  const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let x = Math.imul(seed ^ seed >>> 15, 1 | seed); x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x; return ((x ^ x >>> 14) >>> 0) / 4294967296; };
+  const nodes = [], edges = [];
+  while (nodes.length < 1300) {
+    const a = rnd() * 2 * Math.PI, d = 470 + Math.pow(rnd(), 0.8) * 3000;
+    const x = CX + d * Math.cos(a) * 1.05, y = CY + d * Math.sin(a);
+    if (x > 60 && x < 1020 && y > 60 && y < 780) continue;
+    nodes.push({x, y, hub: false, c: -1});
+  }
+  for (let i = 0; i < nodes.length; i++) {
+    const near = nodes.map((n, j) => [j, (n.x - nodes[i].x) ** 2 + (n.y - nodes[i].y) ** 2]).filter(q => q[0] !== i).sort((a, b) => a[1] - b[1]);
+    for (const [j] of near.slice(0, 2)) if (i < j || rnd() < 0.5) edges.push({a: i, b: j, c: -1});
+    if (rnd() < 0.08) edges.push({a: i, b: near[4 + Math.floor(rnd() * 20)][0], c: -1});
+  }
+  // The ring joins the network through its two ends.
+  const ringLinks = [];
+  for (const [name, n] of [["A1", 3], ["A15", 3]]) {
+    const [rx, ry] = pos[name];
+    const near = nodes.map((q, j) => [j, (q.x - rx) ** 2 + (q.y - ry) ** 2]).sort((a, b) => a[1] - b[1]).slice(0, n);
+    for (const [j] of near) ringLinks.push({x: rx, y: ry, j});
+  }
+  // Other rings: a hub that many accounts pay into.
+  const hubs = [];
+  while (hubs.length < CLUSTERS) {
+    const i = Math.floor(rnd() * nodes.length), n = nodes[i];
+    const d = Math.hypot(n.x - CX, n.y - CY);
+    if (d < 900 || d > 2900 || hubs.some(h => Math.hypot(nodes[h].x - n.x, nodes[h].y - n.y) < 600)) continue;
+    hubs.push(i);
+  }
+  hubs.forEach((h, c) => {
+    nodes[h].hub = true; nodes[h].c = c;
+    const k = 5 + Math.floor(rnd() * 4);
+    for (let q = 0; q < k; q++) {
+      const a = rnd() * 2 * Math.PI, d = 110 + rnd() * 120;
+      nodes.push({x: nodes[h].x + d * Math.cos(a), y: nodes[h].y + d * Math.sin(a), hub: false, c});
+      edges.push({a: nodes.length - 1, b: h, c});
+    }
+  });
+  // Transactions moving along a share of the links.
+  const flows = edges.filter(() => rnd() < 0.3).map(e => ({e, phase: rnd(), speed: 0.35 + rnd() * 0.5}));
+  NET = {nodes, edges, ringLinks, flows};
+  return NET;
+}
+
 function render(film) {
   // The film's time to the story's: the story plays TIMING.stretch times slower up to its end,
   // the result screen after it at its own pace.
-  const k = (window.TIMING || {}).stretch || 1, split = (window.TIMING || {}).split || 9.2;
-  const t = film < split * k ? film / k : film - split * (k - 1);
+  const T = window.TIMING || {}, k = T.stretch || 1, split = T.split || 9.2, Z = T.zoom || 0;
+  // zt: seconds into the zoom (negative before it); the story is held while the camera pulls back.
+  const zt = film - split * k;
+  const t = zt < 0 ? film / k : zt < Z ? split - 0.01 : film - split * (k - 1) - Z;
+  const zu = Z ? ease(span(zt, 0.3, Z - 1.1)) : 0;         // how far the camera has pulled back
+  const ui = Z && zt >= 0 ? 1 - ease(span(zt, 0, 0.5)) : 1; // the story's labels leave as it starts
   S = document.getElementById("s");
   S.innerHTML = "";
   el("rect", {x: 0, y: 0, width: W, height: H, fill: C.bg});
@@ -127,7 +184,7 @@ function render(film) {
   const caughtR = scored.filter(x => x.arms.R.flagged).length, caughtG = scored.filter(x => x.arms.G.flagged).length;
 
   // The top bar, as on the other project's film.
-  const top = el("g", {opacity: 1 - ease(span(t, 9.2, 9.8))});
+  const top = el("g", {opacity: (1 - ease(span(t, 9.2, 9.8))) * ui});
   el("circle", {cx: 56, cy: 56, r: 7, fill: C.warn}, top);
   el("text", {x: 74, y: 62, fill: C.ink, "font-size": 18, "font-weight": 600, "letter-spacing": "0.08em"}, top, "LAUNDERING RING");
   el("text", {x: 284, y: 62, fill: C.faint, "font-size": 18}, top, "synthetic bank transfers, IBM's generator");
@@ -144,7 +201,33 @@ function render(film) {
   const graphOut = ease(span(t, 9.2, 9.9));    // the graph leaves for the result
   const at = n => (n in solo ? [lerp(solo[n][0], pos[n][0], m), lerp(solo[n][1], pos[n][1], m)] : pos[n]);
 
-  const G = el("g", {opacity: 1 - graphOut, transform: `translate(${W / 2} ${430}) scale(${1 - 0.12 * graphOut}) translate(${-W / 2} ${-430})`});
+  // The camera: at zu 0 the ring as drawn, at zu 1 pulled back to the network around it.
+  const sc = Math.exp(Math.log(0.15) * zu), sy = lerp(CY, 470, zu);
+  const G = el("g", {opacity: 1 - graphOut, transform: `translate(${CX} ${sy}) scale(${sc}) translate(${-CX} ${-CY})`});
+  if (zt > 0) {
+    const net = network(pos), nk = ease(span(zt, 0.2, 1.6));
+    const N = el("g", {opacity: nk}, G);
+    const lit = c => c >= 0 && zt > CLUSTER_AT(c);
+    const litK = c => (c >= 0 ? ease(span(zt, CLUSTER_AT(c), CLUSTER_AT(c) + 0.4)) : 0);
+    for (const e of net.edges) {
+      const a = net.nodes[e.a], b = net.nodes[e.b], on = lit(e.c);
+      el("line", {x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: on ? C.teal : "#2a3a50", "stroke-width": on ? 1.8 : 1,
+        "stroke-opacity": on ? 0.5 + 0.5 * litK(e.c) : 0.9, "vector-effect": "non-scaling-stroke"}, N);
+    }
+    for (const l of net.ringLinks) {
+      const b = net.nodes[l.j];
+      el("line", {x1: l.x, y1: l.y, x2: b.x, y2: b.y, stroke: "#2a3a50", "stroke-width": 1, "vector-effect": "non-scaling-stroke"}, N);
+    }
+    for (const f of net.flows) {
+      const a = net.nodes[f.e.a], b = net.nodes[f.e.b], u = (f.phase + film * f.speed) % 1;
+      el("circle", {cx: lerp(a.x, b.x, u), cy: lerp(a.y, b.y, u), r: 2.4 / sc, fill: lit(f.e.c) ? C.teal : "#c9d4e2", opacity: 0.75}, N);
+    }
+    for (const n of net.nodes) {
+      const on = lit(n.c);
+      if (n.hub && on) el("circle", {cx: n.x, cy: n.y, r: 16 / sc * (1 + 0.6 * (1 - litK(n.c))), fill: C.teal, opacity: 0.2 * litK(n.c)}, N);
+      el("circle", {cx: n.x, cy: n.y, r: (n.hub ? 5 : 2.8) / sc, fill: on ? C.teal : "#7d8ba0"}, N);
+    }
+  }
   // Every other transfer, drawn in the order the money moved.
   const others = r.transfers.map((x, i) => ({x, i})).filter(o => o.i !== focus);
   others.forEach((o, j) => {
@@ -171,7 +254,7 @@ function render(film) {
     arrow(G, x1, y1, x2, y2, on ? C.teal : C.soft, lerp(5, on ? 4 : 2.5, m), k, on ? 1 : 0);
     const amt = 1 - ease(span(t, 2.8, 3.3));
     // Scene 3: the score graph features gave the transfer the row model let through.
-    const fk = ease(span(t, 7.7 + order * 1.2, 8.1 + order * 1.2)) * (1 - ease(span(t, 9.1, 9.4)));
+    const fk = ease(span(t, 7.7 + order * 1.2, 8.1 + order * 1.2)) * (1 - ease(span(t, 9.1, 9.4))) * ui;
     if (fk > 0) {
       const lx = (x1 + x2) / 2 + 20, ly = (y1 + y2) / 2 - 44;
       const b = el("g", {opacity: fk}, G);
@@ -200,7 +283,7 @@ function render(film) {
     scoreBar(g, 300, 540, 480, "Row model, this transfer alone", F.arms.R.score, C.slate, ease(span(t, 1.5, 2.3)), "NOT FLAGGED", C.soft);
   }
   // Scene 3's tallies.
-  const s3 = Math.min(ease(span(t, 6.2, 6.6)), 1 - graphOut);
+  const s3 = Math.min(ease(span(t, 6.2, 6.6)), 1 - graphOut) * ui;
   if (s3 > 0) {
     const g = el("g", {opacity: s3});
     const tally = (x, label, n, color, k) => { // k: 1, the count is exact
@@ -216,7 +299,22 @@ function render(film) {
 
   caption(t, 0.6, 3.0, "One transfer, seen on its own.", `The row model scores it ${F.arms.R.score.toFixed(3)} and lets it through.`);
   caption(t, 3.3, 6.2, "Look one hop out.", `The money split across ${r.accounts.length - 2} accounts and gathered again in one.`);
-  caption(t, 6.5, 9.4, "Score it by the company it keeps.", `Graph features flag all ${caughtG}, including the one the row model let through.`);
+  caption(Z && zt >= 0 ? 9.0 : t, 6.5, Z ? 99 : 9.4, "Score it by the company it keeps.", `Graph features flag all ${caughtG}, including the one the row model let through.`, ui);
+  if (Z && zt > 0) {
+    // The ring, marked, as the camera leaves it; and the zoom's own caption.
+    const rk = ease(span(zt, 1.0, 1.8)) * (1 - graphOut);
+    if (rk > 0) {
+      el("circle", {cx: CX, cy: sy, r: 430 * sc, fill: "none", stroke: C.teal, "stroke-width": 2, "stroke-dasharray": "6 6", opacity: rk});
+      el("text", {x: CX, y: sy - 430 * sc - 14, "text-anchor": "middle", fill: C.teal, "font-size": 18, "font-weight": 600, opacity: rk}, S, "the ring");
+    }
+    // A dark band under the caption, so the network does not run through the words.
+    const fade = el("linearGradient", {id: "capFade", x1: 0, y1: 0, x2: 0, y2: 1}, el("defs", {}));
+    el("stop", {offset: "0%", "stop-color": C.bg, "stop-opacity": 0}, fade);
+    el("stop", {offset: "45%", "stop-color": C.bg, "stop-opacity": 0.92}, fade);
+    el("stop", {offset: "100%", "stop-color": C.bg, "stop-opacity": 0.92}, fade);
+    el("rect", {x: 0, y: 790, width: W, height: 200, fill: "url(#capFade)", opacity: ease(span(zt, 0.4, 1.2)) * (1 - graphOut)});
+    caption(zt, 0.8, 99, "Now score every account that way.", "Millions of transfers, each judged by the company it keeps.", 1 - graphOut);
+  }
 
   // Scene 4: what it adds up to, across the test period.
   const e = ease(span(t, 9.7, 10.4));

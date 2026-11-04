@@ -80,13 +80,17 @@ def pad(dur: float, chord: list[float], fade: float) -> Arr:
 
 
 def track(
-    ring: dict[str, Any], seconds: float, stretch: float = 1.0, split: float = 9.2
+    ring: dict[str, Any],
+    seconds: float,
+    stretch: float = 1.0,
+    split: float = 9.2,
+    zoom: float = 0.0,
 ) -> tuple[Arr, Arr]:
     """Left and right channels for the film of `ring` (site/data.json's ring). Times below are
     the story's, as ring.html draws it; the story plays `stretch` times slower up to `split`."""
 
     def film(at: float) -> float:
-        return at * stretch if at < split else at + split * (stretch - 1)
+        return at * stretch if at < split else at + split * (stretch - 1) + zoom
 
     n = int(seconds * SR)
     left, right = np.zeros(n), np.zeros(n)
@@ -133,6 +137,28 @@ def track(
                 0.3,
             )
             step += 1
+
+    # The zoom out to the network: a long low rise, a soft wash of moving transfers, and a
+    # high note as each other ring lights (at 1.6 + 0.17 i s into the zoom, as ring.html has it).
+    if zoom:
+        base = split * stretch
+
+        i0 = int(base * SR)
+        rise = sweep(70, 180, zoom)
+        j = min(n, i0 + len(rise))
+        left[i0:j] += 0.12 * rise[: j - i0]
+        right[i0:j] += 0.12 * rise[: j - i0]
+        wash = np.convolve(rng.standard_normal(int(zoom * SR)), np.ones(40) / 40, mode="same")
+        wash *= np.sin(np.pi * _t(len(wash)) / zoom) ** 2
+        left[i0:j] += 0.25 * wash[: j - i0]
+        right[i0:j] += 0.25 * wash[::-1][: j - i0]
+        for c in range(12):
+            k0 = int((base + 1.6 + c * 0.17) * SR)
+            note = pluck(SCALE[(c * 3) % len(SCALE)] * 2, 0.8, 6, 0.2)
+            kj = min(n, k0 + len(note))
+            pan = -0.7 + 1.4 * ((c * 5) % 12) / 11
+            left[k0:kj] += 0.05 * note[: kj - k0] * (1 - pan) ** 0.5
+            right[k0:kj] += 0.05 * note[: kj - k0] * (1 + pan) ** 0.5
 
     # Scene 4.
     add(sweep(220, 880, 0.9), 9.3, 0.06)
