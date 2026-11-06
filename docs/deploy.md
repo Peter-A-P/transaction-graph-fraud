@@ -34,9 +34,12 @@ graph features flag, and a chord under the result, normalised to -16 LUFS:
 
     uv run --no-project --with playwright --with imageio-ffmpeg --with numpy python video/render.py
 
-It writes to `video/out/` and copies the three files to `site/video/` for a local look at the
+With `--site` it writes the page's own cut instead (`ring-site.mp4`, `ring-site-sound.mp4`,
+`ring-site-poster.jpg`): the address on the last screen, which the page already carries, gives
+way to a third figure, this ring's own tally. It writes to `video/out/` and copies the three
+files to `site/video/` for a local look at the
 page; both folders are gitignored. The film is not committed: the website workflow renders it in
-Playwright's Chromium (`video/render.py chromium`) on every deploy, from the committed
+Playwright's Chromium (`video/render.py chromium --site`) on every deploy, from the committed
 `data.json`, so it always matches the numbers on the page. A failed render stops the deploy.
 
 **The content security policy allows this origin and nothing else**: no inline script, no

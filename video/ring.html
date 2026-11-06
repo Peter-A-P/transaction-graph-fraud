@@ -378,19 +378,26 @@ function render(film) {
       [`+${pp.delta_auprc[0].toFixed(2)}`, "PRECISION-RECALL AUC", "on real Bitcoin wallets"],
       [`${Math.round(Math.min(...live.map(x => x.p50_ms)))} to ${Math.round(Math.max(...live.map(x => x.p50_ms)))} ms`, "LIVE SCORE, ONE HOP", "median, three stores"],
     ];
+    // The site's cut (TIMING.site): the page already carries the address, so the screen shows
+    // a third figure instead, this ring's own tally, and three tiles sit in one row.
+    const site = !!(window.TIMING || {}).site;
+    if (site) tiles.unshift([`${caughtG} of ${caughtG}`, "THIS RING, GRAPH", `the row model flagged ${caughtR}`]);
+    const tw = site ? 290 : 330, gap = site ? 30 : 40, x0 = (W - tiles.length * tw - (tiles.length - 1) * gap) / 2, ty = site ? 500 : 480;
     tiles.forEach(([fig, lab, sub], i) => {
       const k = ease(span(t, 10.4 + i * 0.35, 10.9 + i * 0.35));
-      const x = 190 + i * 370, tg = el("g", {opacity: k, transform: `translate(0 ${(1 - k) * 12})`}, g);
-      el("rect", {x, y: 480, width: 330, height: 136, rx: 16, fill: C.panel, stroke: C.line, "stroke-width": 2}, tg);
-      el("text", {x: x + 24, y: 516, fill: C.faint, "font-size": 14, "font-weight": 600, "letter-spacing": "0.1em"}, tg, lab);
-      el("text", {x: x + 24, y: 568, fill: C.ink, "font-size": 44, "font-weight": 600}, tg, fig);
-      el("text", {x: x + 24, y: 598, fill: C.soft, "font-size": 18}, tg, sub);
+      const x = x0 + i * (tw + gap), tg = el("g", {opacity: k, transform: `translate(0 ${(1 - k) * 12})`}, g);
+      el("rect", {x, y: ty, width: tw, height: 136, rx: 16, fill: C.panel, stroke: C.line, "stroke-width": 2}, tg);
+      el("text", {x: x + 24, y: ty + 36, fill: C.faint, "font-size": 14, "font-weight": 600, "letter-spacing": "0.1em"}, tg, lab);
+      el("text", {x: x + 24, y: ty + 88, fill: C.ink, "font-size": 44, "font-weight": 600}, tg, fig);
+      el("text", {x: x + 24, y: ty + 118, fill: C.soft, "font-size": 18}, tg, sub);
     });
     const k = ease(span(t, 11.3, 11.9));
     const pg = el("g", {opacity: k}, g);
-    el("text", {x: W / 2, y: 690, "text-anchor": "middle", fill: C.soft, "font-size": 22}, pg, "Every number with its 95% interval, reproducible from the repository.");
-    el("rect", {x: W / 2 - 190, y: 730, width: 380, height: 64, rx: 32, fill: "#0e2a36", stroke: C.teal, "stroke-width": 2}, pg);
-    el("text", {x: W / 2, y: 771, "text-anchor": "middle", fill: C.ink, "font-size": 27, "font-weight": 600}, pg, "graph.peterparker.ca");
+    el("text", {x: W / 2, y: site ? 720 : 690, "text-anchor": "middle", fill: C.soft, "font-size": 22}, pg, "Every number with its 95% interval, reproducible from the repository.");
+    if (!site) {
+      el("rect", {x: W / 2 - 190, y: 730, width: 380, height: 64, rx: 32, fill: "#0e2a36", stroke: C.teal, "stroke-width": 2}, pg);
+      el("text", {x: W / 2, y: 771, "text-anchor": "middle", fill: C.ink, "font-size": 27, "font-weight": 600}, pg, "graph.peterparker.ca");
+    }
     el("text", {x: W / 2, y: 1030, "text-anchor": "middle", fill: C.faint, "font-size": 15}, pg,
       "IBM AML HI-Small (synthetic) and Elliptic++. The ring is IBM's; no real account is shown.");
   }

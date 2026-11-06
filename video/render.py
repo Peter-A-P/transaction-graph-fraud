@@ -43,7 +43,11 @@ def main() -> None:
     out = ROOT / "video" / "out"
     out.mkdir(parents=True, exist_ok=True)
     frames = Path(tempfile.mkdtemp(prefix="ring-frames-"))
-    channel = sys.argv[1] if len(sys.argv) > 1 else "msedge"
+    # --site: the cut for the page itself, without the address on the last screen (ring-site*).
+    site = "--site" in sys.argv
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    channel = args[0] if args else "msedge"
+    stem = "ring-site" if site else "ring"
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(channel=channel)
@@ -51,7 +55,7 @@ def main() -> None:
             page.goto((ROOT / "video" / "ring.html").as_uri())
             page.evaluate("d => { window.D = d; }", data)
             page.evaluate(
-                "k => { window.TIMING = k; }", {"segments": SEGMENTS, "split": SPLIT, "zoom": ZOOM}
+                "k => { window.TIMING = k; }", {"segments": SEGMENTS, "split": SPLIT, "zoom": ZOOM, "site": site}
             )
             page.evaluate("document.fonts.ready")
             n = round(SECONDS * FPS)
@@ -59,7 +63,7 @@ def main() -> None:
                 page.evaluate("t => render(t)", i / FPS)
                 page.screenshot(path=str(frames / f"f{i:04d}.png"))
             page.evaluate("t => render(t)", POSTER_AT)
-            page.screenshot(path=str(out / "ring-poster.jpg"), type="jpeg", quality=88)
+            page.screenshot(path=str(out / f"{stem}-poster.jpg"), type="jpeg", quality=88)
             browser.close()
         ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
         subprocess.run(
@@ -82,7 +86,7 @@ def main() -> None:
                 "slow",
                 "-movflags",
                 "+faststart",
-                str(out / "ring.mp4"),
+                str(out / f"{stem}.mp4"),
             ],
             check=True,
         )
@@ -99,7 +103,7 @@ def main() -> None:
                 "error",
                 "-y",
                 "-i",
-                str(out / "ring.mp4"),
+                str(out / f"{stem}.mp4"),
                 "-i",
                 str(frames / "track.wav"),
                 "-c:v",
@@ -115,7 +119,7 @@ def main() -> None:
                 "-shortest",
                 "-movflags",
                 "+faststart",
-                str(out / "ring-sound.mp4"),
+                str(out / f"{stem}-sound.mp4"),
             ],
             check=True,
         )
@@ -123,9 +127,10 @@ def main() -> None:
         shutil.rmtree(frames, ignore_errors=True)
     page_dir = ROOT / "site" / "video"
     page_dir.mkdir(parents=True, exist_ok=True)
-    for name in ("ring.mp4", "ring-sound.mp4", "ring-poster.jpg"):
+    names = [f"{stem}.mp4", f"{stem}-sound.mp4", f"{stem}-poster.jpg"]
+    for name in names:
         shutil.copy2(out / name, page_dir / name)
-    print(f"wrote ring.mp4, ring-sound.mp4 and ring-poster.jpg to {out}, copied to {page_dir}")
+    print(f"wrote {', '.join(names)} to {out}, copied to {page_dir}")
 
 
 if __name__ == "__main__":
