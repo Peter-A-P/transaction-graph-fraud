@@ -38,6 +38,7 @@
   --accent-soft: #e4eff1;
   --warn: #c0392b;
   --good: #1e7a4c;
+  --gold: #a87308;
   --alt: #6d3f9e;
   --shift: rgba(192, 57, 43, 0.09);
   /* An ordered set in one hue, darkest first: the three percentiles. */
@@ -67,6 +68,7 @@
     --accent-soft: #14262b;
     --warn: #f0736a;
     --good: #58c286;
+    --gold: #e2b33f;
     --alt: #b191e0;
     --shift: rgba(240, 115, 106, 0.13);
     --lv0: #cbeaf2;
@@ -1027,8 +1029,12 @@ tbody tr.reference { background: var(--accent-soft); }
 
 /* The line under the headline: the measured result the headline promises, a size between
    the headline and the lead. */
-.hero-sub { font-family: var(--serif); font-size: clamp(1.25rem, 2.2vw, 1.5rem); line-height: 1.4; color: var(--ink); margin: 0 0 1.1rem; max-width: 46rem; }
+.hero-sub { font-family: var(--serif); font-size: clamp(1.25rem, 2.2vw, 1.5rem); line-height: 1.4; color: var(--ink); margin: 0 0 1.1rem; }
 .hero-sub strong { color: var(--accent-ink); font-weight: 600; }
+/* The headline pair: graph features in green, the row alone in gold, in the sentence and the first card. */
+.hero .fig-graph, .hero .point .point-figure .fig-graph { color: var(--good); }
+.hero .fig-row, .hero .point .point-figure .fig-row { color: var(--gold); }
+.hero .point .point-figure .fig-vs { color: var(--ink-faint); font-size: 0.7em; }
 
 /* The film: square, so it is kept to a readable size rather than the column's width. */
 .demo-video { display: block; width: 100%; max-width: 40rem; aspect-ratio: 1; margin: 1rem auto 0; border-radius: var(--radius); background: #0a111c; box-shadow: var(--shadow); }

@@ -157,7 +157,7 @@ function hero() {
   const gateG = D.gate.find(g => g.run.startsWith("ibm-HI-Small.") && g.run.includes(".G."));
   $("sub-g").textContent = pct(ibmG.recall_at_1pct_budget[0]);
   $("sub-r").textContent = pct(ibmR.recall_at_1pct_budget[0]);
-  $("hero-recall").textContent = `${pct(ibmG.recall_at_1pct_budget[0])} vs ${pct(ibmR.recall_at_1pct_budget[0])}`;
+  $("hero-recall").innerHTML = `<span class="fig-graph">${pct(ibmG.recall_at_1pct_budget[0])}</span> <span class="fig-vs">vs</span> <span class="fig-row">${pct(ibmR.recall_at_1pct_budget[0])}</span>`;
   $("hero-recall-note").textContent = `IBM HI-Small, synthetic bank transfers: ${ci(ibmG.recall_at_1pct_budget, pct)} with graph features.` +
     (gateG ? ` Project 03's release gate passes it at ${pts(gateG.difference[0])}.` : "");
 
