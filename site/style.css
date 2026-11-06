@@ -772,11 +772,15 @@ tbody tr.reference { background: var(--accent-soft); }
   margin: 0 auto;
   padding: 0.55rem 1.5rem;
   display: flex;
-  flex-wrap: wrap;
+  /* One line: the main sections only; the rest are a scroll away on the page. */
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
   gap: 0.2rem;
 }
 
 .tabs a {
+  flex: none;
   font-size: 0.83rem;
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
