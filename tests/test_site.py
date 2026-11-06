@@ -42,3 +42,21 @@ def test_the_ring_is_picked_blind_and_scored_by_every_arm(tmp_path: Path) -> Non
     assert len(ring["cases"]) == flagged_g
     for case in ring["cases"]:
         assert all(n["account"] for n in case["top"]) and 0 <= case["score"] <= 1
+
+
+def test_a_transfers_rank_is_what_puts_it_in_the_queue() -> None:
+    import numpy as np
+
+    from consort.eval import outcomes as oc
+
+    # Scores squeezed near 1, as the graph neural network's are; a tie broken by item id.
+    o = oc.Outcomes(
+        item_id=np.array(["e", "d", "c", "b", "a"]),
+        group=np.zeros(5, dtype=np.int64),
+        label=np.array([0, 1, 0, 1, 0], dtype=np.int8),
+        score=np.array([0.9951, 0.9961, 0.9949, 0.9961, 0.9]),
+    )
+    r = st.ranks(o)
+    assert r == {"b": 0.2, "d": 0.4, "e": 0.6, "c": 0.8, "a": 1.0}
+    for budget in (0.2, 0.4, 0.6):
+        assert st.queue(o, budget) == {i for i, share in r.items() if share <= budget + 1e-9}

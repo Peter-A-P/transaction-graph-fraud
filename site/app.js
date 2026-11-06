@@ -39,6 +39,14 @@ let D = null;
 const $ = id => document.getElementById(id);
 const f2 = v => v.toFixed(2);
 const f3 = v => v.toFixed(3);
+// A transfer's place in a model's ranking of all test transfers: the share scored at or above
+// it. The raw scores are not calibrated and differ in range from model to model (the graph
+// neural network puts most transfers above 0.99), so the page shows the rank, which is what
+// decides the 1% alert queue and reads the same for every model.
+const topLabel = share => `top ${+(share * 100).toPrecision(2)}%`;
+// The rank bar on a log scale, from the whole test set (empty) to the top 0.01% (full); the
+// 1% queue line sits at the middle. Sized by class, in steps of 5%.
+const rankWidth = share => Math.round(Math.min(1, Math.max(0, Math.log10(1 / share) / 4)) * 20) * 5;
 const sgn = (v, f) => (v >= 0 ? "+" : "-") + f(Math.abs(v));
 const pct = v => `${Math.round(v * 100)}%`;
 const pts = v => `${sgn(v * 100, x => x.toFixed(1))} points`;
@@ -240,7 +248,7 @@ function drawRing() {
     const hit = el("path", {d: path, class: "edge-hit", tabindex: 0, role: "button",
       "aria-label": `${t.from} to ${t.to}, US$${Math.round(t.usd).toLocaleString()}`}, hits);
     hover(hit, () => `<b>${t.from} to ${t.to}</b><br>US$${Math.round(t.usd).toLocaleString()}, hour ${t.hours} of the ring<br>` +
-      (t.scored ? FROZEN.filter(k => t.arms[k]).map(k => `${ARM[k]}: ${f3(t.arms[k].score)}${t.arms[k].flagged ? ", flagged" : ""}`).join("<br>")
+      (t.scored ? FROZEN.filter(k => t.arms[k]).map(k => `${ARM[k]}: ${topLabel(t.arms[k].top)}${t.arms[k].flagged ? ", flagged" : ""}`).join("<br>")
         : "Not scored: before the test days, or in the generator's tail"));
     const pick = () => { ringSel = i; drawRing(); showTransfer(i); };
     hit.addEventListener("click", pick);
@@ -265,7 +273,7 @@ function totals() {
 function ringOverview() {
   const first = D.ring.transfers.findIndex(t => D.ring.cases.some(c => c.transfer === `${t.from} to ${t.to}` && c.hours === t.hours));
   if (first >= 0) { ringSel = first; showTransfer(first); return; }
-  $("ring-side").innerHTML = totals() + `<p>Select a transfer to see every model's score for it.</p>`;
+  $("ring-side").innerHTML = totals() + `<p>Select a transfer to see where every model ranks it.</p>`;
 }
 
 function showTransfer(i) {
@@ -277,8 +285,9 @@ function showTransfer(i) {
     html += `<p>Not scored: it falls before the test days or in the generator's last days, which no model is graded on.</p>`;
   } else {
     html += FROZEN.filter(a => t.arms[a]).map(a => `<div class="score-row a-${a}"><span>${ARM[a]}${t.arms[a].flagged ? '<span class="flag-pill">flagged</span>' : ""}</span>
-      <span class="score-bar"><span class="w-${Math.round(t.arms[a].score * 20) * 5}"></span></span>
-      <span class="num">${f3(t.arms[a].score)}</span></div>`).join("");
+      <span class="score-bar rank"><span class="w-${rankWidth(t.arms[a].top)}"></span></span>
+      <span class="num">${topLabel(t.arms[a].top)}</span></div>`).join("");
+    html += `<p class="note">Where each model ranks this transfer among all test transfers, on a log scale; the line marks the 1% alert queue. Each model's raw score has its own range, so the rank is what compares.</p>`;
     const flagged = FROZEN.filter(a => t.arms[a] && t.arms[a].flagged).map(a => ARM[a]);
     html += `<p class="note">${flagged.length ? `In the alert queue of: ${flagged.join(", ")}.` : "In no model's alert queue."}</p>`;
   }

@@ -45,6 +45,17 @@ def pick_ring(task: IBMTask, pattern: str = "SCATTER-GATHER") -> int:
     return int(best.index.min())
 
 
+def ranks(o: oc.Outcomes) -> dict[str, float]:
+    """Each test item's place in the run's ranking, as the share of all test items scored at
+    or above it (1 / n for the top item, 1.0 for the last), ties by item id as `queue` breaks
+    them. The scores are not calibrated, and differ in range from arm to arm (the graph neural
+    network, trained with the rare class weighted up, puts most items above 0.99); the rank is
+    what decides the alert queue, and it reads the same for every arm."""
+    order = np.lexsort((o.item_id, -o.score))
+    n = len(o)
+    return {str(i): (k + 1) / n for k, i in enumerate(o.item_id[order])}
+
+
 def queue(o: oc.Outcomes, budget: float) -> set[str]:
     """The run's alert queue: its top `budget` share of all test items, ties by item id (the
     gate's queue, consort.gate.export)."""
@@ -88,12 +99,15 @@ def ring(
 
     scores: dict[str, dict[str, float]] = {}
     flagged: dict[str, set[str]] = {}
+    top: dict[str, dict[str, float]] = {}
     for arm, path in runs.items():
         o = oc.read(path)
         pick = np.isin(o.item_id, item[rows])
         ids = [str(i) for i in o.item_id[pick]]
         scores[arm] = dict(zip(ids, o.score[pick].tolist(), strict=True))
         flagged[arm] = queue(o, budget) & set(scores[arm])
+        everyone = ranks(o)
+        top[arm] = {i: everyone[i] for i in ids}
 
     transfers = []
     for i in rows:
@@ -109,7 +123,11 @@ def ring(
                 "scored": scored and int(day[i]) in shown,
                 "laundering": bool(laundering[i]),
                 "arms": {
-                    arm: {"score": round(s[iid], 4), "flagged": iid in flagged[arm]}
+                    arm: {
+                        "score": round(s[iid], 4),
+                        "top": round(top[arm][iid], 6),
+                        "flagged": iid in flagged[arm],
+                    }
                     for arm, s in scores.items()
                     if iid in s
                 },
