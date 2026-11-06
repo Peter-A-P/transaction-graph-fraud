@@ -1037,4 +1037,4 @@ tbody tr.reference { background: var(--accent-soft); }
 .hero .point .point-figure .fig-vs { color: var(--ink-faint); font-size: 0.7em; }
 
 /* The film: square, so it is kept to a readable size rather than the column's width. */
-.demo-video { display: block; width: 100%; max-width: 40rem; aspect-ratio: 1; margin: 1rem auto 0; border-radius: var(--radius); background: #0a111c; box-shadow: var(--shadow); }
+.demo-video { display: block; width: 100%; max-width: 46rem; aspect-ratio: 1; margin: 1rem auto 0; border-radius: var(--radius); background: #0a111c; box-shadow: var(--shadow); }
