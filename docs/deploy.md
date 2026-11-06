@@ -17,16 +17,16 @@ commit `site/` with the tables. In CI, `tests/test_page.py` fails if the committ
 has fallen behind the results, and `tests/test_host.py` if a diagram has fallen behind the
 documentation's or the script looks for an element the page does not have.
 
-**The film** (`site/video/ring-sound.mp4`, about 20 seconds, 1080 by 1080, with a silent cut
+**The film** (`ring-sound.mp4`, about 20 seconds, 1080 by 1080, with a silent cut
 `ring.mp4` for autoplaying feeds and `ring-poster.jpg`) is the ring on the page told in five steps: one transfer the row model lets
 through, the ring around it, both models scoring it, the camera pulling back to a wider
 network with transfers moving through it and other rings lighting up, and the headline
 figures. The wider network is an illustration, generated from a fixed seed, not data; the
-ring at its centre is the real one. So are the faint counterparties drawn outside the ring from
-the first scene on: they show that the ring's accounts also trade with accounts the ring does
-not include, and in the pull back they join the wider network. It is drawn by
+ring at its centre is the real one. The faint counterparties drawn outside the ring from the
+first scene on are an illustration too: they show that the ring's accounts also trade with
+accounts the ring does not include, and in the pull back they join the wider network. It is drawn by
 `video/ring.html` from `site/data.json`, so its numbers and its ring are the page's, and
-rendered by `video/render.py`, which screenshots each frame in the machine's own Edge and
+rendered by `video/render.py`, which screenshots each frame in a headless browser and
 encodes them with imageio-ffmpeg's bundled ffmpeg. The sound is synthesised by
 `video/sound.py` on the same schedule: a soft pad, a muted thud when the row model lets the
 transfer through, a tick for each transfer the row model flags and a rising note for each one
@@ -34,8 +34,10 @@ graph features flag, and a chord under the result, normalised to -16 LUFS:
 
     uv run --no-project --with playwright --with imageio-ffmpeg --with numpy python video/render.py
 
-Rerun it after `consort site` whenever the results change; the film is committed, not built in
-CI.
+It writes to `video/out/` and copies the three files to `site/video/` for a local look at the
+page; both folders are gitignored. The film is not committed: the website workflow renders it in
+Playwright's Chromium (`video/render.py chromium`) on every deploy, from the committed
+`data.json`, so it always matches the numbers on the page. A failed render stops the deploy.
 
 **The content security policy allows this origin and nothing else**: no inline script, no
 style attribute, no font, script or request from anywhere else. The fonts (Newsreader and

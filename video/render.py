@@ -4,9 +4,11 @@ each frame screenshot by a headless browser and the frames encoded to H.264 MP4.
     uv run --no-project --with playwright --with imageio-ffmpeg --with numpy python video/render.py
 
 The page reads site/data.json (written by `consort site`), so run that first when the results
-change. It uses the machine's own Edge or Chrome (Playwright's `channel`), so no browser is
-downloaded, and imageio-ffmpeg's bundled ffmpeg, so none needs installing. Writes
-site/video/ring.mp4 (silent), site/video/ring-sound.mp4 (with video/sound.py's track) and a
+change. It uses the machine's own Edge (Playwright's `channel`; pass another, such as
+`chromium` in CI, as the first argument) and imageio-ffmpeg's bundled ffmpeg, so none needs
+installing. Writes video/out/ring.mp4 (silent), video/out/ring-sound.mp4 (with video/sound.py's
+track) and a poster frame, and copies them to site/video/ for the page. Both folders are
+gitignored: the website workflow renders the film on every deploy.
 poster frame beside them.
 """
 
@@ -38,7 +40,7 @@ def main() -> None:
     from playwright.sync_api import sync_playwright
 
     data = json.loads((ROOT / "site" / "data.json").read_text(encoding="utf8"))
-    out = ROOT / "site" / "video"
+    out = ROOT / "video" / "out"
     out.mkdir(parents=True, exist_ok=True)
     frames = Path(tempfile.mkdtemp(prefix="ring-frames-"))
     channel = sys.argv[1] if len(sys.argv) > 1 else "msedge"
@@ -119,7 +121,11 @@ def main() -> None:
         )
     finally:
         shutil.rmtree(frames, ignore_errors=True)
-    print(f"wrote {out / 'ring.mp4'}, {out / 'ring-sound.mp4'} and {out / 'ring-poster.jpg'}")
+    page_dir = ROOT / "site" / "video"
+    page_dir.mkdir(parents=True, exist_ok=True)
+    for name in ("ring.mp4", "ring-sound.mp4", "ring-poster.jpg"):
+        shutil.copy2(out / name, page_dir / name)
+    print(f"wrote ring.mp4, ring-sound.mp4 and ring-poster.jpg to {out}, copied to {page_dir}")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,9 @@
 name: website
 
 # The demo page, site/, uploaded to Azure Static Web Apps on every push to main that changes it.
-# Nothing is built here: the pages, stylesheet and script are committed as written, and
+# The one thing built here is the film: video/render.py draws video/ring.html frame by frame
+# in Playwright's Chromium and writes site/video/, which is gitignored. The pages, stylesheet
+# and script are committed as written, and
 # `consort site` writes data.json, the host configuration and the diagrams' copies from the
 # committed results; tests/test_page.py and tests/test_host.py fail in CI if any has fallen behind. The upload token is the
 # repository secret AZURE_STATIC_WEB_APPS_API_TOKEN, never a file in the repository.
@@ -11,7 +13,7 @@ name: website
 on:
   push:
     branches: [main]
-    paths: [site/**, .github/workflows/site.yml]
+    paths: [site/**, video/**, .github/workflows/site.yml]
   workflow_dispatch:
 
 permissions:
@@ -27,6 +29,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+
+      # The film, rendered from the committed data.json; a failed render stops the deploy
+      # rather than publishing the page without it.
+      - name: Render the film
+        run: |
+          uv run --no-project --python 3.13 --with playwright --with imageio-ffmpeg --with numpy playwright install --with-deps chromium
+          uv run --no-project --python 3.13 --with playwright --with imageio-ffmpeg --with numpy python video/render.py chromium
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1

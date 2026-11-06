@@ -51,6 +51,11 @@ runs/
 # The built site (consort site writes it; the workflow deploys it)
 site/out/
 
+# The film: video/render.py writes it to video/out/ and copies it to site/video/; the website
+# workflow renders it on every deploy, so neither is committed.
+video/out/
+site/video/
+
 # OS and editors
 .DS_Store
 Thumbs.db
