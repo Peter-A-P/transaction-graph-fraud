@@ -22,7 +22,9 @@ documentation's or the script looks for an element the page does not have.
 through, the ring around it, both models scoring it, the camera pulling back to a wider
 network with transfers moving through it and other rings lighting up, and the headline
 figures. The wider network is an illustration, generated from a fixed seed, not data; the
-ring at its centre is the real one. It is drawn by
+ring at its centre is the real one. So are the faint counterparties drawn outside the ring from
+the first scene on: they show that the ring's accounts also trade with accounts the ring does
+not include, and in the pull back they join the wider network. It is drawn by
 `video/ring.html` from `site/data.json`, so its numbers and its ring are the page's, and
 rendered by `video/render.py`, which screenshots each frame in the machine's own Edge and
 encodes them with imageio-ffmpeg's bundled ffmpeg. The sound is synthesised by

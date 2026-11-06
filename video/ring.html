@@ -160,6 +160,21 @@ function network(pos) {
   return NET;
 }
 
+/* The ring's accounts trade outside it too. Each has counterparties the ring does not include,
+   drawn faint so the ring reads as part of a wider graph, not a closed world: the ends each
+   have their own, the mules at the top and bottom of the column share a few above and below the fans. An illustration,
+   like the network; positions in the ring's layout. `solo` is where A3's and A15's counterparties
+   sit while the pair stands alone in scene 1. */
+const OUTSIDE = [
+  {at: [55, 318], links: ["A1"]}, {at: [38, 432], links: ["A1"]}, {at: [62, 540], links: ["A1"]},
+  {at: [1025, 318], links: ["A15"], solo: [835, 300]}, {at: [1042, 428], links: ["A15"], solo: [858, 418]},
+  {at: [1018, 536], links: ["A15"], solo: [830, 515]},
+  {at: [395, 118], links: ["A3", "A2"], solo: [215, 318]}, {at: [688, 112], links: ["A3", "A2"], solo: [400, 285]},
+  {at: [292, 182], links: ["A4", "A5"]}, {at: [790, 176], links: ["A5", "A4"]},
+  {at: [300, 660], links: ["A12", "A13"]}, {at: [405, 712], links: ["A14", "A11"]},
+  {at: [682, 714], links: ["A14", "A13"]}, {at: [785, 664], links: ["A12", "A11"]},
+];
+
 function render(film) {
   // The film's time to the story's: each scene at its own speed (TIMING.segments), then the
   // zoom, then the result screen at its own pace.
@@ -234,6 +249,29 @@ function render(film) {
       const on = lit(n.c);
       if (n.hub && on) el("circle", {cx: n.x, cy: n.y, r: 16 / sc * (1 + 0.6 * (1 - litK(n.c))), fill: C.red, opacity: 0.2 * litK(n.c)}, N);
       el("circle", {cx: n.x, cy: n.y, r: (n.hub ? 5 : 2.8) / sc, fill: on ? C.red : "#7d8ba0"}, N);
+    }
+  }
+  // The accounts outside the ring each one also trades with, faint, under the ring's transfers.
+  {
+    const shown = n => (n === "A3" || n === "A15" ? ease(span(t, 0.9, 1.6)) : ease(span(t, 4.4, 5.6)));
+    const net = zt > 0 ? network(pos) : null;
+    for (const o of OUTSIDE) {
+      const [ox, oy] = o.solo ? [lerp(o.solo[0], o.at[0], m), lerp(o.solo[1], o.at[1], m)] : o.at;
+      const k = Math.max(...o.links.map(shown));
+      if (k <= 0) continue;
+      const g = el("g", {opacity: k}, G);
+      for (const n of o.links) {
+        const s = shown(n);
+        if (s <= 0) continue;
+        const [x, y] = at(n);
+        el("line", {x1: x, y1: y, x2: lerp(x, ox, s), y2: lerp(y, oy, s), stroke: "#34465e", "stroke-width": 1.5, "vector-effect": "non-scaling-stroke"}, g);
+      }
+      // In the zoom, each of them joins the wider network.
+      if (net) {
+        const j = net.nodes.reduce((b, q, i) => ((q.x - ox) ** 2 + (q.y - oy) ** 2 < (net.nodes[b].x - ox) ** 2 + (net.nodes[b].y - oy) ** 2 ? i : b), 0);
+        el("line", {x1: ox, y1: oy, x2: net.nodes[j].x, y2: net.nodes[j].y, stroke: "#2a3a50", "stroke-width": 1, "vector-effect": "non-scaling-stroke", opacity: ease(span(zt, 0.2, 1.6))}, g);
+      }
+      el("circle", {cx: ox, cy: oy, r: Math.max(6, 2.8 / sc), fill: "#55647a", stroke: C.bg, "stroke-width": 2, "vector-effect": "non-scaling-stroke"}, g);
     }
   }
   // Every other transfer, drawn in the order the money moved.
