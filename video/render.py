@@ -55,7 +55,8 @@ def main() -> None:
             page.goto((ROOT / "video" / "ring.html").as_uri())
             page.evaluate("d => { window.D = d; }", data)
             page.evaluate(
-                "k => { window.TIMING = k; }", {"segments": SEGMENTS, "split": SPLIT, "zoom": ZOOM, "site": site}
+                "k => { window.TIMING = k; }",
+                {"segments": SEGMENTS, "split": SPLIT, "zoom": ZOOM, "site": site},
             )
             page.evaluate("document.fonts.ready")
             n = round(SECONDS * FPS)
