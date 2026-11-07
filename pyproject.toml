@@ -1,6 +1,6 @@
 [project]
 name = "consort"
-version = "0.0.1"
+version = "0.1.0"
 description = "Fraud Known by the Company It Keeps: when scoring an account by its neighbourhood beats scoring it alone, measured on a real Bitcoin transaction graph and on synthetic bank transfers with labelled laundering patterns."
 readme = "README.md"
 license = "MIT"

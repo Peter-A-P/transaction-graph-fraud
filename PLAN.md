@@ -394,20 +394,20 @@ Whichever produces the clearest evidence becomes `docs/rejected.md`.
 
 ## 11. Definition of done
 
-- [ ] Elliptic and both IBM sets fetched by loaders with checksums, licences quoted in `docs/data.md`, the pattern join tested against the generator's counts, the Elliptic++ email sent and its answer recorded
-- [ ] Temporal inductive splits with the leakage test on every build; the random-split gap published per dataset
-- [ ] Three arms on Elliptic and HI-Small (LI-Small too unless dropped), identical items, intervals over groups, paired deltas; AUPRC, recall at one percent false positives, recall at 0.5 and 1 percent alert budgets
-- [ ] Recall by laundering pattern per arm on the synthetic set, with the figure
-- [ ] The hop curve at zero to three hops per arm, gain and fetch latency side by side
-- [ ] The shift table on Elliptic per arm, and the context-swap chart
-- [ ] The TabFM column on both tabular arms at a stated context size, with its cost per thousand scores
-- [ ] Explanation faithfulness per arm against the random baseline; case files on the demo
-- [ ] Serving latency p50 and p99 at one and two hops from at least one store with the parity test passing; cost per million scores, prices dated
-- [ ] ONNX export and the feature view for 09, with the export test passing
-- [ ] The 03 gate's paired comparison per dataset
-- [ ] graph.peterparker.ca live with the ring explorer, the figures and the case-file viewer
-- [ ] One rejected approach documented with evidence (`docs/rejected.md`)
-- [ ] Repository public, `v0.1.0` tagged, the status flip logged on peterparker.ca
+- [x] Elliptic and both IBM sets fetched by loaders with checksums, licences quoted in `docs/data.md`, the pattern join tested against the generator's counts, the Elliptic++ email sent and its answer recorded
+- [x] Temporal inductive splits with the leakage test on every build; the random-split gap published per dataset
+- [x] Three arms on Elliptic and HI-Small (LI-Small too unless dropped), identical items, intervals over groups, paired deltas; AUPRC, recall at one percent false positives, recall at 0.5 and 1 percent alert budgets
+- [x] Recall by laundering pattern per arm on the synthetic set, with the figure
+- [x] The hop curve at zero to three hops per arm, gain and fetch latency side by side
+- [x] The shift table on Elliptic per arm, and the context-swap chart
+- [x] The TabFM column on both tabular arms at a stated context size, with its cost per thousand scores
+- [x] Explanation faithfulness per arm against the random baseline; case files on the demo
+- [x] Serving latency p50 and p99 at one and two hops from at least one store with the parity test passing; cost per million scores, prices dated
+- [x] ONNX export and the feature view for 09, with the export test passing
+- [x] The 03 gate's paired comparison per dataset
+- [x] graph.peterparker.ca live with the ring explorer, the figures and the case-file viewer
+- [x] One rejected approach documented with evidence (`docs/rejected.md`)
+- [x] Repository public, `v0.1.0` tagged, the status flip logged on peterparker.ca
 
 ## 12. Deferred
 

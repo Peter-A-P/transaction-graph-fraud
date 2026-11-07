@@ -8,7 +8,7 @@
 #
 # GPUS lists the cards to try, cheapest first (docs/gpu.md); the first one in supply is rented.
 #
-# The code goes over ssh as a git archive of HEAD (the repository is private until it ships;
+# The code goes over ssh as a git archive of HEAD (it was written while the repository was private;
 # no GitHub token goes on a rented machine), and the pod's .env carries only the RunPod key,
 # the pod's own id and the Kaggle token. Nothing here prints them.
 set -euo pipefail
