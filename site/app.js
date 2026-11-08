@@ -62,6 +62,22 @@ function el(name, attrs, parent) {
   return e;
 }
 
+/* HTML built as nodes: every string reaches the page as text, never as markup. */
+function h(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+  for (const kid of kids.flat()) {
+    if (kid === null || kid === undefined || kid === false || kid === "") continue;
+    e.append(typeof kid === "string" || typeof kid === "number" ? String(kid) : kid);
+  }
+  return e;
+}
+const B = (...kids) => h("strong", {}, ...kids);
+const P = (...kids) => h("p", {}, ...kids);
+function put(id, ...nodes) {
+  $(id).replaceChildren(...nodes.flat().filter(n => n !== null && n !== undefined && n !== false && n !== ""));
+}
+
 function txt(parent, x, y, s, cls, attrs) {
   const t = el("text", {x, y, class: cls || "tick", ...(attrs || {})}, parent);
   t.textContent = s;
@@ -70,29 +86,44 @@ function txt(parent, x, y, s, cls, attrs) {
 
 function frame(id, H, label) {
   const box = $(id);
-  box.innerHTML = "";
+  box.replaceChildren();
   const W = Math.max(300, Math.floor(box.clientWidth));
   const s = el("svg", {viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": label}, box);
   return {s, W, H, narrow: W < 620};
 }
 
 const tip = () => $("tip");
-function hover(node, html) {
-  node.addEventListener("pointermove", ev => {
+/* A chart mark's card: lines() returns its lines, the first shown in bold. The pointer opens it
+   where it is; keyboard focus opens it beside the mark, so every mark can be read without a mouse. */
+function hover(node, lines, focusable = true) {
+  const fillTip = () => {
+    const [head, ...rest] = lines();
+    tip().replaceChildren(h("b", {}, head), ...rest.map(line => h("span", {class: "tip-line"}, line)));
+    tip().classList.add("on");
+  };
+  const place = (cx, cy) => {
     const t = tip();
-    t.innerHTML = html();
-    t.classList.add("on");
-    const x = Math.min(ev.clientX + 16, window.innerWidth - t.offsetWidth - 10);
-    const y = ev.clientY + 16 + t.offsetHeight > window.innerHeight ? ev.clientY - t.offsetHeight - 12 : ev.clientY + 16;
+    const x = Math.min(cx + 16, window.innerWidth - t.offsetWidth - 10);
+    const y = cy + 16 + t.offsetHeight > window.innerHeight ? cy - t.offsetHeight - 12 : cy + 16;
     t.style.left = `${Math.max(8, x)}px`;
     t.style.top = `${y}px`;
-  });
+  };
+  node.addEventListener("pointermove", ev => { fillTip(); place(ev.clientX, ev.clientY); });
   node.addEventListener("pointerleave", () => tip().classList.remove("on"));
+  if (!focusable) return;
+  if (!node.hasAttribute("tabindex")) node.setAttribute("tabindex", "0");
+  if (!node.hasAttribute("aria-label")) node.setAttribute("aria-label", lines().join(". "));
+  node.addEventListener("focus", () => {
+    fillTip();
+    const r = node.getBoundingClientRect();
+    place(r.left + Math.min(r.width, 40), r.top + r.height / 2);
+  });
+  node.addEventListener("blur", () => tip().classList.remove("on"));
 }
 
 function seg(id, options, current, onPick) {
   const box = $(id);
-  box.innerHTML = "";
+  box.replaceChildren();
   for (const [key, label] of options) {
     const b = document.createElement("button");
     b.type = "button";
@@ -108,8 +139,7 @@ function seg(id, options, current, onPick) {
 }
 
 function legend(id, arms) {
-  $(id).innerHTML = arms.map(a =>
-    `<span class="legend-item"><span class="swatch solid a-sw a-${a}"></span>${ARM[a] || a}</span>`).join("");
+  put(id, arms.map(a => h("span", {class: "legend-item"}, h("span", {class: `swatch solid a-sw a-${a}`}), ARM[a] || a)));
 }
 
 /* The arm's headline run on a dataset: temporal, seed 0, the best validation AUPRC, ties to
@@ -165,7 +195,8 @@ function hero() {
   const gateG = D.gate.find(g => g.run.startsWith("ibm-HI-Small.") && g.run.includes(".G."));
   $("sub-g").textContent = pct(ibmG.recall_at_1pct_budget[0]);
   $("sub-r").textContent = pct(ibmR.recall_at_1pct_budget[0]);
-  $("hero-recall").innerHTML = `<span class="fig-graph">${pct(ibmG.recall_at_1pct_budget[0])}</span> <span class="fig-vs">vs</span> <span class="fig-row">${pct(ibmR.recall_at_1pct_budget[0])}</span>`;
+  put("hero-recall", h("span", {class: "fig-graph"}, pct(ibmG.recall_at_1pct_budget[0])), " ",
+    h("span", {class: "fig-vs"}, "vs"), " ", h("span", {class: "fig-row"}, pct(ibmR.recall_at_1pct_budget[0])));
   $("hero-recall-note").textContent = `IBM HI-Small, synthetic bank transfers: ${ci(ibmG.recall_at_1pct_budget, pct)} with graph features.` +
     (gateG ? ` Project 03's release gate passes it at ${pts(gateG.difference[0])}.` : "");
 
@@ -205,7 +236,7 @@ function ringSummary() {
 
 function drawRing() {
   const r = D.ring, box = $("ring");
-  box.innerHTML = "";
+  box.replaceChildren();
   const W = Math.max(300, Math.floor(box.clientWidth)), H = Math.round(Math.min(460, Math.max(330, W * 0.78)));
   const s = el("svg", {viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "The ring's accounts and transfers"}, box);
   // Layered left to right by the longest path from an account the ring never pays into, so
@@ -247,9 +278,9 @@ function drawRing() {
       "marker-end": `url(#ar-${!t.scored ? "un" : on ? "on" : "off"})`}, layer);
     const hit = el("path", {d: path, class: "edge-hit", tabindex: 0, role: "button",
       "aria-label": `${t.from} to ${t.to}, US$${Math.round(t.usd).toLocaleString()}`}, hits);
-    hover(hit, () => `<b>${t.from} to ${t.to}</b><br>US$${Math.round(t.usd).toLocaleString()}, hour ${t.hours} of the ring<br>` +
-      (t.scored ? FROZEN.filter(k => t.arms[k]).map(k => `${ARM[k]}: ${topLabel(t.arms[k].top)}${t.arms[k].flagged ? ", flagged" : ""}`).join("<br>")
-        : "Not scored: before the test days, or in the generator's tail"));
+    hover(hit, () => [`${t.from} to ${t.to}`, `US$${Math.round(t.usd).toLocaleString()}, hour ${t.hours} of the ring`,
+      ...(t.scored ? FROZEN.filter(k => t.arms[k]).map(k => `${ARM[k]}: ${topLabel(t.arms[k].top)}${t.arms[k].flagged ? ", flagged" : ""}`)
+        : ["Not scored: before the test days, or in the generator's tail"])], false);
     const pick = () => { ringSel = i; drawRing(); showTransfer(i); };
     hit.addEventListener("click", pick);
     hit.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(); } });
@@ -263,9 +294,9 @@ function drawRing() {
 
 function totals() {
   const {scored, caught} = ringSummary();
-  return `<p class="eyebrow">Scored transfers each model's 1% alert queue reaches</p>
-    <div class="caught">${["R", "G", "N"].map(a => `<div class="stat a-${a}"><span class="figure">${caught(a)} of ${scored.length}</span>
-      <span class="caption">${ARM[a]}</span></div>`).join("")}</div>`;
+  return [h("p", {class: "eyebrow"}, "Scored transfers each model's 1% alert queue reaches"),
+    h("div", {class: "caught"}, ["R", "G", "N"].map(a => h("div", {class: `stat a-${a}`},
+      h("span", {class: "figure"}, `${caught(a)} of ${scored.length}`), h("span", {class: "caption"}, ARM[a]))))];
 }
 
 // The side panel opens on the first transfer graph features flagged, so that a case file is
@@ -273,35 +304,39 @@ function totals() {
 function ringOverview() {
   const first = D.ring.transfers.findIndex(t => D.ring.cases.some(c => c.transfer === `${t.from} to ${t.to}` && c.hours === t.hours));
   if (first >= 0) { ringSel = first; showTransfer(first); return; }
-  $("ring-side").innerHTML = totals() + `<p>Select a transfer to see where every model ranks it.</p>`;
+  put("ring-side", totals(), P("Select a transfer to see where every model ranks it."));
 }
 
 function showTransfer(i) {
   const t = D.ring.transfers[i];
-  let html = `<p class="eyebrow">Transfer ${i + 1} of ${D.ring.transfers.length}</p>
-    <h3>${t.from} to ${t.to}</h3>
-    <p class="note">US$${Math.round(t.usd).toLocaleString()}, hour ${t.hours} of the ring, day ${t.day} of the data${t.laundering ? "; laundering, by the generator's record" : ""}</p>`;
+  const out = [h("p", {class: "eyebrow"}, `Transfer ${i + 1} of ${D.ring.transfers.length}`),
+    h("h3", {}, `${t.from} to ${t.to}`),
+    h("p", {class: "note"}, `US$${Math.round(t.usd).toLocaleString()}, hour ${t.hours} of the ring, day ${t.day} of the data${t.laundering ? "; laundering, by the generator's record" : ""}`)];
   if (!t.scored) {
-    html += `<p>Not scored: it falls before the test days or in the generator's last days, which no model is graded on.</p>`;
+    out.push(P("Not scored: it falls before the test days or in the generator's last days, which no model is graded on."));
   } else {
-    html += FROZEN.filter(a => t.arms[a]).map(a => `<div class="score-row a-${a}"><span>${ARM[a]}${t.arms[a].flagged ? '<span class="flag-pill">flagged</span>' : ""}</span>
-      <span class="score-bar rank"><span class="w-${rankWidth(t.arms[a].top)}"></span></span>
-      <span class="num">${topLabel(t.arms[a].top)}</span></div>`).join("");
-    html += `<p class="note">Where each model ranks this transfer among all test transfers, on a log scale; the line marks the 1% alert queue. Each model's raw score has its own range, so the rank is what compares.</p>`;
+    // Score bars are sized by class, so the page needs no style attribute.
+    for (const a of FROZEN.filter(k => t.arms[k])) {
+      out.push(h("div", {class: `score-row a-${a}`},
+        h("span", {}, ARM[a], t.arms[a].flagged ? h("span", {class: "flag-pill"}, "flagged") : null),
+        h("span", {class: "score-bar rank"}, h("span", {class: `w-${rankWidth(t.arms[a].top)}`})),
+        h("span", {class: "num"}, topLabel(t.arms[a].top))));
+    }
+    out.push(h("p", {class: "note"}, "Where each model ranks this transfer among all test transfers, on a log scale; the line marks the 1% alert queue. Each model's raw score has its own range, so the rank is what compares."));
     const flagged = FROZEN.filter(a => t.arms[a] && t.arms[a].flagged).map(a => ARM[a]);
-    html += `<p class="note">${flagged.length ? `In the alert queue of: ${flagged.join(", ")}.` : "In no model's alert queue."}</p>`;
+    out.push(h("p", {class: "note"}, flagged.length ? `In the alert queue of: ${flagged.join(", ")}.` : "In no model's alert queue."));
   }
   const c = D.ring.cases.find(c => c.transfer === `${t.from} to ${t.to}` && c.hours === t.hours);
   if (c) {
-    html += `<p class="eyebrow">Case file, graph features</p>
-      <p class="note">Of ${c.neighbours} accounts next to this transfer, the ones whose removal drops its score most, each rescored through the exported model.</p>` +
-      c.top.map(n => `<div class="case-row"><span><span class="who">${n.account}</span>
-        <span class="why">${n.in_ring ? "in this ring" : n.in_any_laundering ? "in another laundering transfer" : "no laundering on record"}</span></span>
-        <span class="num">${n.score_drop >= 0 ? "-" : "+"}${f3(Math.abs(n.score_drop))}</span></div>`).join("");
+    out.push(h("p", {class: "eyebrow"}, "Case file, graph features"),
+      h("p", {class: "note"}, `Of ${c.neighbours} accounts next to this transfer, the ones whose removal drops its score most, each rescored through the exported model.`),
+      ...c.top.map(n => h("div", {class: "case-row"},
+        h("span", {}, h("span", {class: "who"}, n.account), " ",
+          h("span", {class: "why"}, n.in_ring ? "in this ring" : n.in_any_laundering ? "in another laundering transfer" : "no laundering on record")),
+        h("span", {class: "num"}, `${n.score_drop >= 0 ? "-" : "+"}${f3(Math.abs(n.score_drop))}`))));
   }
-  html += `<p class="note">Select any arrow in the ring for its transfer.</p>`;
-  // Score bars are sized by class, so the page needs no style attribute.
-  $("ring-side").innerHTML = totals() + html;
+  out.push(h("p", {class: "note"}, "Select any arrow in the ring for its transfer."));
+  put("ring-side", totals(), out);
 }
 
 function ringText() {
@@ -311,11 +346,10 @@ function ringText() {
     `is split across ${r.accounts.length - 2} go-betweens and gathers again in one, ${r.transfers.length} transfers over ${days} days. ` +
     `Each transfer on its own looks ordinary. It was chosen by a rule that reads no score, the attempt of this shape with the most ` +
     `transfers on the test days, so it was not picked to flatter any model. Its accounts are named by their place in the ring.`;
-  $("ring-verdict").innerHTML = `<p><strong>The row model's alert queue reaches ${caught("R")} of the ring's ${scored.length} scored transfers;
-    graph features reach ${caught("G")}.</strong> The graph neural network reaches ${caught("N")}. Each transfer the row model sees
-    is a modest payment between two accounts. Graph features see that the receiving account is paid by many accounts that were
-    themselves just paid by the same one. One ring proves nothing on its own; the charts below measure the same thing over every
-    laundering transfer in the test period.</p>`;
+  put("ring-verdict", P(B(`The row model's alert queue reaches ${caught("R")} of the ring's ${scored.length} scored transfers; graph features reach ${caught("G")}.`),
+    ` The graph neural network reaches ${caught("N")}. Each transfer the row model sees is a modest payment between two accounts. ` +
+    "Graph features see that the receiving account is paid by many accounts that were themselves just paid by the same one. " +
+    "One ring proves nothing on its own; the charts below measure the same thing over every laundering transfer in the test period."));
 }
 
 /* ---------------------------------------------------------------- does the graph help */
@@ -372,15 +406,14 @@ function drawMain() {
       el("circle", {cx: x(v[0]), cy: it.cy, r: 6, class: "dot"}, row);
       txt(row, W - 2, it.cy + 4, view === "gain" ? sgn(v[0], f3) : view === "recall" ? pct(v[0]) : f3(v[0]),
         `value${it.a === "G" ? " strong" : ""}`, {"text-anchor": "end"});
-      hover(row, () => `<b>${g.label}: ${ARM[it.a]}</b>${it.a === "R" ? "" : `, ${hopWord(it.r.hops)}`}<br>` +
-        `AUPRC ${f3(it.r.auprc[0])}, ${ci(it.r.auprc, f3)}` +
-        (it.r.delta_auprc ? `<br>Against the row model, same items: ${sgn(it.r.delta_auprc[0], f3)}, ${ci(it.r.delta_auprc, v => sgn(v, f3))}` : "") +
-        (it.r.recall_at_1pct_budget ? `<br>Recall in the 1% alert queue: ${pct(it.r.recall_at_1pct_budget[0])}` : ""));
+      hover(row, () => [`${g.label}: ${ARM[it.a]}${it.a === "R" ? "" : `, ${hopWord(it.r.hops)}`}`,
+        `AUPRC ${f3(it.r.auprc[0])}, ${ci(it.r.auprc, f3)}`,
+        ...(it.r.delta_auprc ? [`Against the row model, same items: ${sgn(it.r.delta_auprc[0], f3)}, ${ci(it.r.delta_auprc, v => sgn(v, f3))}`] : []),
+        ...(it.r.recall_at_1pct_budget ? [`Recall in the 1% alert queue: ${pct(it.r.recall_at_1pct_budget[0])}`] : [])]);
     }
   }
   legend("main-legend", FROZEN.filter(a => view !== "gain" || a !== "R"));
-  if (view !== "gain") $("main-legend").insertAdjacentHTML("beforeend",
-    `<span class="legend-item"><span class="swatch solid sw-faint"></span>row model, the line to beat</span>`);
+  if (view !== "gain") $("main-legend").append(h("span", {class: "legend-item"}, h("span", {class: "swatch tick sw-faint"}), "grey tick: the row model, the line to beat"));
 }
 
 function mainText() {
@@ -390,20 +423,22 @@ function mainText() {
   const N = Object.keys(SETS).map(ds => ({ds, r: headline(ds, "N"), g: headline(ds, "G")})).filter(o => o.r);
   const nBelow = N.filter(o => o.r.delta_auprc[2] < 0).map(o => SETS[o.ds]);
   const tg = headline("elliptic", "TabFM-G"), tgp = headline("ellipticpp", "TabFM-G"), tpr = headline("ellipticpp", "TabFM-R");
-  $("main-verdict").innerHTML = `<p><strong>Graph features beat the row model on ${all ? "all" : "some"} ${G.length} datasets, each paired interval clear of zero.</strong>
-    The gain is ${sgn(d("ibm-HI-Small")[0], f2)} AUPRC on IBM HI-Small and ${sgn(d("ibm-LI-Small")[0], f2)} on LI-Small, where the generator plants
-    laundering as shapes, ${sgn(d("ellipticpp")[0], f2)} on Elliptic++'s real wallets, and ${sgn(d("elliptic")[0], f3)} on Elliptic, whose own
-    features already summarise each transaction's neighbours.</p>
-    <p><strong>The graph neural network never beat the graph features.</strong> ${nBelow.length ? `On ${nBelow.join(" and ")} it scored below the plain row model. ` : ""}It learns
-    from the same neighbourhoods but needs a GPU to train, and it moves more from one random seed to the next than the gaps between the models.</p>
-    <p><strong>The foundation model, never trained on this data, is the surprise on Elliptic:</strong> handed the graph features it scores
-    ${f3(tg.auprc[0])}, the best of any model there. On Elliptic++ it does not travel: on the row alone it is ${sgn(tpr.delta_auprc[0], f2)} against the
-    row model, and handed the graph features it scores ${f3(tgp.auprc[0])}, short of the trees' ${f3(headline("ellipticpp", "G").auprc[0])}.</p>`;
+  put("main-verdict",
+    P(B(`Graph features beat the row model on ${all ? "all" : "some"} ${G.length} datasets, each paired interval clear of zero.`),
+      ` The gain is ${sgn(d("ibm-HI-Small")[0], f2)} AUPRC on IBM HI-Small and ${sgn(d("ibm-LI-Small")[0], f2)} on LI-Small, where the generator plants ` +
+      `laundering as shapes, ${sgn(d("ellipticpp")[0], f2)} on Elliptic++'s real wallets, and ${sgn(d("elliptic")[0], f3)} on Elliptic, whose own ` +
+      "features already summarise each transaction's neighbours."),
+    P(B("The graph neural network never beat the graph features."),
+      ` ${nBelow.length ? `On ${nBelow.join(" and ")} it scored below the plain row model. ` : ""}It learns ` +
+      "from the same neighbourhoods but needs a GPU to train, and it moves more from one random seed to the next than the gaps between the models."),
+    P(B("The foundation model, never trained on this data, is the surprise on Elliptic:"),
+      ` handed the graph features it scores ${f3(tg.auprc[0])}, the best of any model there. On Elliptic++ it does not travel: on the row alone it is ${sgn(tpr.delta_auprc[0], f2)} against the ` +
+      `row model, and handed the graph features it scores ${f3(tgp.auprc[0])}, short of the trees' ${f3(headline("ellipticpp", "G").auprc[0])}.`));
   const e = headline("elliptic", "R"), pp = headline("ellipticpp", "R");
-  $("main-assumption").innerHTML = `<p><strong>Why the alert-queue view barely separates the models on the real sets.</strong> A 1% queue holds fewer
-    accounts than there is fraud: at most ${pct(e.ceiling_at_1pct_budget[0])} of Elliptic's illicit transactions and ${pct(pp.ceiling_at_1pct_budget[0])}
-    of Elliptic++'s wallets can fit in it, and every model comes close to that ceiling. AUPRC, which reads the whole ranking, is where they differ.
-    On IBM's bank transfers the queue can hold all of the laundering, and there the graph's lead shows in the queue too.</p>`;
+  put("main-assumption", P(B("Why the alert-queue view barely separates the models on the real sets."),
+    ` A 1% queue holds fewer accounts than there is fraud: at most ${pct(e.ceiling_at_1pct_budget[0])} of Elliptic's illicit transactions and ${pct(pp.ceiling_at_1pct_budget[0])} ` +
+    "of Elliptic++'s wallets can fit in it, and every model comes close to that ceiling. AUPRC, which reads the whole ranking, is where they differ. " +
+    "On IBM's bank transfers the queue can hold all of the laundering, and there the graph's lead shows in the queue too."));
 }
 
 /* ---------------------------------------------------------------- shapes */
@@ -432,21 +467,24 @@ function drawPatterns() {
     if (it === groups[0].items[shapes]) el("line", {x1: 0, x2: W, y1: it.cy - 16, y2: it.cy - 16, class: "divider"}, s);
     el("rect", {x: L, y: it.cy - 16, width: W - L, height: 32, class: "hit"}, row);
     el("line", {x1: x(v("R")[0]), x2: x(v("G")[0]), y1: it.cy, y2: it.cy, class: "gain"}, row);
+    // Each end's 95% interval, just above (row model) and below (graph features) the bar.
+    el("line", {x1: x(v("R")[1]), x2: x(v("R")[2]), y1: it.cy - 9, y2: it.cy - 9, class: "whisker a-R"}, row);
+    el("line", {x1: x(v("G")[1]), x2: x(v("G")[2]), y1: it.cy + 9, y2: it.cy + 9, class: "whisker a-G"}, row);
     for (const a of ["R", "N", "G"]) if (v(a)) el("circle", {cx: x(v(a)[0]), cy: it.cy, r: a === "G" ? 7 : 5.5, class: `dot a-${a}`}, row);
     txt(row, W - 2, it.cy + 4, narrow ? sgn((v("G")[0] - v("R")[0]) * 100, n => n.toFixed(0)) :
       `${pct(v("R")[0])} to ${pct(v("G")[0])}`, "value strong", {"text-anchor": "end"});
-    hover(row, () => `<b>${it.label}</b><br>` + ["R", "G", "N"].filter(v).map(a =>
-      `${ARM[a]}: ${pct(v(a)[0])}, ${ci(v(a), pct)}`).join("<br>"));
+    hover(row, () => [it.label, ...["R", "G", "N"].filter(v).map(a => `${ARM[a]}: ${pct(v(a)[0])}, ${ci(v(a), pct)}`)]);
   }
   legend("pattern-legend", ["R", "G", "N"]);
   const top = named.slice(0, 2);
   const none = heads.G.patterns.NONE, noneR = heads.R.patterns.NONE;
-  $("pattern-verdict").innerHTML = `<p><strong>Graph features reach more of every named shape than the row model, most of all
-    ${PATTERNS[top[0]].toLowerCase()} (${pct(heads.R.patterns[top[0]][0])} to ${pct(heads.G.patterns[top[0]][0])}) and
-    ${PATTERNS[top[1]].toLowerCase()} (${pct(heads.R.patterns[top[1]][0])} to ${pct(heads.G.patterns[top[1]][0])})</strong>, the shapes where many
-    accounts meet at one. That is the account a row model cannot see: each payment into it is unremarkable, the number of
-    them is not. The graph neural network sits between the two on most shapes.</p>
-    ${none && noneR ? `<p>Laundering that belongs to no named shape is the hardest for everyone: the queue reaches ${pct(noneR[0])} of it on the row and ${pct(none[0])} with graph features.</p>` : ""}`;
+  put("pattern-verdict",
+    P(B(`Graph features reach more of every named shape than the row model, most of all ${PATTERNS[top[0]].toLowerCase()} ` +
+      `(${pct(heads.R.patterns[top[0]][0])} to ${pct(heads.G.patterns[top[0]][0])}) and ${PATTERNS[top[1]].toLowerCase()} ` +
+      `(${pct(heads.R.patterns[top[1]][0])} to ${pct(heads.G.patterns[top[1]][0])})`),
+      ", the shapes where many accounts meet at one. A row model cannot see that account: each payment into it is unremarkable, " +
+      "but the number of them is not. The graph neural network sits between the two on most shapes."),
+    none && noneR ? P(`Laundering that belongs to no named shape is the hardest for everyone: the queue reaches ${pct(noneR[0])} of it on the row and ${pct(none[0])} with graph features.`) : null);
 }
 
 /* ---------------------------------------------------------------- hops */
@@ -488,7 +526,7 @@ function drawHops() {
     for (const q of p) {
       el("circle", {cx: x(q.h), cy: y(q.v[0]), r: 5.5, class: "dot"}, g);
       const hit = el("circle", {cx: x(q.h), cy: y(q.v[0]), r: 16, class: "hit"}, g);
-      hover(hit, () => `<b>${SETS[ds]}, ${q.h === 0 ? "row only" : hopWord(q.h)}</b><br>${arm === "G" && q.h === 0 ? ARM.R : ARM[arm]}<br>AUPRC ${f3(q.v[0])}, ${ci(q.v, f3)}`);
+      hover(hit, () => [`${SETS[ds]}, ${q.h === 0 ? "row only" : hopWord(q.h)}`, arm === "G" && q.h === 0 ? ARM.R : ARM[arm], `AUPRC ${f3(q.v[0])}, ${ci(q.v, f3)}`]);
     }
     if (!narrow) {
       const last = p[p.length - 1];
@@ -502,11 +540,11 @@ function hopText() {
   const e = hopSeries("elliptic").G, p = hopSeries("ellipticpp").G, i = hopSeries("ibm-HI-Small").G;
   const f = h => D.serving.filter(r => r.dataset === "ibm-HI-Small" && r.centre === "counters" && r.hops === h);
   const ratio = Math.max(...f(2).map(r => r.p50_ms / f(1).find(q => q.store === r.store).p50_ms));
-  $("hop-verdict").innerHTML = `<p><strong>One hop is where most of the gain is, and on the bank transfers it is all of it.</strong>
-    On IBM HI-Small graph features go from ${f3(i[0].auprc[0])} on the row to ${f3(i[1].auprc[0])} at one hop and ${f3(i[2].auprc[0])} at two,
-    while the second hop costs up to ${ratio.toFixed(1)} times as long to fetch. Elliptic++'s wallets keep gaining to two hops
-    (${f3(p[1].auprc[0])} to ${f3(p[2].auprc[0])}); Elliptic, whose features already look one hop out, barely moves after the first
-    (${f3(e[1].auprc[0])} to ${f3(e[3].auprc[0])} at three). The graph neural network gets no better with depth on any set.</p>`;
+  put("hop-verdict", P(B("One hop is where most of the gain is, and on the bank transfers it is all of it."),
+    ` On IBM HI-Small graph features go from ${f3(i[0].auprc[0])} on the row to ${f3(i[1].auprc[0])} at one hop and ${f3(i[2].auprc[0])} at two, ` +
+    `while the second hop costs up to ${ratio.toFixed(1)} times as long to fetch. Elliptic++'s wallets keep gaining to two hops ` +
+    `(${f3(p[1].auprc[0])} to ${f3(p[2].auprc[0])}); Elliptic, whose features already look one hop out, barely moves after the first ` +
+    `(${f3(e[1].auprc[0])} to ${f3(e[3].auprc[0])} at three). The graph neural network gets no better with depth on any set.`));
 }
 
 /* ---------------------------------------------------------------- the shift */
@@ -517,7 +555,7 @@ function drawShift() {
   const ds = shiftSet;
   const arms = [...FROZEN, "R-retrain", "TabFM-R-swap"].map(a => ({a, r: headline(ds, a)})).filter(o => o.r && o.r.from_43);
   const {s, W, narrow} = frame("shift", 360, `AUPRC before and after step 43 on ${SETS[ds]}`);
-  const H = 360, T = 30, B = 22, L = narrow ? 40 : 60, R = narrow ? 120 : 250;
+  const H = 360, T = 30, B = 22, L = narrow ? 40 : 60, R = narrow ? 150 : 270;
   const x0 = L + 20, x1 = W - R;
   const y = v => T + (1 - v) * (H - T - B);
   for (let t = 0; t <= 1.0001; t += 0.2) {
@@ -533,15 +571,22 @@ function drawShift() {
   for (let k = 1; k < ends.length; k++) ends[k].y = Math.max(ends[k].y, ends[k - 1].y + 15);
   const over = ends.length ? ends[ends.length - 1].y - (H - B + 4) : 0;
   if (over > 0) for (const e of ends) e.y -= over;
+  // Each model's 95% interval after the shutdown, a short vertical line just right of its dot,
+  // stepped so that none hides another; the labels start after the last of them.
+  const step = narrow ? 3 : 4, labelX = x1 + 10 + arms.length * step;
+  arms.forEach((o, k) => {
+    const g = el("g", {class: `a-${o.a}`}, s);
+    el("line", {x1: x1 + 6 + k * step, x2: x1 + 6 + k * step, y1: y(o.r.from_43[1]), y2: y(o.r.from_43[2]), class: "whisker shift"}, g);
+  });
   for (const {o, y: ly} of ends) {
     const g = el("g", {class: `a-${o.a}`}, s);
     const recover = o.a.endsWith("-retrain") || o.a.endsWith("-swap");
     el("line", {x1: x0, x2: x1, y1: y(o.r.before_43[0]), y2: y(o.r.from_43[0]), class: `series${recover ? " dashed" : ""}`}, g);
     el("circle", {cx: x0, cy: y(o.r.before_43[0]), r: 5, class: "dot"}, g);
     el("circle", {cx: x1, cy: y(o.r.from_43[0]), r: 5.5, class: "dot"}, g);
-    txt(g, x1 + 12, ly + 4, narrow ? `${o.a} ${f2(o.r.from_43[0])}` : `${ARM[o.a]} ${f2(o.r.from_43[0])}`, `value${recover || o.a === "G" ? " strong" : ""}`);
+    txt(g, labelX, ly + 4, narrow ? `${o.a} ${f2(o.r.from_43[0])}` : `${ARM[o.a]} ${f2(o.r.from_43[0])}`, `value${recover || o.a === "G" ? " strong" : ""}`);
     const hit = el("line", {x1: x0, x2: x1, y1: y(o.r.before_43[0]), y2: y(o.r.from_43[0]), stroke: "transparent", "stroke-width": 14}, g);
-    hover(hit, () => `<b>${ARM[o.a]}</b><br>Before step 43: ${f3(o.r.before_43[0])}, ${ci(o.r.before_43, f3)}<br>From step 43: ${f3(o.r.from_43[0])}, ${ci(o.r.from_43, f3)}`);
+    hover(hit, () => [ARM[o.a], `Before step 43: ${f3(o.r.before_43[0])}, ${ci(o.r.before_43, f3)}`, `From step 43: ${f3(o.r.from_43[0])}, ${ci(o.r.from_43, f3)}`]);
   }
 }
 
@@ -551,16 +596,17 @@ function shiftText() {
   const frozenMax = Math.max(...frozen.filter(a => a !== "TabFM-G").map(a => h(a).from_43[0]));
   const re = h("R-retrain"), sw = h("TabFM-R-swap"), tg = h("TabFM-G");
   const ppG = headline("ellipticpp", "G");
-  $("shift-verdict").innerHTML = `<p><strong>After the shutdown every frozen model collapses on Elliptic, graph or not:</strong> AUPRC falls from about
-    ${f1(h("R").before_43[0])} to ${f2(frozenMax)} or less. The one exception is the foundation model handed the graph features, which
-    holds ${f2(tg.from_43[0])}.</p>
-    <p><strong>Fresh labels are what recover it.</strong> Retraining the row model before each test step on the four latest labelled steps
-    brings it to ${f2(re.from_43[0])}. Swapping the foundation model's examples for the same rows brings it to ${f2(sw.from_43[0])}, and that
-    swap costs no training at all. On Elliptic++'s wallets the fall is gentler, and graph features keep ${f2(ppG.from_43[0])} of their
-    ${f2(ppG.before_43[0])}.</p>`;
-  $("shift-assumption").innerHTML = `<p><strong>The test after the shutdown is small.</strong> Elliptic's seven steps after it hold 169 illicit
-    transactions, so every interval here is wide: the swap's ${ci(sw.from_43, f2)} overlaps retraining's ${ci(re.from_43, f2).replace("95% CI ", "")}.
-    It is the better recovery on this test, not a proven one.</p>`;
+  put("shift-verdict",
+    P(B("After the shutdown every frozen model collapses on Elliptic, graph or not:"),
+      ` AUPRC falls from about ${f1(h("R").before_43[0])} to ${f2(frozenMax)} or less. The one exception is the foundation model handed the graph features, which ` +
+      `holds ${f2(tg.from_43[0])}.`),
+    P(B("Fresh labels are what recover it."),
+      ` Retraining the row model before each test step on the four latest labelled steps brings it to ${f2(re.from_43[0])}. ` +
+      `Swapping the foundation model's examples for the same rows brings it to ${f2(sw.from_43[0])}, and that swap costs no training at all. ` +
+      `On Elliptic++'s wallets the fall is gentler, and graph features keep ${f2(ppG.from_43[0])} of their ${f2(ppG.before_43[0])}.`));
+  put("shift-assumption", P(B("The test after the shutdown is small."),
+    ` Elliptic's seven steps after it hold 169 illicit transactions, so every interval here is wide: the swap's ${ci(sw.from_43, f2)} overlaps retraining's ${ci(re.from_43, f2).replace("95% CI ", "")}. ` +
+    "It is the better recovery on this test, not a proven one."));
 }
 const f1 = v => v.toFixed(1);
 
@@ -589,19 +635,20 @@ function drawLeak() {
     el("circle", {cx: x(r), cy: it.cy, r: 6, class: "dot split-r"}, row);
     if (it.w) el("circle", {cx: x(it.w.auprc_all_days[0]), cy: it.cy, r: 6, class: "dot split-w"}, row);
     txt(row, W - 2, it.cy + 4, narrow ? sgn(r - t, f2) : `${f2(t)} to ${f2(r)}`, "value strong", {"text-anchor": "end"});
-    hover(row, () => `<b>${g.label}: ${ARM[it.a]}</b><br>Time-ordered: ${f3(t)}, ${ci(it.t.auprc_all_days, f3)}<br>Random: ${f3(r)}, ${ci(it.r.auprc, f3)}` +
-      (it.w ? `<br>Features that could see later days: ${f3(it.w.auprc_all_days[0])}` : ""));
+    hover(row, () => [`${g.label}: ${ARM[it.a]}`, `Time-ordered: ${f3(t)}, ${ci(it.t.auprc_all_days, f3)}`, `Random: ${f3(r)}, ${ci(it.r.auprc, f3)}`,
+      ...(it.w ? [`Features that could see later days: ${f3(it.w.auprc_all_days[0])}`] : [])]);
   }
   const e = headline("elliptic", "R"), er = run("elliptic", "R", 0, "random");
   const p = headline("ellipticpp", "R"), pr = run("ellipticpp", "R", 0, "random");
   const iG = headline("ibm-HI-Small", "G"), iw = run("ibm-HI-Small", "G-window", 1);
-  $("leak-verdict").innerHTML = `<p><strong>On the real Bitcoin data a random split makes every model look nearly perfect.</strong> The row
-    model scores ${f2(er.auprc[0])} on Elliptic and ${f2(pr.auprc[0])} on Elliptic++ when accounts are split at random, against
-    ${f2(e.auprc_all_days[0])} and ${f2(p.auprc_all_days[0])} when it must score a later period. A random split lets the model learn from the
-    very weeks it is tested on, and it hides the drift a bank lives with.</p>
-    <p>IBM's synthetic sets go the other way, because the generator's last days, nearly all laundering, fall in the time-ordered
-    test. There the leak that mattered was one this build found in itself: graph features computed with sight of later days
-    scored ${f2(iw.auprc_all_days[0])} against the honest ${f2(iG.auprc_all_days[0])}. It was fixed, and a leakage test now runs on every build.</p>`;
+  put("leak-verdict",
+    P(B("On the real Bitcoin data a random split makes every model look nearly perfect."),
+      ` The row model scores ${f2(er.auprc[0])} on Elliptic and ${f2(pr.auprc[0])} on Elliptic++ when accounts are split at random, against ` +
+      `${f2(e.auprc_all_days[0])} and ${f2(p.auprc_all_days[0])} when it must score a later period. A random split lets the model learn from the ` +
+      "very weeks it is tested on, and it hides the drift a bank lives with."),
+    P("IBM's synthetic sets go the other way, because the generator's last days, nearly all laundering, fall in the time-ordered " +
+      "test. There the leak that mattered was one this build found in itself: graph features computed with sight of later days " +
+      `scored ${f2(iw.auprc_all_days[0])} against the honest ${f2(iG.auprc_all_days[0])}. It was fixed, and a leakage test now runs on every build.`));
 }
 
 /* ---------------------------------------------------------------- explanations */
@@ -625,17 +672,17 @@ function drawFaith() {
     el("line", {x1: x(r.explained[1]), x2: x(r.explained[2]), y1: it.cy - 6, y2: it.cy - 6, class: "whisker pick"}, row);
     el("circle", {cx: x(r.explained[0]), cy: it.cy - 6, r: 6, class: "dot pick"}, row);
     txt(row, W - 2, it.cy + 4, narrow ? pts(r.lift[0]).replace(" points", "") : `lift ${pts(r.lift[0])}`, `value${clear(r.lift) ? " strong" : ""}`, {"text-anchor": "end"});
-    hover(row, () => `<b>${it.label}</b>, ${r.graded} flagged transfers graded<br>Explanation: ${pct(r.explained[0])}, ${ci(r.explained, pct)}<br>` +
-      `Random: ${pct(r.random[0])}, ${ci(r.random, pct)}<br>Lift: ${pts(r.lift[0])}, ${ci(r.lift, v => pts(v).replace(" points", ""))}`);
+    hover(row, () => [`${it.label}, ${r.graded} flagged transfers graded`, `Explanation: ${pct(r.explained[0])}, ${ci(r.explained, pct)}`,
+      `Random: ${pct(r.random[0])}, ${ci(r.random, pct)}`, `Lift: ${pts(r.lift[0])}, ${ci(r.lift, v => pts(v).replace(" points", ""))}`]);
   }
   const k1 = rows.find(r => r.k === 1);
   $("faith-caption").textContent = `IBM HI-Small, a random ${k1.flagged} of graph features' alert queue; graded where a transfer has more than k neighbours and at least one known laundering account among them. Intervals over hours. Elliptic's flagged transactions mostly have one or two neighbours, too few to grade.`;
   const k3 = rows.find(r => r.k === 3);
-  $("faith-verdict").innerHTML = `<p><strong>The explanation is a better-than-random pointer, not a reliable one.</strong> The single neighbour it
-    ranks first is an account the generator used for laundering ${pct(k1.explained[0])} of the time, against ${pct(k1.random[0])} for a
-    neighbour picked at random: a lift of ${pts(k1.lift[0])} (95% CI ${(k1.lift[1] * 100).toFixed(0)} to ${(k1.lift[2] * 100).toFixed(0)}).
-    ${k3 && !clear(k3.lift) ? `At three neighbours the interval spans zero.` : ""} An investigator gets a place to start, and the
-    case file says so rather than claiming more.</p>`;
+  put("faith-verdict", P(B("The explanation is a better-than-random pointer, not a reliable one."),
+    ` The single neighbour it ranks first is an account the generator used for laundering ${pct(k1.explained[0])} of the time, against ${pct(k1.random[0])} for a ` +
+    `neighbour picked at random: a lift of ${pts(k1.lift[0])} (95% CI ${(k1.lift[1] * 100).toFixed(0)} to ${(k1.lift[2] * 100).toFixed(0)}). ` +
+    `${k3 && !clear(k3.lift) ? "At three neighbours the interval spans zero. " : ""}An investigator gets a place to start, and the ` +
+    "case file presents it as no more than that."));
 }
 
 /* ---------------------------------------------------------------- the gate */
@@ -673,16 +720,17 @@ function drawGate() {
     el("rect", {x: Math.min(x(0), x(d[0])), y: it.cy - 8, width: Math.max(2, Math.abs(x(d[0]) - x(0))), height: 16, rx: 3, class: "bar gate"}, row);
     el("line", {x1: x(d[1]), x2: x(d[2]), y1: it.cy, y2: it.cy, class: "whisker cost"}, row);
     txt(row, W - 2, it.cy + 4, it.g.verdict, `verdict-label ${it.g.verdict}`, {"text-anchor": "end"});
-    hover(row, () => `<b>${SETS[it.ds]}: ${it.sub}</b><br>Recall in the 1% queue: ${pct(it.g.baseline_recall)} for the row model, ${pct(it.g.candidate_recall)} for this one<br>` +
-      `Difference ${pts(d[0])}, ${ci(d, v => pts(v).replace(" points", ""))}<br>${it.g.items.toLocaleString()} illicit items, paired; ${it.g.date}`);
+    hover(row, () => [`${SETS[it.ds]}: ${it.sub}`, `Recall in the 1% queue: ${pct(it.g.baseline_recall)} for the row model, ${pct(it.g.candidate_recall)} for this one`,
+      `Difference ${pts(d[0])}, ${ci(d, v => pts(v).replace(" points", ""))}`, `${it.g.items.toLocaleString()} illicit items, paired; ${it.g.date}`]);
   }
   const ibm = keep.filter(r => r.ds.startsWith("ibm-") && r.arm === "G");
   const n = keep.filter(r => r.arm === "N" && r.ds.startsWith("ibm-"));
-  $("gate-verdict").innerHTML = `<p><strong>On the bank transfers the gate passes graph features with a wide margin:</strong>
-    ${ibm.map(r => `${pts(r.g.difference[0])} of laundering reached on ${SETS[r.ds]}`).join(" and ")}, every interval far above the line.
-    The graph network passes too, at ${n.map(r => pts(r.g.difference[0])).join(" and ")}.</p>
-    <p>On the real sets the 1% queue is smaller than the fraud, so every model fills it with the same sure cases and the gate
-    has little to separate. Where it blocks, it cannot rule out a 3-point drop; it did not see one.</p>`;
+  put("gate-verdict",
+    P(B("On the bank transfers the gate passes graph features with a wide margin:"),
+      ` ${ibm.map(r => `${pts(r.g.difference[0])} of laundering reached on ${SETS[r.ds]}`).join(" and ")}, every interval far above the line. ` +
+      `The graph network passes too, at ${n.map(r => pts(r.g.difference[0])).join(" and ")}.`),
+    P("On the real sets the 1% queue is smaller than the fraud, so every model fills it with the same sure cases and the gate " +
+      "has little to separate. Where it blocks, it cannot rule out a 3-point drop; it did not see one."));
 }
 
 /* ---------------------------------------------------------------- live cost */
@@ -714,21 +762,22 @@ function drawCost() {
     el("line", {x1: x(r.p50_ms), x2: x(r.p99_ms), y1: it.cy, y2: it.cy, class: "whisker cost"}, row);
     el("line", {x1: x(r.p99_ms), x2: x(r.p99_ms), y1: it.cy - 5, y2: it.cy + 5, class: "whisker cost"}, row);
     txt(row, W - 2, it.cy + 4, narrow ? `${r.p50_ms.toFixed(1)} ms` : `${r.p50_ms.toFixed(1)} ms, US$${r.usd_per_million.toFixed(2)} per million`, "value", {"text-anchor": "end"});
-    hover(row, () => `<b>${SN[r.store]}, ${hopWord(r.hops)}</b><br>Median ${r.p50_ms.toFixed(1)} ms, 99th percentile ${r.p99_ms.toFixed(1)} ms<br>` +
-      `${Math.round(r.mean_edges_fetched).toLocaleString()} transfers fetched per score, on average<br>US$${r.usd_per_million.toFixed(2)} per million scores, the machine busy half the hour`);
+    hover(row, () => [`${SN[r.store]}, ${hopWord(r.hops)}`, `Median ${r.p50_ms.toFixed(1)} ms, 99th percentile ${r.p99_ms.toFixed(1)} ms`,
+      `${Math.round(r.mean_edges_fetched).toLocaleString()} transfers fetched per score, on average`, `US$${r.usd_per_million.toFixed(2)} per million scores, the machine busy half the hour`]);
   }
   const m = rows[0].machine;
   $("cost-caption").textContent = `IBM HI-Small, ${rows[0].calls.toLocaleString()} calls per row after warm-up, one worker, on ${m.name} at US$${m.usd_per_hour} an hour (${m.price_date}). Log scale. The features are identical whichever way an account's own counts are found; only the fetch differs.`;
   const c = D.serving.filter(r => r.centre === "counters"), w = D.serving.filter(r => r.centre === "history");
   const worst = rs => rs.reduce((a, b) => (b.p99_ms > a.p99_ms ? b : a));
   const cw = worst(c.filter(r => r.hops === 1)), ww = worst(w);
-  $("cost-verdict").innerHTML = `<p><strong>One hop with running counters fits a live decision in every store tested:</strong> a median of
-    ${Math.round(Math.min(...c.filter(r => r.hops === 1).map(r => r.p50_ms)))} to ${Math.round(Math.max(...c.filter(r => r.hops === 1).map(r => r.p50_ms)))} ms and
-    a few dollars per million scores. Fetching each account's whole history instead looks similar at the median and fails
-    at the tail: ${SN[ww.store]}'s 99th percentile reaches ${(ww.p99_ms / 1000).toFixed(1)} seconds, against ${Math.round(cw.p99_ms)} ms with counters.
-    The lesson is not the store, it is to keep the counts an account already has instead of fetching them on every payment.</p>
-    <p>The foundation model is not in this chart: its weights' licence rules out serving it, and it scored hundreds of
-    milliseconds a row on a GPU.</p>`;
+  put("cost-verdict",
+    P(B("One hop with running counters fits a live decision in every store tested:"),
+      ` a median of ${Math.round(Math.min(...c.filter(r => r.hops === 1).map(r => r.p50_ms)))} to ${Math.round(Math.max(...c.filter(r => r.hops === 1).map(r => r.p50_ms)))} ms and ` +
+      "a few dollars per million scores. Fetching each account's whole history instead looks similar at the median and fails " +
+      `at the tail: ${SN[ww.store]}'s 99th percentile reaches ${(ww.p99_ms / 1000).toFixed(1)} seconds, against ${Math.round(cw.p99_ms)} ms with counters. ` +
+      "Which store matters less than keeping the counts an account already has, instead of fetching them on every payment."),
+    P("The foundation model is not in this chart: its weights' licence rules out serving it, and it scored hundreds of " +
+      "milliseconds a row on a GPU."));
 }
 
 /* ---------------------------------------------------------------- limits, rejected, table */
@@ -744,27 +793,30 @@ function limits() {
     ["The test after the shutdown is small", `The seven steps after Elliptic's step 43 hold 169 illicit transactions, so every interval in the shift chart is wide.`],
     ["Explanations are only somewhat better than random", `The top neighbour is a laundering account ${pts(k1.lift[0])} more often than a random one, and at three neighbours the difference is not measurable.`],
   ];
-  $("limit-cards").innerHTML = cards.map(([h, p]) => `<article class="guide-card limit"><h3>${h}</h3><p>${p}</p></article>`).join("");
+  put("limit-cards", cards.map(([head, body]) => h("article", {class: "guide-card limit"}, h("h3", {}, head), P(body))));
   const t = run("elliptic", "G+nlr", 1), r = run("elliptic", "G+nlr", 1, "random");
-  $("rejected-text").innerHTML = `It is guilt by association in one column, and published graph fraud results often lean on it. Here it
-    costs graph features ${f3(-t.delta_auprc[0])} AUPRC on Elliptic's time-ordered split (95% CI ${f3(-t.delta_auprc[2])} to ${f3(-t.delta_auprc[1])}): a new transaction's neighbours sit in its own time step, whose labels are not known yet,
-    so the column is empty exactly where it is needed. On a random split it adds ${sgn(r.delta_auprc[0], f3)}, because a random split
-    hands the model the test step's labels. The lift it shows in the literature comes from the split, not the column.`;
+  $("rejected-text").textContent = "It is guilt by association in one column, and published graph fraud results often lean on it. Here it " +
+    `costs graph features ${f3(-t.delta_auprc[0])} AUPRC on Elliptic's time-ordered split (95% CI ${f3(-t.delta_auprc[2])} to ${f3(-t.delta_auprc[1])}): a new transaction's neighbours sit in its own time step, whose labels are not known yet, ` +
+    `so the column is empty exactly where it is needed. On a random split it adds ${sgn(r.delta_auprc[0], f3)}, an interval that touches zero, because a random split ` +
+    "hands the model the test step's labels. The lift it shows in the literature comes from the split, not the column.";
 }
 
 function allTable() {
   const head = ["Dataset", "Model", "Hops", "AUPRC", "Against the row model", "Recall, 1% false positives", "Recall, 1% alert queue"];
-  let html = `<thead><tr>${head.map((h, i) => `<th${i > 1 ? ' class="num"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>`;
+  const thead = h("thead", {}, h("tr", {}, head.map((name, i) => h("th", i > 1 ? {class: "num"} : {}, name))));
+  const tbody = h("tbody", {});
   for (const ds of Object.keys(SETS)) {
     FROZEN.filter(a => headline(ds, a)).forEach((a, i) => {
       const r = headline(ds, a);
-      const cell = (t, f) => (t ? `${f(t[0])}<br><span class="interval">${f(t[1])} to ${f(t[2])}</span>` : "");
-      html += `<tr${i === 0 ? ' class="group-start"' : ""}><td>${i === 0 ? SETS[ds] : ""}</td><td class="arm">${ARM[a]}${a === "N" ? `<br><span class="interval">${r.arm.slice(2).replace(/\+/g, ", ").replace("sage", "GraphSAGE").replace("gat", "GAT").replace("rmp", "reverse messages").replace("ego", "ego ids")}</span>` : ""}</td>
-        <td class="num">${r.hops}</td><td class="num">${cell(r.auprc, f3)}</td><td class="num">${cell(r.delta_auprc, v => sgn(v, f3))}</td>
-        <td class="num">${cell(r.recall_at_1pct_fpr, f3)}</td><td class="num">${cell(r.recall_at_1pct_budget, f3)}</td></tr>`;
+      const cell = (t, f) => h("td", {class: "num"}, t ? [f(t[0]), h("br"), h("span", {class: "interval"}, `${f(t[1])} to ${f(t[2])}`)] : null);
+      const variant = a === "N" ? [h("br"), h("span", {class: "interval"}, r.arm.slice(2).replace(/\+/g, ", ").replace("sage", "GraphSAGE").replace("gat", "GAT").replace("rmp", "reverse messages").replace("ego", "ego ids"))] : null;
+      tbody.append(h("tr", i === 0 ? {class: "group-start"} : {},
+        h("td", {}, i === 0 ? SETS[ds] : ""), h("td", {class: "arm"}, ARM[a], variant),
+        h("td", {class: "num"}, String(r.hops)), cell(r.auprc, f3), cell(r.delta_auprc, v => sgn(v, f3)),
+        cell(r.recall_at_1pct_fpr, f3), cell(r.recall_at_1pct_budget, f3)));
     });
   }
-  $("all-table").innerHTML = html + `</tbody><caption>Seed 0, time-ordered split, 95% intervals over time steps or hours. IBM rows leave out the generator's last days.</caption>`;
+  put("all-table", thead, tbody, h("caption", {}, "Seed 0, time-ordered split, 95% intervals over time steps or hours. IBM rows leave out the generator's last days."));
 }
 
 /* ---------------------------------------------------------------- start */
@@ -794,13 +846,13 @@ function boot(data) {
     width = window.innerWidth;
     drawAll();
   });
-  $("built").textContent = `Built ${D.built} from commit ${D.commit}. Every figure on this page is read from data.json, which the repository's site command writes from its committed results.`;
+  $("build-stamp").textContent = `Built ${D.built} from commit ${D.commit}. Every figure on this page is read from data.json, which the repository's site command writes from its committed results.`;
 }
 
 fetch("data.json")
   .then(r => r.json())
   .then(boot)
   .catch(err => {
-    document.querySelector(".hero .lead").insertAdjacentHTML("afterend",
-      `<p class="warning">The figures could not be loaded (${String(err).replace(/</g, "&lt;")}). The numbers are in the repository's README.</p>`);
+    document.querySelector(".hero .lead").after(
+      h("p", {class: "warning"}, `The figures could not be loaded (${String(err)}). The numbers are in the repository's README.`));
   });

@@ -1045,3 +1045,45 @@ tbody tr.reference { background: var(--accent-soft); }
 
 /* The film: square, so it is kept to a readable size rather than the column's width. */
 .demo-video { display: block; width: 100%; max-width: 46rem; aspect-ratio: 1; margin: 1rem auto 0; border-radius: var(--radius); background: #0a111c; box-shadow: var(--shadow); }
+
+/* ---------------------------------------------------------------- after the audit */
+
+/* The hover card's lines, built as nodes. */
+.tip b, .tip .tip-line { display: block; }
+
+/* The row model is grey everywhere, the hero included; amber is the foundation model's row. */
+.hero .fig-row, .hero .point .point-figure .fig-row { color: var(--a-R); }
+
+/* Intervals drawn on the chart, not only in the hover. */
+.whisker.shift { stroke-width: 1.5; stroke-opacity: 0.6; }
+.swatch.tick { width: 3px; height: 13px; border-radius: 1px; }
+
+/* Chart marks take the keyboard. */
+.hit:focus, .hit:focus-visible { outline: none; fill: color-mix(in srgb, var(--accent) 10%, transparent); }
+
+/* On this page. */
+.toc { padding: 1.5rem 0 1.75rem; border-bottom: 1px solid var(--line); }
+.toc ol { margin: 0; padding: 0; list-style: none; counter-reset: toc; columns: 2 16rem; column-gap: 2rem; }
+.toc li { counter-increment: toc; margin: 0 0 0.3rem; break-inside: avoid; font-size: 0.93rem; }
+.toc li::before {
+  content: counter(toc, decimal-leading-zero);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  margin-right: 0.6rem;
+}
+@media (max-width: 34rem) { .toc ol { columns: 1; } }
+
+/* How it is engineered, and the glossary at the end. */
+.chips { list-style: none; padding: 0; margin: 1.25rem 0; display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.chips li { padding: 0.25rem 0.75rem; border: 1px solid var(--line-2); border-radius: 999px; font-size: 0.82rem; background: var(--paper-soft); color: var(--ink-soft); }
+dl.terms { margin: 0 0 0.9rem; }
+dl.terms dt { font-weight: 600; margin-top: 0.7rem; }
+dl.terms dd { margin: 0.15rem 0 0; color: var(--ink-soft); font-size: 0.92rem; }
+.disclose ul.choices { padding-left: 1.2rem; }
+.disclose ul.choices li { margin-bottom: 0.5rem; }
+
+/* The ring's drawing does not stretch to the side panel's height. */
+.ring-layout { align-items: start; }
+g[tabindex]:focus { outline: none; }
+g[tabindex]:focus .hit { fill: color-mix(in srgb, var(--accent) 10%, transparent); }

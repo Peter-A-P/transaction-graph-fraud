@@ -4,17 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fraud Known by the Company It Keeps: when scoring the neighbourhood beats scoring the account</title>
-<meta name="description" content="Three ways of scoring money laundering on two real Bitcoin graphs and twelve million synthetic bank transfers: the row alone, graph features, and a graph neural network, with a tabular foundation model beside them. Which laundering shapes each one catches, how many hops of neighbours pay, what happens when the world shifts, and what a live score costs. Every number carries a 95% interval and is reproducible from the repository.">
+<meta name="description" content="Three ways of scoring money laundering on two real Bitcoin graphs and twelve million synthetic bank transfers: the account alone, graph features from its neighbours, and a graph neural network. Which laundering shapes each catches, how many hops pay and what a live score costs.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Peter Parker">
 <meta property="og:url" content="https://graph.peterparker.ca/">
 <meta property="og:title" content="Fraud Known by the Company It Keeps">
-<meta property="og:description" content="Three ways of scoring money laundering on two real Bitcoin graphs and twelve million synthetic bank transfers: the row alone, graph features, and a graph neural network, with a tabular foundation model beside them. Which laundering shapes each one catches, how many hops of neighbours pay, what happens when the world shifts, and what a live score costs. Every number carries a 95% interval and is reproducible from the repository.">
+<meta property="og:description" content="Three ways of scoring money laundering on two real Bitcoin graphs and twelve million synthetic bank transfers: the account alone, graph features from its neighbours, and a graph neural network. Which laundering shapes each catches, how many hops pay and what a live score costs.">
 <meta property="og:image" content="https://graph.peterparker.ca/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Fraud known by the company it keeps.">
+<meta property="og:image:alt" content="Fraud known by the company it keeps: a graph neural network, graph features and the plain row model on millions of real and synthetic transactions, and what a live score costs.">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -35,6 +36,7 @@
     <a href="#shift-panel">The shift</a>
     <a href="#cost-panel">Live cost</a>
     <a href="#takeaways">Takeaways</a>
+    <a href="#built">How this was built</a>
     <a href="architecture.html">How it's built</a>
   </div>
 </nav>
@@ -50,8 +52,8 @@
     <p class="eyebrow">Twelve million synthetic bank transfers and two real Bitcoin graphs, every number with its interval</p>
     <h1>Each transfer looked ordinary. <span class="hl">Together they were a laundering ring.</span></h1>
     <p class="hero-sub">
-      Scoring each account alone caught <strong id="sub-r" class="fig-row">-</strong> of the laundering
-      in a 1% alert queue. Scoring it by the accounts it trades with caught <strong id="sub-g" class="fig-graph">-</strong>.
+      Scoring each account alone caught <strong id="sub-r" class="fig-row"></strong> of the laundering
+      in a 1% alert queue. Scoring it by the accounts it trades with caught <strong id="sub-g" class="fig-graph"></strong>.
     </p>
     <p class="lead">
       Launderers move money as a pattern: fanning in from many accounts to one, scattering out
@@ -59,43 +61,66 @@
       looks unusual. This project put three ways of scoring on the same accounts, in the same
       time-ordered split, and measured what each one catches: the row alone, the row plus
       features from each account's neighbours, and a graph neural network, with a foundation
-      model beside them that is never trained.
+      model beside them that is never trained on this data.
     </p>
     <div class="hero-points">
       <div class="point">
-        <span class="point-figure" id="hero-recall">-</span>
+        <span class="point-figure" id="hero-recall"></span>
         <span class="point-unit">of laundering transfers caught by the same 1% alert queue, with graph features against the row alone</span>
         <span class="point-label" id="hero-recall-note"></span>
       </div>
       <div class="point good">
-        <span class="point-figure" id="hero-real">-</span>
+        <span class="point-figure" id="hero-real"></span>
         <span class="point-unit">precision-recall AUC gained on real Bitcoin wallets, by adding the neighbourhood</span>
         <span class="point-label" id="hero-real-note"></span>
       </div>
       <div class="point violet">
-        <span class="point-figure" id="hero-gnn">-</span>
+        <span class="point-figure" id="hero-gnn"></span>
         <span class="point-unit">datasets where the graph neural network beat plain graph features</span>
         <span class="point-label" id="hero-gnn-note"></span>
       </div>
       <div class="point">
-        <span class="point-figure" id="hero-ms">-</span>
+        <span class="point-figure" id="hero-ms"></span>
         <span class="point-unit">to fetch a transfer's neighbourhood and score it live, at the median</span>
         <span class="point-label" id="hero-ms-note"></span>
       </div>
       <div class="point warnline">
-        <span class="point-figure" id="hero-leak">-</span>
+        <span class="point-figure" id="hero-leak"></span>
         <span class="point-unit">what the usual random split reports, against the honest time-ordered one</span>
         <span class="point-label" id="hero-leak-note"></span>
       </div>
     </div>
     <p class="hero-note">
-      The real data is a published, anonymised Bitcoin transaction graph; the bank transfers come
-      from IBM's laundering generator, and only those synthetic accounts are ever drawn here. Every
+      The Bitcoin data is real: one published, anonymised transaction graph, seen as transactions
+      (Elliptic) and as wallets (Elliptic++). The bank transfers come from IBM's laundering
+      generator, and only those synthetic accounts are ever drawn here. Every
       interval is a 95% bootstrap over time steps or hours, never over single accounts, and no
       model was chosen by its test score. <a href="architecture.html">See how it's built</a>, in
       three diagrams.
     </p>
   </header>
+
+  <nav class="toc" aria-label="On this page">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#video-panel">The idea, in one ring</a></li>
+      <li><a href="#basics">The basics, in plain words</a></li>
+      <li><a href="#ring-panel">One laundering ring, as each model saw it</a></li>
+      <li><a href="#main-panel">Does the graph help? On every dataset, yes</a></li>
+      <li><a href="#pattern-panel">Which laundering shapes only the graph can see</a></li>
+      <li><a href="#hop-panel">How far guilt travels</a></li>
+      <li><a href="#shift-panel">When the world changes overnight</a></li>
+      <li><a href="#leak-panel">The number most papers report is not the one a bank would get</a></li>
+      <li><a href="#why-panel">Can an investigator read why it flagged?</a></li>
+      <li><a href="#gate-panel">Would it pass a release gate?</a></li>
+      <li><a href="#cost-panel">What a live score costs</a></li>
+      <li><a href="#limits">Where the result is weakest</a></li>
+      <li><a href="#takeaways">What to take from it</a></li>
+      <li><a href="#explorer">All results</a></li>
+      <li><a href="#engineering">How it is engineered</a></li>
+      <li><a href="#built">How this was built</a></li>
+    </ol>
+  </nav>
 
   <section class="section" id="video-panel">
     <h2>The idea, in one ring</h2>
@@ -121,7 +146,8 @@
         <span class="chip a-G">G</span> the same trees, given the row plus counts and amounts
         summed over its neighbours. <span class="chip a-N">N</span> a graph neural network that
         passes messages along the arrows. <span class="chip a-TabFM-G">TabFM</span> Google's
-        tabular foundation model, shown the training rows and asked to score, with no training.</p>
+        tabular foundation model, shown a sample of the training rows that keeps every fraud case,
+        and asked to score with no training.</p>
       </article>
       <article class="guide-card">
         <h3>An alert queue, and AUPRC</h3>
@@ -208,7 +234,7 @@
     graph features' dot. The longer the bar, the more the neighbourhood adds.</p>
     <div class="legend" id="pattern-legend"></div>
     <figure class="chart-figure"><div class="chart" id="patterns"></div>
-      <figcaption>IBM HI-Small, all test days, 95% intervals in the hover. The shapes are the generator's own, so this measures what it plants, not what a bank sees; about a fifth of the attempts behind each name are too small to show their shape.</figcaption>
+      <figcaption>IBM HI-Small, all test days; the thin lines above and below each bar are 95% intervals. The shapes are the generator's own, so this measures what it plants, not what a bank sees; about a fifth of the attempts behind each name are too small to show their shape.</figcaption>
     </figure>
     <div class="verdict" id="pattern-verdict"></div>
   </section>
@@ -231,7 +257,9 @@
     before each test step, the row model is retrained, or the foundation model's examples are
     swapped, on the four latest labelled steps.</p>
     <div class="seg" id="shift-sets" role="group" aria-label="Dataset"></div>
-    <figure class="chart-figure"><div class="chart" id="shift"></div></figure>
+    <figure class="chart-figure"><div class="chart" id="shift"></div>
+      <figcaption>The short vertical lines just right of the step-43 dots are each model's 95% interval after the shutdown.</figcaption>
+    </figure>
     <div class="verdict" id="shift-verdict"></div>
     <div class="assumption" id="shift-assumption"></div>
   </section>
@@ -297,7 +325,7 @@
 
   <section class="section" id="limits">
     <h2>Where the result is weakest</h2>
-    <p class="section-lead">A result is only as useful as its stated limits. These are the ones that matter most.</p>
+    <p class="section-lead">Four places where the evidence is thinner than the headline, each with its number.</p>
     <div class="guide two" id="limit-cards"></div>
     <div class="leak-card" id="rejected">
       <span class="eyebrow">Tried and rejected</span>
@@ -308,8 +336,8 @@
 
   <section class="section" id="takeaways">
     <h2>What to take from it</h2>
-    <p class="section-lead">Measured on four datasets with these models and versions. Not laws of nature, but the right
-    questions to ask before funding a graph.</p>
+    <p class="section-lead">These hold for four datasets and these model versions. Use them as the questions to ask
+    before funding a graph.</p>
     <div class="guide two">
       <article class="guide-card">
         <h3>Start with graph features, not a graph neural network</h3>
@@ -330,7 +358,7 @@
         the ones it learned from.</p>
       </article>
       <article class="guide-card">
-        <h3>Plan for the shift, not just the model</h3>
+        <h3>When the market shifts, fresh labels are what recover</h3>
         <p>When the market changed, every frozen model collapsed, graph or not. What recovered
         was fresh labels: retraining on the latest weeks, or swapping the foundation model's
         examples, which costs no training at all.</p>
@@ -342,6 +370,86 @@
     <h2>All results</h2>
     <p class="section-lead">The headline run of every model on every dataset, as the repository's README tables print them.</p>
     <div class="table-wrap"><table class="tight" id="all-table"></table></div>
+  </section>
+
+  <section class="section" id="engineering">
+    <h2>How it is engineered</h2>
+    <p class="section-lead">
+      Typed Python, strict type checking and linting in continuous integration, a leakage test on
+      every build, and report commands that write the README's tables and the data behind this
+      page from the committed results, so neither is edited by hand.
+    </p>
+    <ul class="chips" aria-label="Tools and techniques">
+      <li>PyTorch Geometric</li>
+      <li>GraphSAGE</li>
+      <li>GAT</li>
+      <li>Directed-multigraph adaptations</li>
+      <li>XGBoost</li>
+      <li>Graph feature engineering</li>
+      <li>TabFM, zero-shot, with a context swap</li>
+      <li>Time-ordered, inductive splits</li>
+      <li>Leakage test</li>
+      <li>Recall by laundering pattern</li>
+      <li>k-hop ablation</li>
+      <li>Explanation faithfulness</li>
+      <li>Bootstrap intervals over groups</li>
+      <li>Neo4j</li>
+      <li>DuckDB</li>
+      <li>ONNX export</li>
+      <li>Rented GPUs</li>
+      <li>mypy --strict</li>
+      <li>ruff</li>
+      <li>pytest</li>
+    </ul>
+  </section>
+
+  <section class="section" id="built">
+    <h2>How this was built</h2>
+    <p>
+      I designed this project and made the calls in it. I wrote the plan and drew the three
+      diagrams on the architecture page before the first line of code, and wherever the build
+      proved the plan wrong I amended it in place, with the date and the reason. The leakage test
+      came before the first feature: it refuses any test-period row in a training table and any
+      feature that reads a fraud label. I chose to split every dataset by time and to run the
+      usual random split once, only to publish the gap it opens, because that gap is why
+      published graph fraud results look better than anything a bank would see. My own build
+      had a leak of the same kind: graph features computed with sight of later days scored
+      higher than the honest version. It was fixed once found, and a leakage test now runs on
+      every build. I measured the business question as an alert queue, how much of the
+      laundering a fixed team reaches, because that is the number that decides whether a graph
+      is worth funding.
+    </p>
+    <p>
+      I used an AI coding assistant (Claude Code) for implementation and drafting, which is now
+      standard practice in software, data science and machine learning work. Every number on
+      this page is read from data.json, which the repository's site command writes from its
+      committed results, and every one can be reproduced from
+      <a href="https://github.com/Peter-A-P/transaction-graph-fraud">the repository</a>.
+    </p>
+    <p>
+      The alert-queue view and the ONNX scorer interface come from my real-time fraud platform
+      (project 09), and the paired comparisons run through my release gate (project 03). The data
+      is public: Elliptic under its licence and never redistributed, Elliptic++ with its
+      authors' written permission, and IBM's synthetic transfers, the only accounts drawn here.
+    </p>
+    <details class="disclose">
+      <summary>Glossary</summary>
+      <dl class="terms">
+        <dt>Alert queue</dt><dd>The accounts a team has time to investigate, here the top 1% of scores. Recall in the queue is how much of the laundering it reaches.</dd>
+        <dt>AUPRC (precision-recall AUC)</dt><dd>One number, from 0 to 1, for how well a model ranks fraud above everything else. A random guess scores about the share of fraud, a few percent here.</dd>
+        <dt>Hop</dt><dd>One step along the payments graph. An account's one-hop neighbours are the accounts it paid or was paid by; two hops are their neighbours.</dd>
+        <dt>Graph features</dt><dd>Counts and amounts summed over an account's neighbours, such as how many accounts paid it, given to the same gradient-boosted trees as the row.</dd>
+        <dt>Graph neural network (GraphSAGE, GAT)</dt><dd>A model that learns by passing messages along the payments between accounts, instead of being handed summaries of them.</dd>
+        <dt>Gradient-boosted trees (XGBoost)</dt><dd>Many small decision trees, each correcting the last. The model most fraud teams already run.</dd>
+        <dt>Foundation model (TabFM)</dt><dd>A model pretrained elsewhere that scores a new table from a sample of labelled rows shown to it, with no training on this data.</dd>
+        <dt>Time-ordered split</dt><dd>Training on earlier accounts and testing on later ones, the way a bank meets them. A random split mixes the two and lets the model learn from the period it is tested on.</dd>
+        <dt>Leakage</dt><dd>A model seeing information it would not have when it decides, such as later days or a fraud label. It looks good in testing and fails in use.</dd>
+        <dt>Confidence interval</dt><dd>The range a measured number would likely fall in if the measurement were repeated. Here it is a 95% bootstrap over time steps or hours, never over single accounts.</dd>
+        <dt>Release gate and margin</dt><dd>A check that a new model is at least as good as the one it would replace, allowing a stated margin (3 points here), before anyone ships it.</dd>
+        <dt>ONNX</dt><dd>A standard file format for trained models, so a model trained in one tool can be served by another.</dd>
+        <dt>p50, p99</dt><dd>The time within which half, and 99 in 100, of the live scores finished.</dd>
+      </dl>
+    </details>
   </section>
 
 </main>
@@ -357,7 +465,7 @@
       <li>IBM AML: Altman et al., NeurIPS 2023, CDLA-Sharing 1.0; the only accounts drawn</li>
       <li>Type: Newsreader and Inter, SIL Open Font License, served from this host</li>
     </ul>
-    <p class="foot-credit" id="built"></p>
+    <p class="foot-credit" id="build-stamp"></p>
   </div>
 </footer>
 <div class="tip" id="tip" role="tooltip"></div>

@@ -360,7 +360,15 @@ and runs its paired comparisons through
 
 ## How this was built
 
-The design, the methodology and the judgement calls are Peter Parker's. AI coding assistants
-were used for implementation. Every number in this repository is reproducible with one command,
-and the plan was written before the first line of code so that the result could not be shaped
-to fit.
+I designed this project and made the calls in it. I wrote the plan and drew the three
+architecture diagrams before the first line of code, so that the result could not be shaped to
+fit, and wherever the build proved the plan wrong I amended it in place, with the date and the
+reason. The leakage test came before the first feature. I chose to split every dataset by time
+and to run the usual random split once, only to publish the gap it opens. My own build had a leak
+of the same kind, graph features computed with sight of later days, and it was fixed once found.
+I measured the business question as an alert queue, how much of the laundering a fixed team
+reaches, because that is the number that decides whether a graph is worth funding.
+
+I used an AI coding assistant (Claude Code) for implementation and drafting, which is now
+standard practice in software, data science and machine learning work. Every number in this
+repository is reproducible with one command.
